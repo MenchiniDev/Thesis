@@ -1,0 +1,469 @@
+\relax 
+\providecommand\hyper@newdestlabel[2]{}
+\providecommand\HyField@AuxAddToFields[1]{}
+\providecommand\HyField@AuxAddToCoFields[2]{}
+\@writefile{toc}{\contentsline {chapter}{\numberline {1}Introduction}{5}{chapter.1}\protected@file@percent }
+\@writefile{lof}{\addvspace {10\p@ }}
+\@writefile{lot}{\addvspace {10\p@ }}
+\@writefile{toc}{\contentsline {chapter}{\numberline {2}Background}{1}{chapter.2}\protected@file@percent }
+\@writefile{lof}{\addvspace {10\p@ }}
+\@writefile{lot}{\addvspace {10\p@ }}
+\@writefile{toc}{\contentsline {section}{\numberline {2.1}Classical Autonomous Navigation Pipelines}{1}{section.2.1}\protected@file@percent }
+\citation{ferguson2006field}
+\citation{maimone2007mer}
+\citation{okane2008incomplete}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.1.1}Limitations in Partially Observable Environments}{2}{subsection.2.1.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {2.2}Reinforcement Learning for Robotics}{2}{section.2.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {2.1}{\ignorespaces Schema dell'interazione nel Reinforcement Learning: l'agente seleziona un'azione $A_t$ in risposta allo stato $S_t$, l'ambiente evolve e restituisce il nuovo stato $S_{t+1}$ con relativa ricompensa $R_{t+1}$.}}{3}{figure.caption.2}\protected@file@percent }
+\providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
+\newlabel{fig:rl-loop}{{2.1}{3}{Schema dell'interazione nel Reinforcement Learning: l'agente seleziona un'azione $A_t$ in risposta allo stato $S_t$, l'ambiente evolve e restituisce il nuovo stato $S_{t+1}$ con relativa ricompensa $R_{t+1}$}{figure.caption.2}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {2.3}Curriculum Learning and Training Stability}{3}{section.2.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {2.4}Perception Pipelines and Slope Estimation}{3}{section.2.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {2.5}Simulation Frameworks for Robotics}{4}{section.2.5}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {2.2}{\ignorespaces Architettura di NVIDIA Isaac Sim. Il simulatore integra modelli robotici, sensori, motore fisico e strumenti per dati sintetici, rendendo possibile la generazione di scenari complessi per RL e controllo.}}{4}{figure.caption.3}\protected@file@percent }
+\newlabel{fig:isaac-architecture}{{2.2}{4}{Architettura di NVIDIA Isaac Sim. Il simulatore integra modelli robotici, sensori, motore fisico e strumenti per dati sintetici, rendendo possibile la generazione di scenari complessi per RL e controllo}{figure.caption.3}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {2.6}Edge Computing Constraints}{5}{section.2.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {2.7}Sim-to-Real Transfer}{5}{section.2.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {2.8}Approach Adopted in This Thesis}{5}{section.2.8}\protected@file@percent }
+\citation{gennery1999traversability}
+\citation{chiuchiarelli2024traversability}
+\citation{egan2021teapac}
+\citation{egan2021teapac}
+\citation{egan2021teapac}
+\@writefile{toc}{\contentsline {chapter}{\numberline {3}Related Work}{6}{chapter.3}\protected@file@percent }
+\@writefile{lof}{\addvspace {10\p@ }}
+\@writefile{lot}{\addvspace {10\p@ }}
+\newlabel{sec:related-work}{{3}{6}{Related Work}{chapter.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.0.1}Planetary Rover Navigation and Traversability}{6}{subsection.3.0.1}\protected@file@percent }
+\citation{andersson2025lunar}
+\citation{gennery1999traversability}
+\citation{miao2025pathplanning}
+\citation{swinton2025rrt}
+\citation{zhang2025pathplanning}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.1}{\ignorespaces Schema concettuale di una pipeline ibrida per traversabilità e path planning (adattato da TEAPAC~\cite  {egan2021teapac}).}}{7}{figure.caption.4}\protected@file@percent }
+\newlabel{fig:teapac-architecture}{{3.1}{7}{Schema concettuale di una pipeline ibrida per traversabilità e path planning (adattato da TEAPAC~\cite {egan2021teapac})}{figure.caption.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.0.2}Deterministic Motion Planning on Rough Terrain}{7}{subsection.3.0.2}\protected@file@percent }
+\citation{swinton2025rrt}
+\citation{zhang2025pathplanning}
+\citation{swinton2025rrt}
+\citation{zhang2025pathplanning}
+\citation{xiao2022mlnavigation}
+\citation{sevastopoulos2022survey}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.2}{\ignorespaces Esempio di path planning deterministico su terreno irregolare con varianti RRT*/traversability-based (ispirato a~\cite  {swinton2025rrt, zhang2025pathplanning}).}}{8}{figure.caption.5}\protected@file@percent }
+\newlabel{fig:rrt-traversability}{{3.2}{8}{Esempio di path planning deterministico su terreno irregolare con varianti RRT*/traversability-based (ispirato a~\cite {swinton2025rrt, zhang2025pathplanning})}{figure.caption.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.0.3}Traversability Estimation for Mobile Robots}{8}{subsection.3.0.3}\protected@file@percent }
+\citation{sevastopoulos2022survey}
+\citation{sevastopoulos2022survey}
+\citation{bogoslavskyi2013kinect}
+\citation{bogoslavskyi2013kinect}
+\citation{bogoslavskyi2013kinect}
+\citation{visca2021deeplearningtraversability}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.3}{\ignorespaces Schema di classificazione dei metodi di stima della traversabilità (adattato da~\cite  {sevastopoulos2022survey}).}}{9}{figure.caption.6}\protected@file@percent }
+\newlabel{fig:traversability-taxonomy}{{3.3}{9}{Schema di classificazione dei metodi di stima della traversabilità (adattato da~\cite {sevastopoulos2022survey})}{figure.caption.6}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.4}{\ignorespaces Esempio di mappa di traversabilità robot-centrica ottenuta da dati Kinect (adattato da~\cite  {bogoslavskyi2013kinect}).}}{9}{figure.caption.7}\protected@file@percent }
+\newlabel{fig:kinect-traversability}{{3.4}{9}{Esempio di mappa di traversabilità robot-centrica ottenuta da dati Kinect (adattato da~\cite {bogoslavskyi2013kinect})}{figure.caption.7}{}}
+\citation{egan2021teapac}
+\citation{bogoslavskyi2013kinect}
+\citation{guastella2020learningnavigation}
+\citation{zhelo2018curiosity}
+\citation{andersson2025lunar}
+\citation{hamza2022mapless}
+\citation{lin2023rlnavigation}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.0.4}Learning-based and RL Methods for Mapless and Planetary Navigation}{10}{subsection.3.0.4}\protected@file@percent }
+\citation{xiao2022mlnavigation}
+\citation{gennery1999traversability}
+\citation{bogoslavskyi2013kinect}
+\citation{sevastopoulos2022survey}
+\citation{chiuchiarelli2024traversability}
+\citation{egan2021teapac}
+\citation{visca2021deeplearningtraversability}
+\citation{miao2025pathplanning}
+\citation{zhelo2018curiosity}
+\citation{guastella2020learningnavigation}
+\citation{hamza2022mapless}
+\citation{lin2023rlnavigation}
+\citation{andersson2025lunar}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.0.5}Positioning of This Work}{11}{subsection.3.0.5}\protected@file@percent }
+\citation{Schulman2017PPO}
+\citation{Schulman2017PPO}
+\citation{ProximalPolicyOptimizationWiki}
+\citation{Schulman2017PPO}
+\citation{Yu2021LunarPPO}
+\citation{Yu2021LunarPPO}
+\citation{Haarnoja2018SAC}
+\@writefile{toc}{\contentsline {section}{\numberline {3.1}Algoritmi di Reinforcement Learning per la navigazione lunare}{12}{section.3.1}\protected@file@percent }
+\newlabel{sec:rl_algorithms}{{3.1}{12}{Algoritmi di Reinforcement Learning per la navigazione lunare}{section.3.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1.1}Proximal Policy Optimization (PPO)}{12}{subsection.3.1.1}\protected@file@percent }
+\citation{Haarnoja2018SAC}
+\citation{Haarnoja2018SAC}
+\citation{RLVSSAC}
+\citation{Mock2023QuadSAC}
+\citation{RecurrentPolicyGradients}
+\citation{Zhang2021ATLA}
+\citation{AlHafez2024StatefulRL}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1.2}Soft Actor-Critic (SAC)}{13}{subsection.3.1.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1.3}Recurrent PPO e politiche con memoria}{13}{subsection.3.1.3}\protected@file@percent }
+\citation{AlHafez2024StatefulRL}
+\citation{Yu2021LunarPPO}
+\citation{LunarRover2024DRL}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1.4}RL per rover lunari in letteratura}{14}{subsection.3.1.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1.5}Risultati sperimentali di PPO e SAC}{14}{subsection.3.1.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1.6}Motivazione per l'aggiunta di memoria e Recurrent PPO}{15}{subsection.3.1.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Frame stacking.}{15}{subsection.3.1.6}\protected@file@percent }
+\citation{Zhang2021ATLA}
+\citation{AlHafez2024StatefulRL}
+\@writefile{toc}{\contentsline {paragraph}{Perché una LSTM può aiutare.}{16}{subsection.3.1.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1.7}Possibili estensioni per migliorare la memoria}{16}{subsection.3.1.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{\numberline {4}Piattaforma hardware del rover}{18}{chapter.4}\protected@file@percent }
+\@writefile{lof}{\addvspace {10\p@ }}
+\@writefile{lot}{\addvspace {10\p@ }}
+\newlabel{chap:hardware}{{4}{18}{Piattaforma hardware del rover}{chapter.4}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4.1}Struttura meccanica e locomozione}{18}{section.4.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {4.1}{\ignorespaces Odin, Il testBed utilizzato, nella sua vista interna (a) ed esterna (b).}}{18}{figure.caption.8}\protected@file@percent }
+\newlabel{fig:kinect-traversability}{{4.1}{18}{Odin, Il testBed utilizzato, nella sua vista interna (a) ed esterna (b)}{figure.caption.8}{}}
+\citation{realsense_d455_datasheet}
+\citation{realsense_d455_overview}
+\citation{realsense_d455_datasheet}
+\citation{raspberrypi5_brief}
+\citation{raspberrypi5_brief}
+\citation{raspberrypi5_product}
+\@writefile{toc}{\contentsline {section}{\numberline {4.2}Sottosistema di percezione}{19}{section.4.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {4.3}Sottosistema di calcolo a bordo}{19}{section.4.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3.1}Raspberry Pi 5}{19}{subsection.4.3.1}\protected@file@percent }
+\citation{hailo8_datasheet}
+\citation{hailo8_overview}
+\citation{hailo8_m2_module}
+\citation{hailo8_overview}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3.2}Acceleratore AI Hailo-8}{20}{subsection.4.3.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {4.4}Alimentazione, interfacce e segnalazione}{20}{section.4.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {4.5}Confronto con i rover lunari e marziani reali}{20}{section.4.5}\protected@file@percent }
+\newlabel{sec:hw_confronto_spaziale}{{4.5}{20}{Confronto con i rover lunari e marziani reali}{section.4.5}{}}
+\citation{rad750_bae}
+\citation{rad750_wiki}
+\citation{rad750_bae}
+\citation{curiosity_computer}
+\citation{perseverance_rce}
+\citation{ingenuity_snapdragon}
+\citation{ingenuity_snapdragon}
+\citation{lrv_spu_nav}
+\citation{lrv_historical}
+\citation{lrv_overview}
+\citation{yutu_rover}
+\citation{yutu2_cv}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.5.1}Rover marziani: Curiosity, Perseverance e Ingenuity}{21}{subsection.4.5.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.5.2}Rover lunari: Apollo LRV, Yutu e missioni moderne}{21}{subsection.4.5.2}\protected@file@percent }
+\citation{raspberrypi5_brief}
+\citation{rad750_bae}
+\citation{curiosity_computer}
+\citation{hailo8_overview}
+\citation{hailo8_m2_module}
+\citation{realsense_d455_datasheet}
+\citation{yutu2_cv}
+\citation{rad750_bae}
+\citation{rad750_wiki}
+\citation{curiosity_computer}
+\citation{perseverance_rce}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.5.3}Confronto quantitativo e qualitativo}{22}{subsection.4.5.3}\protected@file@percent }
+\citation{ingenuity_snapdragon}
+\citation{hailo8_overview}
+\citation{ingenuity_snapdragon}
+\citation{rad750_bae}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.5.4}Compatibilità dei requisiti computazionali}{23}{subsection.4.5.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {4.6}Lezioni dall'elicottero marziano \emph  {Ingenuity}: un nuovo paradigma per l'hardware di bordo}{23}{section.4.6}\protected@file@percent }
+\newlabel{sec:ingenuity_hardware}{{4.6}{23}{Lezioni dall'elicottero marziano \emph {Ingenuity}: un nuovo paradigma per l'hardware di bordo}{section.4.6}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.6.1}Un processore commerciale su Marte}{23}{subsection.4.6.1}\protected@file@percent }
+\citation{ingenuity_snapdragon}
+\citation{ingenuity_snapdragon}
+\citation{ingenuity_snapdragon}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.6.2}Implicazioni per l'hardware robotico spaziale}{24}{subsection.4.6.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.6.3}Rilevanza per il presente lavoro}{24}{subsection.4.6.3}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {4.2}{\ignorespaces L'elicottero marziano Ingenuity, che utilizza un processore commerciale Qualcomm Snapdragon~801 per la navigazione visiva e il controllo di volo. Questa scelta innovativa ha permesso di eseguire algoritmi complessi in tempo reale, dimostrando che l'uso di componenti COTS può essere compatibile con missioni spaziali, se opportunamente integrato e protetto \cite  {ingenuity_snapdragon}.}}{25}{figure.caption.9}\protected@file@percent }
+\newlabel{fig:isaaclab_architecture}{{4.2}{25}{L'elicottero marziano Ingenuity, che utilizza un processore commerciale Qualcomm Snapdragon~801 per la navigazione visiva e il controllo di volo. Questa scelta innovativa ha permesso di eseguire algoritmi complessi in tempo reale, dimostrando che l'uso di componenti COTS può essere compatibile con missioni spaziali, se opportunamente integrato e protetto \cite {ingenuity_snapdragon}}{figure.caption.9}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4.7}Analisi comparativa dei modelli di Reinforcement Learning}{26}{section.4.7}\protected@file@percent }
+\newlabel{sec:rl-results}{{4.7}{26}{Analisi comparativa dei modelli di Reinforcement Learning}{section.4.7}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.7.1}Soft Actor–Critic senza memoria (SAC--nomem)}{26}{subsection.4.7.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{Goal metrics}{26}{subsection.4.7.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {4.3}{\ignorespaces Goal metrics per SAC--nomem.}}{27}{figure.caption.10}\protected@file@percent }
+\newlabel{fig:sac-nomem-goal}{{4.3}{27}{Goal metrics per SAC--nomem}{figure.caption.10}{}}
+\@writefile{toc}{\contentsline {subsubsection}{Episode metrics}{27}{figure.caption.10}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {4.4}{\ignorespaces Episode metrics per SAC--nomem.}}{28}{figure.caption.11}\protected@file@percent }
+\newlabel{fig:sac-nomem-episode}{{4.4}{28}{Episode metrics per SAC--nomem}{figure.caption.11}{}}
+\@writefile{toc}{\contentsline {subsubsection}{Reward shaping metrics}{28}{figure.caption.11}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {4.5}{\ignorespaces Reward shaping metrics per SAC--nomem.}}{28}{figure.caption.12}\protected@file@percent }
+\newlabel{fig:sac-nomem-reward}{{4.5}{28}{Reward shaping metrics per SAC--nomem}{figure.caption.12}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.7.2}Soft Actor–Critic con frame stacking (SAC--16frame)}{29}{subsection.4.7.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{Goal metrics}{29}{subsection.4.7.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {4.6}{\ignorespaces Goal metrics per SAC--16frame.}}{29}{figure.caption.13}\protected@file@percent }
+\newlabel{fig:sac-16-goal}{{4.6}{29}{Goal metrics per SAC--16frame}{figure.caption.13}{}}
+\@writefile{toc}{\contentsline {subsubsection}{Episode metrics}{29}{figure.caption.13}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {4.7}{\ignorespaces Episode metrics per SAC--16frame.}}{30}{figure.caption.14}\protected@file@percent }
+\newlabel{fig:sac-16-episode}{{4.7}{30}{Episode metrics per SAC--16frame}{figure.caption.14}{}}
+\@writefile{toc}{\contentsline {subsubsection}{Reward shaping metrics}{30}{figure.caption.14}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {4.8}{\ignorespaces Reward shaping metrics per SAC--16frame.}}{30}{figure.caption.15}\protected@file@percent }
+\newlabel{fig:sac-16-reward}{{4.8}{30}{Reward shaping metrics per SAC--16frame}{figure.caption.15}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.7.3}Recurrent PPO (R-PPO)}{31}{subsection.4.7.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{Goal metrics}{31}{subsection.4.7.3}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {4.9}{\ignorespaces Goal metrics per Recurrent PPO.}}{31}{figure.caption.16}\protected@file@percent }
+\newlabel{fig:recppo-goal}{{4.9}{31}{Goal metrics per Recurrent PPO}{figure.caption.16}{}}
+\@writefile{toc}{\contentsline {subsubsection}{Episode metrics}{31}{figure.caption.16}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {4.10}{\ignorespaces Episode metrics per Recurrent PPO.}}{32}{figure.caption.17}\protected@file@percent }
+\newlabel{fig:recppo-episode}{{4.10}{32}{Episode metrics per Recurrent PPO}{figure.caption.17}{}}
+\@writefile{toc}{\contentsline {subsubsection}{Reward shaping metrics}{32}{figure.caption.17}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {4.11}{\ignorespaces Reward shaping metrics per Recurrent PPO.}}{32}{figure.caption.18}\protected@file@percent }
+\newlabel{fig:recppo-reward}{{4.11}{32}{Reward shaping metrics per Recurrent PPO}{figure.caption.18}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.7.4}Proximal Policy Optimization (PPO)}{33}{subsection.4.7.4}\protected@file@percent }
+\newlabel{sec:ppo-results}{{4.7.4}{33}{Proximal Policy Optimization (PPO)}{subsection.4.7.4}{}}
+\@writefile{toc}{\contentsline {subsubsection}{PPO senza memoria (PPO–nomem)}{33}{subsection.4.7.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Goal metrics.}{33}{subsection.4.7.4}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {4.12}{\ignorespaces Goal metrics per PPO--nomem.}}{33}{figure.caption.19}\protected@file@percent }
+\newlabel{fig:ppo-nomem-goal}{{4.12}{33}{Goal metrics per PPO--nomem}{figure.caption.19}{}}
+\@writefile{toc}{\contentsline {paragraph}{Episode metrics.}{33}{figure.caption.19}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {4.13}{\ignorespaces Episode metrics per PPO--nomem.}}{34}{figure.caption.20}\protected@file@percent }
+\newlabel{fig:ppo-nomem-episode}{{4.13}{34}{Episode metrics per PPO--nomem}{figure.caption.20}{}}
+\@writefile{toc}{\contentsline {paragraph}{Reward shaping metrics.}{34}{figure.caption.20}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {4.14}{\ignorespaces Reward shaping metrics per PPO--nomem.}}{34}{figure.caption.21}\protected@file@percent }
+\newlabel{fig:ppo-nomem-reward}{{4.14}{34}{Reward shaping metrics per PPO--nomem}{figure.caption.21}{}}
+\@writefile{toc}{\contentsline {subsubsection}{PPO con frame stacking (PPO–16frame)}{35}{figure.caption.21}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Goal metrics.}{35}{figure.caption.21}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {4.15}{\ignorespaces Goal metrics per PPO--16frame.}}{35}{figure.caption.22}\protected@file@percent }
+\newlabel{fig:ppo-16-goal}{{4.15}{35}{Goal metrics per PPO--16frame}{figure.caption.22}{}}
+\@writefile{toc}{\contentsline {paragraph}{Episode metrics.}{35}{figure.caption.22}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {4.16}{\ignorespaces Episode metrics per PPO--16frame.}}{36}{figure.caption.23}\protected@file@percent }
+\newlabel{fig:ppo-16-episode}{{4.16}{36}{Episode metrics per PPO--16frame}{figure.caption.23}{}}
+\@writefile{toc}{\contentsline {paragraph}{Reward shaping metrics.}{36}{figure.caption.23}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {4.17}{\ignorespaces Reward shaping metrics per PPO--16frame.}}{37}{figure.caption.24}\protected@file@percent }
+\newlabel{fig:ppo-16-reward}{{4.17}{37}{Reward shaping metrics per PPO--16frame}{figure.caption.24}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4.8}Risultati sperimentali}{37}{section.4.8}\protected@file@percent }
+\newlabel{sec:results}{{4.8}{37}{Risultati sperimentali}{section.4.8}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.8.1}Performance generali: analisi degli eventi}{37}{subsection.4.8.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {4.18}{\ignorespaces Distribuzione degli eventi nei best checkpoint (media $\pm $ std su 5 run).}}{38}{figure.caption.25}\protected@file@percent }
+\newlabel{fig:event-types}{{4.18}{38}{Distribuzione degli eventi nei best checkpoint (media $\pm $ std su 5 run)}{figure.caption.25}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.8.2}Success rate dei modelli}{38}{subsection.4.8.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {4.19}{\ignorespaces Success rate ai best checkpoint dei modelli (media $\pm $ std su 5 run).}}{39}{figure.caption.26}\protected@file@percent }
+\newlabel{fig:success-rate}{{4.19}{39}{Success rate ai best checkpoint dei modelli (media $\pm $ std su 5 run)}{figure.caption.26}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.8.3}Progress reale verso il goal}{39}{subsection.4.8.3}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {4.20}{\ignorespaces Progress reale verso il goal per modello (media $\pm $ std su 5 run).}}{40}{figure.caption.27}\protected@file@percent }
+\newlabel{fig:raw-progress}{{4.20}{40}{Progress reale verso il goal per modello (media $\pm $ std su 5 run)}{figure.caption.27}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.8.4}Analisi statistica: l’impatto della memoria}{40}{subsection.4.8.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{Distribuzione del success rate}{40}{subsection.4.8.4}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {4.21}{\ignorespaces Distribuzione del success rate per modelli con e senza memoria.}}{41}{figure.caption.28}\protected@file@percent }
+\newlabel{fig:success-rate-distribution-violin}{{4.21}{41}{Distribuzione del success rate per modelli con e senza memoria}{figure.caption.28}{}}
+\@writefile{toc}{\contentsline {subsubsection}{Distribuzione della reward}{41}{figure.caption.28}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {4.22}{\ignorespaces Distribuzione della reward media per episodio: memoria vs no memoria.}}{42}{figure.caption.29}\protected@file@percent }
+\newlabel{fig:reward-distribution}{{4.22}{42}{Distribuzione della reward media per episodio: memoria vs no memoria}{figure.caption.29}{}}
+\@writefile{toc}{\contentsline {subsubsection}{Boxplot del success rate}{42}{figure.caption.29}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {4.23}{\ignorespaces Boxplot del success rate: memoria vs no memoria.}}{43}{figure.caption.30}\protected@file@percent }
+\newlabel{fig:success-rate-distribution-boxplot}{{4.23}{43}{Boxplot del success rate: memoria vs no memoria}{figure.caption.30}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.8.5}Sintesi dei risultati}{43}{subsection.4.8.5}\protected@file@percent }
+\citation{isaaclab_overview}
+\@writefile{toc}{\contentsline {chapter}{\numberline {5}Isaac Lab: simulazione massiva e addestramento di agenti RL}{45}{chapter.5}\protected@file@percent }
+\@writefile{lof}{\addvspace {10\p@ }}
+\@writefile{lot}{\addvspace {10\p@ }}
+\newlabel{sec:isaaclab}{{5}{45}{Isaac Lab: simulazione massiva e addestramento di agenti RL}{chapter.5}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5.1}{\ignorespaces Schema generale dell'architettura di Isaac Lab. Il livello di simulazione fisica e sensoriale è fornito da Isaac Sim, mentre Isaac Lab introduce funzionalità per la creazione di ambienti RL, il controllo massivo degli scenari e la parallelizzazione su GPU.}}{45}{figure.caption.31}\protected@file@percent }
+\newlabel{fig:isaaclab_architecture}{{5.1}{45}{Schema generale dell'architettura di Isaac Lab. Il livello di simulazione fisica e sensoriale è fornito da Isaac Sim, mentre Isaac Lab introduce funzionalità per la creazione di ambienti RL, il controllo massivo degli scenari e la parallelizzazione su GPU}{figure.caption.31}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.0.1}Relazione tra Isaac Sim e Isaac Lab}{45}{subsection.5.0.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.0.2}Vantaggi principali di Isaac Lab per l'addestramento di agenti RL}{46}{subsection.5.0.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{Simulazione massiva su GPU}{46}{subsection.5.0.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {5.2}{\ignorespaces Esempio di utilizzo di Isaac Lab per la simulazione di un rover lunare. (a) Un singolo ambiente simulato con terreno lunare e ostacoli. (b) Addestramento parallelo di 128 ambienti identici, ognuno con il proprio rover, per l'apprendimento di una politica di navigazione basata su RL.}}{47}{figure.caption.32}\protected@file@percent }
+\newlabel{fig:kinect-traversability}{{5.2}{47}{Esempio di utilizzo di Isaac Lab per la simulazione di un rover lunare. (a) Un singolo ambiente simulato con terreno lunare e ostacoli. (b) Addestramento parallelo di 128 ambienti identici, ognuno con il proprio rover, per l'apprendimento di una politica di navigazione basata su RL}{figure.caption.32}{}}
+\@writefile{toc}{\contentsline {subsubsection}{Sensori virtuali fedeli, derivati da Isaac Sim}{47}{figure.caption.32}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{Domain randomization integrata}{47}{figure.caption.32}\protected@file@percent }
+\citation{stablebaselines3}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.0.3}Integrazione con algoritmi di Reinforcement Learning: Stable-Baselines3}{48}{subsection.5.0.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{\numberline {6}Reinforcement Learning Environment and Training Pipeline}{49}{chapter.6}\protected@file@percent }
+\@writefile{lof}{\addvspace {10\p@ }}
+\@writefile{lot}{\addvspace {10\p@ }}
+\newlabel{chap:rl_env}{{6}{49}{Reinforcement Learning Environment and Training Pipeline}{chapter.6}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {6.1}Background: Previous Implementation}{49}{section.6.1}\protected@file@percent }
+\newlabel{sec:prev_impl}{{6.1}{49}{Background: Previous Implementation}{section.6.1}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {6.2}Reinforcement Learning Policy Architecture}{50}{section.6.2}\protected@file@percent }
+\newlabel{sec:rl_model}{{6.2}{50}{Reinforcement Learning Policy Architecture}{section.6.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.2.1}Design degli input: rappresentazione compatta dello stato}{50}{subsection.6.2.1}\protected@file@percent }
+\newlabel{sec:rl_inputs}{{6.2.1}{50}{Design degli input: rappresentazione compatta dello stato}{subsection.6.2.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.2.2}Output della policy}{50}{subsection.6.2.2}\protected@file@percent }
+\newlabel{sec:rl_outputs}{{6.2.2}{50}{Output della policy}{subsection.6.2.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.2.3}Architettura della rete neurale}{51}{subsection.6.2.3}\protected@file@percent }
+\newlabel{sec:net_arch}{{6.2.3}{51}{Architettura della rete neurale}{subsection.6.2.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.2.4}Perché un’architettura così piccola può funzionare?}{51}{subsection.6.2.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{1. Feature ingegnerizzate ad alta informatività}{52}{subsection.6.2.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{2. Struttura del problema}{52}{subsection.6.2.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{3. Efficienza nell’apprendimento}{52}{subsection.6.2.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.2.5}Architettura Modulare: Vantaggi}{52}{subsection.6.2.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Perception Pipeline}{52}{subsection.6.2.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subparagraph}{1. Pipeline basata su YOLO finetunato (riconoscimento rocce da RGB)}{52}{subsection.6.2.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subparagraph}{2. Pipeline geometrica basata su Depth + DBSCAN + RANSAC (riconoscimento ostacoli generali e stima pendenze)}{52}{subsection.6.2.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subparagraph}{Combinazione delle due pipeline}{53}{Item.14}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Vantaggi dell’architettura modulare}{53}{Item.14}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {6.3}Isaac Lab Environment Architecture}{54}{section.6.3}\protected@file@percent }
+\newlabel{sec:env_arch}{{6.3}{54}{Isaac Lab Environment Architecture}{section.6.3}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.1}{\ignorespaces immagine riassuntiva dell'ambiente di simulazione in Isaac Lab.}}{55}{figure.caption.33}\protected@file@percent }
+\newlabel{fig:isaac-architecture}{{6.1}{55}{immagine riassuntiva dell'ambiente di simulazione in Isaac Lab}{figure.caption.33}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {6.4}Scene Configuration}{55}{section.6.4}\protected@file@percent }
+\newlabel{sec:scene_cfg}{{6.4}{55}{Scene Configuration}{section.6.4}{}}
+\newlabel{fig:rock1}{{\caption@xref {fig:rock1}{ on input line 261}}{56}{Scene Configuration}{figure.caption.34}{}}
+\newlabel{sub@fig:rock1}{{}{56}{Scene Configuration}{figure.caption.34}{}}
+\newlabel{fig:rock2}{{\caption@xref {fig:rock2}{ on input line 268}}{56}{Scene Configuration}{figure.caption.34}{}}
+\newlabel{sub@fig:rock2}{{}{56}{Scene Configuration}{figure.caption.34}{}}
+\newlabel{fig:rock3}{{\caption@xref {fig:rock3}{ on input line 277}}{56}{Scene Configuration}{figure.caption.34}{}}
+\newlabel{sub@fig:rock3}{{}{56}{Scene Configuration}{figure.caption.34}{}}
+\newlabel{fig:rock4}{{\caption@xref {fig:rock4}{ on input line 284}}{56}{Scene Configuration}{figure.caption.34}{}}
+\newlabel{sub@fig:rock4}{{}{56}{Scene Configuration}{figure.caption.34}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.2}{\ignorespaces 4 delle 20 rocce utilizzate nell'ambiente di simulazione Isaac Lab. la dimensione e posizione sono randomizzate ad ogni episodio.}}{56}{figure.caption.34}\protected@file@percent }
+\newlabel{fig:quattro-immagini}{{6.2}{56}{4 delle 20 rocce utilizzate nell'ambiente di simulazione Isaac Lab. la dimensione e posizione sono randomizzate ad ogni episodio}{figure.caption.34}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.3}{\ignorespaces esempio di slope non percorribile generata nell'ambiente Isaac Lab.}}{57}{figure.caption.35}\protected@file@percent }
+\newlabel{fig:isaac-architecture}{{6.3}{57}{esempio di slope non percorribile generata nell'ambiente Isaac Lab}{figure.caption.35}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {6.5}Observations and State Representation}{57}{section.6.5}\protected@file@percent }
+\newlabel{sec:obs}{{6.5}{57}{Observations and State Representation}{section.6.5}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {6.6}Action Space}{57}{section.6.6}\protected@file@percent }
+\newlabel{sec:actions}{{6.6}{57}{Action Space}{section.6.6}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {6.7}Reward Function}{58}{section.6.7}\protected@file@percent }
+\newlabel{sec:reward}{{6.7}{58}{Reward Function}{section.6.7}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {6.8}Episode Termination}{58}{section.6.8}\protected@file@percent }
+\newlabel{sec:termination}{{6.8}{58}{Episode Termination}{section.6.8}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {6.9}Curriculum Learning}{59}{section.6.9}\protected@file@percent }
+\newlabel{sec:curriculum}{{6.9}{59}{Curriculum Learning}{section.6.9}{}}
+\@writefile{toc}{\contentsline {paragraph}{Density curriculum}{59}{section.6.9}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Barrier-layer curriculum}{59}{section.6.9}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {6.10}Training Pipeline}{59}{section.6.10}\protected@file@percent }
+\newlabel{sec:training}{{6.10}{59}{Training Pipeline}{section.6.10}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {6.11}Slope Estimation Pipeline}{60}{section.6.11}\protected@file@percent }
+\newlabel{sec:slope_estimation}{{6.11}{60}{Slope Estimation Pipeline}{section.6.11}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.11.1}Preprocessing del depth frame}{60}{subsection.6.11.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.11.2}Ricostruzione dei punti 3D e rimozione del terreno}{60}{subsection.6.11.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.11.3}Clustering degli ostacoli tramite DBSCAN}{60}{subsection.6.11.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.11.4}Stima per-cluster della pendenza via RANSAC}{61}{subsection.6.11.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {6.12}Fine-tuning del clustering su dati reali}{61}{section.6.12}\protected@file@percent }
+\newlabel{sec:finetuning-clustering}{{6.12}{61}{Fine-tuning del clustering su dati reali}{section.6.12}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.12.1}Risultati in simulazione: Isaac Lab}{61}{subsection.6.12.1}\protected@file@percent }
+\newlabel{fig:rock1}{{\caption@xref {fig:rock1}{ on input line 97}}{63}{Risultati in simulazione: Isaac Lab}{figure.caption.36}{}}
+\newlabel{sub@fig:rock1}{{}{63}{Risultati in simulazione: Isaac Lab}{figure.caption.36}{}}
+\newlabel{fig:rock2}{{\caption@xref {fig:rock2}{ on input line 104}}{63}{Risultati in simulazione: Isaac Lab}{figure.caption.36}{}}
+\newlabel{sub@fig:rock2}{{}{63}{Risultati in simulazione: Isaac Lab}{figure.caption.36}{}}
+\newlabel{fig:rock3}{{\caption@xref {fig:rock3}{ on input line 113}}{63}{Risultati in simulazione: Isaac Lab}{figure.caption.36}{}}
+\newlabel{sub@fig:rock3}{{}{63}{Risultati in simulazione: Isaac Lab}{figure.caption.36}{}}
+\newlabel{fig:rock4}{{\caption@xref {fig:rock4}{ on input line 120}}{63}{Risultati in simulazione: Isaac Lab}{figure.caption.36}{}}
+\newlabel{sub@fig:rock4}{{}{63}{Risultati in simulazione: Isaac Lab}{figure.caption.36}{}}
+\newlabel{fig:rock3}{{\caption@xref {fig:rock3}{ on input line 129}}{63}{Risultati in simulazione: Isaac Lab}{figure.caption.36}{}}
+\newlabel{sub@fig:rock3}{{}{63}{Risultati in simulazione: Isaac Lab}{figure.caption.36}{}}
+\newlabel{fig:rock4}{{\caption@xref {fig:rock4}{ on input line 136}}{63}{Risultati in simulazione: Isaac Lab}{figure.caption.36}{}}
+\newlabel{sub@fig:rock4}{{}{63}{Risultati in simulazione: Isaac Lab}{figure.caption.36}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.4}{\ignorespaces a sinistra immagini prospettiche ottenute dalle simulazioni di Isaac Lab; a destra, i corrispondenti output della pipeline di stima della pendenza, con i cluster colorati in base alla pendenza stimata (colore più caldo indica pendenza maggiore).}}{63}{figure.caption.36}\protected@file@percent }
+\newlabel{fig:quattro-immagini}{{6.4}{63}{a sinistra immagini prospettiche ottenute dalle simulazioni di Isaac Lab; a destra, i corrispondenti output della pipeline di stima della pendenza, con i cluster colorati in base alla pendenza stimata (colore più caldo indica pendenza maggiore)}{figure.caption.36}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.12.2}Passaggio al dominio reale: problemi di rumore}{64}{subsection.6.12.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Effetto dei parametri:}{64}{subsection.6.12.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.12.3}Fine-tuning dei parametri}{64}{subsection.6.12.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.12.4}Risultati finali sul dominio reale}{65}{subsection.6.12.4}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {6.5}{\ignorespaces immagini post processed che mostrano la capacità della pipeline di clusterizzare oggetti distinti e di stimare correttamente la pendenza delle superfici.}}{65}{figure.caption.37}\protected@file@percent }
+\newlabel{fig:real-before-after}{{6.5}{65}{immagini post processed che mostrano la capacità della pipeline di clusterizzare oggetti distinti e di stimare correttamente la pendenza delle superfici}{figure.caption.37}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.12.5}Output della pipeline}{66}{subsection.6.12.5}\protected@file@percent }
+\newlabel{fig:rock1}{{\caption@xref {fig:rock1}{ on input line 261}}{66}{Output della pipeline}{figure.caption.38}{}}
+\newlabel{sub@fig:rock1}{{}{66}{Output della pipeline}{figure.caption.38}{}}
+\newlabel{fig:rock2}{{\caption@xref {fig:rock2}{ on input line 267}}{66}{Output della pipeline}{figure.caption.38}{}}
+\newlabel{sub@fig:rock2}{{}{66}{Output della pipeline}{figure.caption.38}{}}
+\newlabel{fig:rock3}{{\caption@xref {fig:rock3}{ on input line 276}}{66}{Output della pipeline}{figure.caption.38}{}}
+\newlabel{sub@fig:rock3}{{}{66}{Output della pipeline}{figure.caption.38}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.6}{\ignorespaces step della pipeline per i depth frame. L'immagine rgb non è parte della pipeline, ma è mostrata a scopo illustrativo. In alto a sinistra, l'immagine RGB acquisita dalla camera; in alto a destra, il depth frame ottenuto, dove il colore più chiaro indica maggiore distanza; in basso, i cluster individuati da DBSCAN evidenziati con colori differenti in base alla pendenza stimata.}}{66}{figure.caption.38}\protected@file@percent }
+\newlabel{fig:quattro-immagini}{{6.6}{66}{step della pipeline per i depth frame. L'immagine rgb non è parte della pipeline, ma è mostrata a scopo illustrativo. In alto a sinistra, l'immagine RGB acquisita dalla camera; in alto a destra, il depth frame ottenuto, dove il colore più chiaro indica maggiore distanza; in basso, i cluster individuati da DBSCAN evidenziati con colori differenti in base alla pendenza stimata}{figure.caption.38}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.12.6}Interazione con la pipeline YOLO: complementarità}{67}{subsection.6.12.6}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {6.7}{\ignorespaces applicazione della pipeline YOLO per il riconoscimento delle rocce nella LUNA analog Facility all'European Astronaut Centre.}}{67}{figure.caption.39}\protected@file@percent }
+\newlabel{fig:isaac-architecture}{{6.7}{67}{applicazione della pipeline YOLO per il riconoscimento delle rocce nella LUNA analog Facility all'European Astronaut Centre}{figure.caption.39}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.12.7}Collegamento ai metodi deterministici}{67}{subsection.6.12.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {6.13}Deterministic Traversability Analysis: Kinect-based Method}{68}{section.6.13}\protected@file@percent }
+\newlabel{sec:kinect_traversability}{{6.13}{68}{Deterministic Traversability Analysis: Kinect-based Method}{section.6.13}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.13.1}Principi del metodo}{68}{subsection.6.13.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.13.2}Caratteristiche computazionali}{68}{subsection.6.13.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.13.3}Limitazioni principali}{69}{subsection.6.13.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.13.4}Confronto concettuale con il metodo sviluppato in questa tesi}{69}{subsection.6.13.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.13.5}Prestazioni su Raspberry Pi 5}{70}{subsection.6.13.5}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {6.8}{\ignorespaces risultati della pipeline con DBSCAN+RANSAC eseguita su Raspberry Pi 4, riportata in tempi medi per singola task all'interno del nodo ROS2 dedicato. In rosso è rappresentato il tempo limite di 250ms su raspberrypi 5 per rispettare il vincolo di minimo 4 fps.}}{70}{figure.caption.40}\protected@file@percent }
+\newlabel{fig:isaaclab_architecture}{{6.8}{70}{risultati della pipeline con DBSCAN+RANSAC eseguita su Raspberry Pi 4, riportata in tempi medi per singola task all'interno del nodo ROS2 dedicato. In rosso è rappresentato il tempo limite di 250ms su raspberrypi 5 per rispettare il vincolo di minimo 4 fps}{figure.caption.40}{}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {7}Pseudocodice dei nodi ROS2}{71}{chapter.7}\protected@file@percent }
+\@writefile{lof}{\addvspace {10\p@ }}
+\@writefile{lot}{\addvspace {10\p@ }}
+\@writefile{toc}{\contentsline {subsubsection}{Nodo camera}{71}{chapter.7}\protected@file@percent }
+\@writefile{loa}{\contentsline {algorithm}{\numberline {1}{\ignorespaces Nodo \texttt  {camera\_node}}}{71}{algorithm.1}\protected@file@percent }
+\newlabel{alg:camera-node}{{1}{71}{Nodo \texttt {camera\_node}}{algorithm.1}{}}
+\@writefile{toc}{\contentsline {subsubsection}{Nodo \texttt  {odin\_autodrive}}{72}{algorithm.1}\protected@file@percent }
+\@writefile{loa}{\contentsline {algorithm}{\numberline {2}{\ignorespaces Nodo \texttt  {odin\_autodrive}}}{72}{algorithm.2}\protected@file@percent }
+\newlabel{alg:odin-autodrive}{{2}{72}{Nodo \texttt {odin\_autodrive}}{algorithm.2}{}}
+\@writefile{toc}{\contentsline {subsubsection}{Nodo route controller}{73}{algorithm.2}\protected@file@percent }
+\@writefile{loa}{\contentsline {algorithm}{\numberline {3}{\ignorespaces Nodo \texttt  {route\_controller}}}{73}{algorithm.3}\protected@file@percent }
+\newlabel{alg:route-controller}{{3}{73}{Nodo \texttt {route\_controller}}{algorithm.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.0.1}Grafo dei topic ROS2}{73}{subsection.7.0.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {7.1}{\ignorespaces Grafo ROS2 dei nodi e dei topic utilizzati nel sistema di navigazione.}}{73}{figure.caption.41}\protected@file@percent }
+\newlabel{fig:ros2-graph}{{7.1}{73}{Grafo ROS2 dei nodi e dei topic utilizzati nel sistema di navigazione}{figure.caption.41}{}}
+\citation{lee2020learning}
+\citation{hwangbo2019learning}
+\citation{xia2022learning}
+\citation{rashid2018qmix}
+\citation{lowe2017multi}
+\citation{yu2022surprising}
+\@writefile{toc}{\contentsline {section}{\numberline {7.1}Future Works}{74}{section.7.1}\protected@file@percent }
+\newlabel{sec:future-works}{{7.1}{74}{Future Works}{section.7.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.1.1}Estensione a piattaforme umanoidi o quadrupedi}{74}{subsection.7.1.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.1.2}Policy collaborative per mappatura e navigazione cooperativa}{74}{subsection.7.1.2}\protected@file@percent }
+\citation{silburt2019lunar}
+\citation{macenski2020neural}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.1.3}Riconoscimento di crateri come ostacoli strutturali}{75}{subsection.7.1.3}\protected@file@percent }
+\citation{zhou2018stereo}
+\bibstyle{ieeetr}
+\bibdata{reference}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.1.4}Aggiunta di una seconda camera per migliorare percezione e robustezza}{76}{subsection.7.1.4}\protected@file@percent }
+\bibcite{ferguson2006field}{1}
+\bibcite{maimone2007mer}{2}
+\bibcite{okane2008incomplete}{3}
+\bibcite{gennery1999traversability}{4}
+\bibcite{chiuchiarelli2024traversability}{5}
+\bibcite{egan2021teapac}{6}
+\bibcite{andersson2025lunar}{7}
+\bibcite{miao2025pathplanning}{8}
+\bibcite{swinton2025rrt}{9}
+\bibcite{zhang2025pathplanning}{10}
+\bibcite{xiao2022mlnavigation}{11}
+\bibcite{sevastopoulos2022survey}{12}
+\bibcite{bogoslavskyi2013kinect}{13}
+\bibcite{visca2021deeplearningtraversability}{14}
+\bibcite{guastella2020learningnavigation}{15}
+\bibcite{zhelo2018curiosity}{16}
+\bibcite{hamza2022mapless}{17}
+\bibcite{lin2023rlnavigation}{18}
+\bibcite{Schulman2017PPO}{19}
+\bibcite{ProximalPolicyOptimizationWiki}{20}
+\bibcite{Yu2021LunarPPO}{21}
+\bibcite{Haarnoja2018SAC}{22}
+\bibcite{RLVSSAC}{23}
+\bibcite{Mock2023QuadSAC}{24}
+\bibcite{RecurrentPolicyGradients}{25}
+\bibcite{Zhang2021ATLA}{26}
+\bibcite{AlHafez2024StatefulRL}{27}
+\bibcite{LunarRover2024DRL}{28}
+\bibcite{realsense_d455_datasheet}{29}
+\bibcite{realsense_d455_overview}{30}
+\bibcite{raspberrypi5_brief}{31}
+\bibcite{raspberrypi5_product}{32}
+\bibcite{hailo8_datasheet}{33}
+\bibcite{hailo8_overview}{34}
+\bibcite{hailo8_m2_module}{35}
+\bibcite{rad750_bae}{36}
+\bibcite{rad750_wiki}{37}
+\bibcite{curiosity_computer}{38}
+\bibcite{perseverance_rce}{39}
+\bibcite{ingenuity_snapdragon}{40}
+\bibcite{lrv_spu_nav}{41}
+\bibcite{lrv_historical}{42}
+\bibcite{lrv_overview}{43}
+\bibcite{yutu_rover}{44}
+\bibcite{yutu2_cv}{45}
+\bibcite{isaaclab_overview}{46}
+\bibcite{stablebaselines3}{47}
+\bibcite{lee2020learning}{48}
+\bibcite{hwangbo2019learning}{49}
+\bibcite{xia2022learning}{50}
+\bibcite{rashid2018qmix}{51}
+\bibcite{lowe2017multi}{52}
+\bibcite{yu2022surprising}{53}
+\bibcite{silburt2019lunar}{54}
+\bibcite{macenski2020neural}{55}
+\bibcite{zhou2018stereo}{56}
+\gdef \@abspage@last{88}

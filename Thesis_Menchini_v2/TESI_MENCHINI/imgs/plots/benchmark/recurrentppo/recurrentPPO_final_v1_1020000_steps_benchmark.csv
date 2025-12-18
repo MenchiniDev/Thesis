@@ -1,0 +1,6 @@
+checkpoint,run_id,episodes,success_rate,avg_ep_rew,median_ep_rew,avg_ep_len,success,oob,collide_rock,danger_slope,rollover,timeout,error
+/home/loren/Desktop/luna-lrs/checkpoints/isaaclab/recurrent_PPO_final_v1/recurrentPPO_final_v1_1020000_steps.zip,1,100,0.77,40.33621799468994,39.44356918334961,70.87,77,0,4,19,0,0,
+/home/loren/Desktop/luna-lrs/checkpoints/isaaclab/recurrent_PPO_final_v1/recurrentPPO_final_v1_1020000_steps.zip,2,100,0.8,40.94200661888346,42.542396545410156,64.69,80,0,4,16,0,0,
+/home/loren/Desktop/luna-lrs/checkpoints/isaaclab/recurrent_PPO_final_v1/recurrentPPO_final_v1_1020000_steps.zip,3,100,0.74,45.23459094524384,45.28682518005371,72.26,74,0,10,16,0,0,
+/home/loren/Desktop/luna-lrs/checkpoints/isaaclab/recurrent_PPO_final_v1/recurrentPPO_final_v1_1020000_steps.zip,4,100,0.77,43.93397658329457,45.7235107421875,71.86,77,0,8,15,0,0,
+/home/loren/Desktop/luna-lrs/checkpoints/isaaclab/recurrent_PPO_final_v1/recurrentPPO_final_v1_1020000_steps.zip,5,100,0.77,41.298535063173624,39.95269012451172,71.06,77,1,5,17,0,0,

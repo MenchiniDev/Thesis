@@ -1,0 +1,174 @@
+
+\chapter{Introduction}
+
+\begin{abstract}
+
+Questa tesi affronta il problema della navigazione autonoma di un rover in ambienti lunari 
+mediante lo sviluppo di una pipeline integrata che combina modelli 
+di Reinforcement Learning con metodi geometrici deterministici a basso costo computazionale. 
+L’obiettivo principale è valutare se agenti RL, addestrati in \textit{Isaac Sim} 
+tramite PPO, SAC e Recurrent PPO e ottimizzati mediante 
+\textit{curriculum learning} possano fornire soluzioni più robuste, 
+adattive e generalizzabili rispetto ai planner deterministici 
+tradizionali, considerando sia la qualità dei percorsi generati 
+sia la capacità di reagire a variazioni improvvise del terreno.
+
+La pipeline percettiva è basata sulla stima della pendenza ottenuta 
+da mappe di profondità e su un algoritmo di clustering geometrico 
+interpretabile, progettato per sostituire o affiancare approcci classici 
+di slope estimation. A tal fine viene proposto un confronto sistematico 
+tra metodi deterministici rule--based e tecniche derivate da features 
+apprese, valutando stabilità, continuità del segnale e impatto sul comportamento 
+dei modelli RL.
+
+Un aspetto centrale del lavoro riguarda i vincoli dell'\textit{edge computing}: 
+sia le politiche RL sia la pipeline di percezione sono state sviluppate 
+per funzionare su piattaforme a risorse limitate, 
+come Raspberry Pi 5 e sistemi embedded analoghi. Questo ha richiesto 
+scelte architetturali orientate alla minimizzazione del consumo energetico, 
+alla riduzione della latenza, e all’impiego di pipeline numeriche leggere, 
+prive di componenti neurali ad alto costo computazionale.
+
+I modelli addestrati in simulazione sono stati valutati tramite metriche di stabilità del training, 
+capacità di generalizzazione e robustezza dinamica, quindi trasferiti su piattaforma reale tramite ROS2, 
+dove sono state analizzate prestazioni, 
+latenza end--to--end e comportamento emergente in scenari fisici.
+
+I risultati mostrano che l’integrazione tra RL, percezione geometrica ottimizzata 
+per l’edge computing e simulazione realistica consente al rover di 
+prendere decisioni più reattive e flessibili rispetto ai metodi deterministici, 
+pur mantenendo un budget di calcolo ed energia compatibile con missioni robotiche in ambienti lunari. 
+Il lavoro fornisce infine indicazioni su possibili estensioni future, 
+incluse strategie di \textit{sim-to-real} più affidabili e nuove modalità di integrazione tra modelli RL e percezione tradizionale.
+
+
+\end{abstract}
+
+\section{Motivation}
+
+Negli ultimi anni la prospettiva di una presenza umana stabile sulla Luna ha riportato 
+al centro dell’attenzione la necessità di sistemi robotici capaci di operare in autonomia 
+su terreni accidentati, scarsamente illuminati e caratterizzati da condizioni ambientali 
+extreme. Missioni come Artemis e i programmi di esplorazione robotica dell’ESA 
+prevedono l’impiego di rover dotati di capacità di navigazione autonoma, 
+in grado di muoversi con affidabilità anche in assenza di teleoperazione continua.  
+
+L’autonomia non rappresenta soltanto un fattore di efficienza, ma un requisito operativo. 
+I ritardi nel segnale Terra–Luna, la possibile perdita temporanea di comunicazione 
+e la natura imprevedibile del terreno rendono impraticabile una guida remota 
+di tipo reattivo. I rover devono quindi essere in grado di percepire l’ambiente circostante, 
+valutare la traversabilità del terreno, generare traiettorie sicure e reagire in modo dinamico 
+a ostacoli e variazioni improvvise.  
+
+Tali capacità devono essere realizzate nel rispetto di vincoli tecnologici molto stringenti. 
+I sistemi computazionali installati sui rover planetari sono tipicamente caratterizzati 
+da consumi energetici ridotti, risorse limitate e assenza di GPU ad alte prestazioni. 
+È dunque necessario sviluppare algoritmi capaci di adattarsi all’ambiente, 
+ma sufficientemente leggeri da funzionare in tempo reale su piattaforme embedded.  
+
+In questo scenario, l’integrazione tra metodi di percezione geometrica e 
+Reinforcement Learning rappresenta un’opportunità di grande interesse: 
+i primi offrono interpretabilità, robustezza e costi computazionali contenuti, 
+mentre il RL permette al rover di apprendere strategie di navigazione efficaci, 
+sfruttando informazioni parziali e dinamiche complesse. 
+Questa tesi si inserisce proprio in questo contesto, con l’obiettivo di 
+comprendere se e in che misura un approccio ibrido possa risultare vantaggioso 
+rispetto alle pipeline deterministiche impiegate tradizionalmente in robotica planetaria.
+
+
+\section{Problem Statement}
+
+Il problema affrontato in questa tesi riguarda la navigazione autonoma di un rover 
+in scenari lunari parzialmente osservabili, caratterizzati da ostacoli non strutturati, 
+pendenze irregolari e condizioni di sensorizzazione limitate.  
+La natura stessa dell’ambiente impone alla politica di controllo di prendere 
+decisioni basandosi su osservazioni locali e rumorose, provenienti da una singola 
+camera RGB–D posta a bassa altezza da terra.  
+Il rover non dispone di una mappa globale né di un modello preventivo del terreno, 
+e deve quindi reagire a partire da informazioni strettamente locali, 
+integrando percezione e controllo in modo continuativo.
+
+Il problema può essere formulato come un processo decisionale 
+in condizioni di parziale osservabilità, in cui l’obiettivo del rover è 
+raggiungere un target evitando ostacoli e situazioni pericolose 
+quali pendenze eccessive, ribaltamenti o collisioni con rocce.  
+A questi aspetti si aggiungono vincoli computazionali stringenti: 
+sia la pipeline percettiva sia il modello di controllo devono essere 
+eseguiti in tempo reale su dispositivi embedded con risorse limitate.  
+
+La domanda centrale è quindi se sia possibile progettare una pipeline percettiva
+sufficientemente affidabile, interpretabile ed efficiente da poter alimentare 
+una politica RL, e se quest’ultima possa apprendere un comportamento di navigazione 
+robusto e generalizzabile a diverse configurazioni del terreno, risultando più 
+adattiva rispetto ai planner deterministici classici.  
+La tesi mira inoltre a esplorare la capacità dei modelli RL di sfruttare 
+forme diverse di memoria (esplicita o implicita) per compensare la 
+ridotta osservabilità del contesto.
+
+
+\section{Contributions}
+
+Il lavoro presentato in questa tesi offre un’indagine sistematica 
+sull’integrazione tra metodi deterministici di percezione geometrica 
+e tecniche di Reinforcement Learning per la navigazione autonoma in ambienti lunari simulati e reali.  
+La pipeline proposta introduce una stima della pendenza basata su clustering geometrico 
+e fitting di piani tramite RANSAC, sviluppata con l’obiettivo di fornire una componente 
+percettiva affidabile e computazionalmente compatibile con dispositivi embedded.  
+
+Parallelamente, sono stati progettati e addestrati diversi agenti di RL, 
+inclusi PPO, SAC e una variante ricorrente di PPO, all’interno di Isaac Lab, 
+con l’ausilio di tecniche di curriculum learning che hanno permesso di modellare 
+progressivamente la complessità dell’ambiente.  
+La valutazione sperimentale ha analizzato in modo approfondito l’impatto della memoria, 
+sia nella forma del frame stacking sia attraverso architetture ricorrenti, 
+mettendo in evidenza il ruolo cruciale dell’accumulo temporale di informazione 
+in contesti caratterizzati da osservabilità limitata.
+
+Gli agenti addestrati sono stati confrontati in una fase successiva, 
+con un modello state-of-the-art basato su world models, 
+TD–MPC2, che rappresenta uno dei più avanzati approcci 
+model–based attualmente disponibili.  
+
+Infine, l’intera pipeline è stata trasferita su una piattaforma robotica reale 
+attraverso ROS2, dimostrando la compatibilità computazionale del sistema 
+e verificando il comportamento dell’agente in scenari fisici 
+simili a quelli simulati, con particolare attenzione a latenza, 
+stabilità operativa e robustezza rispetto al rumore del sensore.
+
+Nel complesso, la tesi mostra come una combinazione attenta di percezione geometrica 
+e tecniche di Reinforcement Learning possa risultare efficace anche in contesti 
+con risorse computazionali limitate, aprendo la strada a futuri sviluppi 
+nell’ambito della navigazione autonoma per missioni planetarie.
+
+
+\section{Thesis Structure}
+
+La tesi è organizzata nel seguente modo: \newline
+Il Capitolo~\ref{ch2_background} introduce i concetti fondamentali legati alla navigazione autonoma, 
+al Reinforcement Learning, ai modelli dinamici latenti e al paradigma dei world models, 
+incluse le idee che stanno alla base dell’approccio TD–MPC2.
+\newline
+Il Capitolo~\ref{ch:related} offre una panoramica dei lavori affini, 
+collocando il contributo di questa tesi nel panorama delle tecniche esistenti.
+
+Il Capitolo~\ref{chap:hardware} presenta una visione completa del sistema sviluppato, 
+dalla piattaforma robotica ai moduli software, mentre il Capitolo~\ref{ch5_perception_pipeline} 
+descrive in dettaglio la pipeline percettiva proposta, confrontandola con metodi deterministici preesistenti 
+e discutendone limiti e potenzialità.  
+
+Il Capitolo~\ref{ch6_simulation_environment} introduce l’ambiente simulato utilizzato per l’addestramento, 
+includendo la generazione procedurale del terreno e degli ostacoli, 
+l’integrazione dei sensori simulati e il design della funzione di reward.  
+Il Capitolo~\ref{ch7_real_environment} presenta invece l’ambiente reale della Luna Analog Facility dell’EAC, 
+mettendo in evidenza le differenze rispetto alla simulazione.  
+
+Il Capitolo~\ref{ch8_training_and_models} illustra la metodologia di addestramento, 
+le architetture dei modelli e l’integrazione del world model TD–MPC2.  
+I risultati sperimentali sono discussi nel Capitolo~\ref{ch9_results}, 
+che analizza sia le prestazioni delle pipeline percettive sia il comportamento 
+dei modelli RL e del TD–MPC2 in compiti di navigazione complessi.  
+
+Il Capitolo~\ref{ch10_sim2real} descrive il processo di trasferimento su piattaforma reale e le prestazioni del sistema embedded,  
+mentre il Capitolo~\ref{ch11_future_works} propone una serie di possibili estensioni del lavoro.  
+Infine, il Capitolo~\ref{ch12_conclusions} riassume i principali risultati ottenuti 
+e le implicazioni per la navigazione autonoma in contesti extraterrestri.

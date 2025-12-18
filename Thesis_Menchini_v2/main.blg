@@ -1,0 +1,60 @@
+This is BibTeX, Version 0.99d (TeX Live 2023/Debian)
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+The top-level auxiliary file: main.aux
+A level-1 auxiliary file: chapters/ch1_introduction.aux
+A level-1 auxiliary file: chapters/ch2_background.aux
+A level-1 auxiliary file: chapters/ch3_related_work.aux
+A level-1 auxiliary file: chapters/ch4_system_overview.aux
+A level-1 auxiliary file: chapters/ch5_perception_pipeline.aux
+A level-1 auxiliary file: chapters/ch6_simulation_environment.aux
+A level-1 auxiliary file: chapters/ch7_real_environment.aux
+A level-1 auxiliary file: chapters/ch8_training_and_models.aux
+A level-1 auxiliary file: chapters/ch9_results.aux
+A level-1 auxiliary file: chapters/ch10_sim2real.aux
+A level-1 auxiliary file: chapters/ch11_future_works.aux
+A level-1 auxiliary file: chapters/ch12_conclusions.aux
+The style file: ieeetr.bst
+Database file #1: bibliography.bib
+Warning--I didn't find a database entry for "tdmpc2"
+You've used 34 entries,
+            1876 wiz_defined-function locations,
+            632 strings with 8225 characters,
+and the built_in function-call counts, 5628 in all, are:
+= -- 539
+> -- 225
+< -- 0
++ -- 94
+- -- 60
+* -- 283
+:= -- 863
+add.period$ -- 58
+call.type$ -- 34
+change.case$ -- 33
+chr.to.int$ -- 0
+cite$ -- 34
+duplicate$ -- 253
+empty$ -- 637
+format.name$ -- 60
+if$ -- 1382
+int.to.chr$ -- 0
+int.to.str$ -- 34
+missing$ -- 12
+newline$ -- 129
+num.names$ -- 34
+pop$ -- 178
+preamble$ -- 1
+purify$ -- 0
+quote$ -- 0
+skip$ -- 139
+stack$ -- 0
+substring$ -- 96
+swap$ -- 49
+text.length$ -- 0
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 0
+warning$ -- 0
+while$ -- 45
+width$ -- 36
+write$ -- 320
+(There was 1 warning)

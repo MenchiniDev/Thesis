@@ -1,0 +1,85 @@
+\documentclass[12pt,a4paper]{report}
+
+\input{preamble.tex}
+
+\begin{document}
+
+% -------------------------------
+% FRONTMATTER
+% -------------------------------
+
+
+\begin{titlepage}
+  \centering
+
+ \includegraphics[keepaspectratio=true,scale=0.2]{imgs/logos/unipi_logo.jpg}\par\vspace{8mm}
+
+  {\LARGE University of Pisa\par}
+  \vspace{3mm}
+  {\large DEPARTMENT OF INFORMATION ENGINEERING\par}
+  \vspace{3mm}
+  {\LARGE Master's degree in Artificial Intelligence and Data Engineering\par}
+
+  \vspace{15mm}
+  {\LARGE\bfseries Development of autonomous lunar vehicles based on reinforcement learning paradigm\par}
+
+  \vspace{20mm}
+  \begin{minipage}[t]{0.47\textwidth}
+    \raggedright
+    {\large Relatore:}\\[2mm]
+    {\large \textbf{Prof. Mario G.C.A. Cimino}}
+    {\large \textbf{Dott. Aidan Cowley}}\\[2mm]
+  \end{minipage}
+  \hfill
+  \begin{minipage}[t]{0.47\textwidth}
+    \raggedleft
+    {\large Candidato:}\\[2mm]
+    {\large \textbf{Lorenzo Menchini}}
+  \end{minipage}
+
+  \vfill
+  \hrulefill\\[2mm]
+  {\large Accademic Year 2025/2026}
+\end{titlepage}
+% --------------------------------------
+
+
+\begin{flushright}
+
+\textit{ \newline\newline
+To the creatures within and without me,
+        I wish I knew you better.}
+\end{flushright}
+
+\thispagestyle{empty} % Rimuove il numero di pagina dalla prima pagina
+
+\tableofcontents
+
+% -------------------------------
+% CHAPTERS
+% -------------------------------
+\input{chapters/introduction.tex}
+\input{chapters/background.tex}
+\input{chapters/related_work.tex}
+\input{chapters/rl_introduction.tex}
+\input{chapters/rover_hardware.tex}
+\input{chapters/ppo_sac_recurrentppo.tex}
+\input{chapters/isaac_lab_sim.tex}
+\input{chapters/training_pipeline.tex}
+\IfFileExists{chapters/environment_creation.tex}{\input{chapters/environment_creation.tex}}{\typeout{Warning: chapters/environment_creation.tex not found; skipping.}}
+\input{chapters/curriculum_learning.tex}
+\input{chapters/slope_estimation.tex}
+\input{chapters/speed_up_training.tex}
+\input{chapters/fine_tuning_clustering_real_data.tex}
+\input{chapters/ros2_implementation.tex}
+\input{chapters/results.tex}
+\input{chapters/future_works.tex}
+\input{chapters/real_results_campaign.tex}
+
+% -------------------------------
+% BIBLIOGRAPHY
+% -------------------------------
+\bibliographystyle{ieeetr}
+\bibliography{reference}
+
+\end{document}

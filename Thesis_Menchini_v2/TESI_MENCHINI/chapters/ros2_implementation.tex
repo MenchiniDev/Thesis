@@ -1,0 +1,126 @@
+\chapter{Pseudocodice dei nodi ROS2}
+In questa sottosezione si riportano gli schemi ad alto livello dei tre nodi principali,
+sotto forma di pseudocodice, per evidenziare chiaramente il flusso dei dati e le
+operazioni eseguite in ciascun componente.
+
+\subsubsection{Nodo camera}
+
+\begin{algorithm}[H]
+\caption{Nodo \texttt{camera\_node}}
+\label{alg:camera-node}
+\begin{algorithmic}[1]
+\State Inizializza nodo ROS2 \texttt{camera\_node}
+\State Configura dispositivo di acquisizione (camera RGB-D)
+\State Imposta frequenza di pubblicazione a 4 FPS
+\While{nodo attivo}
+    \State frame\_rgb $\gets$ acquisisci\_frame\_RGB()
+    \State frame\_depth $\gets$ acquisisci\_frame\_depth()
+    \State pubblica(frame\_rgb, topic = \texttt{/camera/rgb})
+    \State pubblica(frame\_depth, topic = \texttt{/camera/depth})
+    \State dormi\_fino\_al\_prossimo\_tick()
+\EndWhile
+\end{algorithmic}
+\end{algorithm}
+
+\subsubsection{Nodo \texttt{odin\_autodrive}}
+
+\begin{algorithm}[H]
+\caption{Nodo \texttt{odin\_autodrive}}
+\label{alg:odin-autodrive}
+\begin{algorithmic}[1]
+\State Inizializza nodo ROS2 \texttt{odin\_autodrive}
+\State Sottoscrivi a \texttt{/camera/rgb} e \texttt{/camera/depth}
+\State Carica modello YOLO
+\State Carica parametri DBSCAN + RANSAC
+\State Carica policy RL addestrata
+\While{nodo attivo}
+    \State frame\_rgb $\gets$ ultimo\_messaggio(\texttt{/camera/rgb})
+    \State frame\_depth $\gets$ ultimo\_messaggio(\texttt{/camera/depth})
+    \If{frame\_rgb \textbf{è nullo} \textbf{OR} frame\_depth \textbf{è nullo}}
+        \State continua \Comment{attendi nuovi dati}
+    \EndIf
+    \State detections $\gets$ YOLO\_inference(frame\_rgb)
+    \State cloud\_points $\gets$ depth\_to\_pointcloud(frame\_depth)
+    \State clusters $\gets$ DBSCAN\_clustering(cloud\_points)
+    \State pendenze $\gets$ RANSAC\_plane\_fitting(clusters)
+    \State stato $\gets$ costruisci\_stato(detections, pendenze, altri\_sensori)
+    \State (v\_linear, v\_angular) $\gets$ RL\_policy\_inference(stato)
+    \If{percezione\_non\_affidabile(stato)}
+        \State (v\_linear, v\_angular) $\gets$ fallback\_di\_sicurezza()
+    \EndIf
+    \State msg $\gets$ crea\_Twist(v\_linear, v\_angular)
+    \State pubblica(msg, topic = \texttt{/cmd\_vel})
+\EndWhile
+\end{algorithmic}
+\end{algorithm}
+
+\subsubsection{Nodo route controller}
+
+\begin{algorithm}[H]
+\caption{Nodo \texttt{route\_controller}}
+\label{alg:route-controller}
+\begin{algorithmic}[1]
+\State Inizializza nodo ROS2 \texttt{route\_controller}
+\State Sottoscrivi a \texttt{/cmd\_vel}
+\State Inizializza interfaccia motori (driver rover)
+\While{nodo attivo}
+    \State cmd $\gets$ ultimo\_messaggio(\texttt{/cmd\_vel})
+    \If{cmd \textbf{è nullo}}
+        \State continua
+    \EndIf
+    \State (v\_linear, v\_angular) $\gets$ filtra\_comando(cmd)
+    \State (v\_linear, v\_angular) $\gets$ applica\_limiti\_fisici(v\_linear, v\_angular)
+    \State invia\_comando\_ai\_motori(v\_linear, v\_angular)
+\EndWhile
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Grafo dei topic ROS2}
+Per completezza, nella Figura~\ref{fig:ros2-graph} viene rappresentato il grafo dei
+nodi e dei topic principali utilizzati nel sistema. Il grafo evidenzia il flusso
+unidirezionale dei dati dalla camera al controllore delle route, passando per il
+nodo di percezione e decision-making.
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[
+        node distance=1.8cm and 2cm,
+        box/.style={rectangle, draw, rounded corners, minimum width=3.4cm, minimum height=1cm, align=center},
+        topic/.style={ellipse, draw, minimum width=2.6cm, minimum height=1cm, align=center},
+        >=Stealth, thick
+    ]
+
+    % Camera node
+    \node[box] (camera) {camera\_node};
+
+    % Topics under the camera
+    \node[topic, below=1.2cm of camera, xshift=-2.2cm] (rgb) {/camera/rgb};
+    \node[topic, below=1.2cm of camera, xshift= 2.2cm] (depth) {/camera/depth};
+
+    % odin_autodrive
+    \node[box, below=2.8cm of camera] (autodrive) {odin\_autodrive};
+
+    % Command topic
+    \node[topic, below=1.2cm of autodrive] (cmdvel) {/cmd\_vel};
+
+    % Route controller
+    \node[box, below=1.2cm of cmdvel] (route) {route\_controller};
+
+    % Arrows camera -> topics
+    \draw[->] (camera.south) -- ++(0,-0.4) -| (rgb.north);
+    \draw[->] (camera.south) -- ++(0,-0.4) -| (depth.north);
+
+    % Arrows topics -> autodrive
+    \draw[->] (rgb.south) -- ++(0,-0.3) |- (autodrive.west);
+    \draw[->] (depth.south) -- ++(0,-0.3) |- (autodrive.east);
+
+    % autodrive -> cmd_vel
+    \draw[->] (autodrive.south) -- (cmdvel.north);
+
+    % cmd_vel -> route_controller
+    \draw[->] (cmdvel.south) -- (route.north);
+
+    \end{tikzpicture}
+    \caption{Grafo ROS2 dei nodi e dei topic utilizzati nel sistema di navigazione.}
+    \label{fig:ros2-graph}
+\end{figure}

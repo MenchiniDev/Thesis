@@ -1,0 +1,204 @@
+\chapter{Perception Pipeline}
+\label{ch5_perception_pipeline}
+
+In questo capitolo viene descritta l'architettura percettiva implementata per permettere al rover di navigare in sicurezza in ambienti non strutturati. Il sistema si basa sulla fusione di due sorgenti informative complementari: una pipeline semantica basata su rete neurale (YOLO) per il riconoscimento di rocce da immagini RGB, e una pipeline geometrica basata su clustering e fitting di piani per l'identificazione di pendenze pericolose da mappe di profondità. Infine, viene presentata una baseline deterministica e vengono discussi i risultati del fine-tuning dei parametri su dati reali.
+
+\section{YOLO-based Rock Detection from RGB}
+\label{sec:yolo_detection}
+
+La prima componente del sistema percettivo è dedicata al riconoscimento semantico degli ostacoli, in particolare delle rocce, sfruttando il flusso video RGB fornito dalla camera Intel RealSense D455. Questa task è affidata a una rete neurale YOLO (You Only Look Once), scelta per il suo eccellente compromesso tra accuratezza e velocità di inferenza, caratteristiche critiche per applicazioni su hardware embedded come il Raspberry Pi 5.
+
+La rete è stata sottoposta a un processo di fine-tuning specifico per riconoscere le caratteristiche morfologiche e cromatiche delle rocce presenti nell'ambiente di test (e.g., LUNA Analog Facility). A partire dalle *bounding box* generate dalla rete neurale sul piano immagine, la pipeline proietta il centroide dell'ostacolo nello spazio 3D utilizzando i dati di profondità allineati.
+
+Questo approccio permette di estrarre due informazioni fondamentali per ogni roccia identificata:
+\begin{itemize}
+    \item \textbf{Distanza ($d$)}: la distanza euclidea tra il centro ottico della camera e l'ostacolo.
+    \item \textbf{Angolo ($\theta$)}: l'orientamento dell'ostacolo rispetto all'asse longitudinale del rover.
+\end{itemize}
+
+L'utilizzo di YOLO su dati RGB offre una robustezza complementare rispetto ai metodi puramente geometrici: la rete è infatti in grado di identificare ostacoli anche quando la mappa di profondità risulta degradata (ad esempio per ombre nette o superfici molto assorbenti) o quando l'oggetto è parzialmente occluso, ma semanticamente riconoscibile come pericolo.
+
+\begin{figure}[H] 
+    \centering 
+    \includegraphics[width=0.95\textwidth]{imgs/05_perception_pipeline/yolo.png} 
+    \caption{Applicazione della pipeline YOLO per il riconoscimento delle rocce nella LUNA Analog Facility presso l'European Astronaut Centre.} 
+    \label{fig:yolo_detection} 
+\end{figure}
+
+\section{Geometric Pipeline: DBSCAN + RANSAC}
+\label{sec:slope_estimation}
+
+La seconda pipeline percettiva ha l’obiettivo di identificare ostacoli geometricamente pericolosi a partire dai frame di profondità grezzi. A differenza di YOLO, che lavora su feature visive, questa pipeline opera sulla struttura 3D della scena, permettendo di rilevare qualsiasi oggetto o superficie che presenti un'inclinazione tale da compromettere la traversabilità.
+
+La procedura è implementata nella funzione \texttt{estimate\_slope\_from\_depth\_image} e si articola in quattro fasi principali, illustrate in Figura~\ref{fig:geometric_pipeline_steps}.
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{imgs/05_perception_pipeline/rgb.png}
+        \caption{RGB Input}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{imgs/05_perception_pipeline/segmented_depth.png}
+        \caption{Depth Map}
+    \end{subfigure}
+    \vspace{4mm}
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{imgs/05_perception_pipeline/cluster_depth.png}
+        \caption{DBSCAN Clustering}
+    \end{subfigure}
+    \caption{Step della pipeline geometrica. (a) Immagine RGB di riferimento. (b) Depth frame, dove l'intensità indica la distanza. (c) Risultato del clustering DBSCAN: gli ostacoli distinti sono evidenziati con colori diversi in base alla pendenza stimata.}
+    \label{fig:geometric_pipeline_steps}
+\end{figure}
+
+\subsection{Preprocessing e ricostruzione 3D}
+Il depth frame viene inizialmente convertito in \texttt{float32} e sottoposto a un filtro gaussiano leggero per ridurre il rumore ad alta frequenza. Successivamente, l'immagine viene decimata tramite uno \emph{stride} configurabile; questa operazione riduce drasticamente il numero di punti da elaborare senza compromettere la struttura macroscopica della scena, abilitando l'esecuzione real-time. I parametri intrinseci della camera vengono scalati di conseguenza per mantenere corretta la retro-proiezione dei pixel in coordinate 3D (nuvola di punti).
+
+\subsection{Rimozione del terreno via RANSAC}
+Prima di procedere al clustering degli ostacoli, è necessario isolare e rimuovere i punti appartenenti al piano di appoggio del rover. Viene utilizzato l'algoritmo RANSAC (\emph{Random Sample Consensus}) per stimare il piano dominante nella nuvola di punti. Il piano viene rimosso solo se la sua normale è compatibile con un terreno pianeggiante (\emph{ground tilt} inferiore a una soglia prestabilita). Questo passaggio è fondamentale per prevenire la formazione di un unico grande cluster che includa sia il suolo che gli ostacoli.
+
+\subsection{Clustering degli ostacoli tramite DBSCAN}
+Sui punti rimanenti (potenziali ostacoli) viene applicato l'algoritmo \texttt{DBSCAN} (\emph{Density-Based Spatial Clustering of Applications with Noise}). A differenza di metodi come k-means, DBSCAN non richiede di specificare a priori il numero di cluster e può gestire oggetti di forma arbitraria, filtrando efficacemente il rumore sparso.
+Se il primo tentativo di clustering non produce risultati, la pipeline implementa un meccanismo di fallback adattivo, incrementando progressivamente la tolleranza spaziale \texttt{eps} fino a individuare almeno un oggetto o raggiungere un limite di sicurezza.
+
+\subsection{Stima della pendenza e criterio di pericolosità}
+Per ogni cluster isolato, viene nuovamente applicato RANSAC per adattare un piano locale e stimarne l'orientamento. La normale del piano $\mathbf{n}$ viene confrontata con il vettore verticale del mondo $\mathbf{up}$ (o l'asse Y della camera corretto per il pitch del rover):
+\[
+\text{slope\_deg} = \arccos \left( |\mathbf{n} \cdot \mathbf{up}| \right )
+\]
+La correzione basata sulla trasformazione \texttt{cam\_T\_world} è essenziale per evitare che il beccheggio del rover durante il moto venga erroneamente interpretato come una pendenza del terreno. Solo i cluster con un'inclinazione superiore a una soglia critica (tipicamente $25^\circ$) vengono classificati come \emph{non traversabili}.
+
+\section{Deterministic Kinect-based Baseline}
+\label{sec:deterministic_baseline}
+
+Al fine di valutare le prestazioni della pipeline geometrica proposta, è stato implementato un metodo di confronto deterministico ispirato all'approccio presentato in \emph{"Efficient Traversability Analysis for Mobile Robots Using the Kinect Sensor"}. Questo metodo rappresenta una baseline classica per la stima della traversabilità su hardware limitato.
+
+Il principio di funzionamento si basa sull'analisi locale dei gradienti. Il depth frame viene suddiviso in una griglia regolare; per ogni cella vengono ricostruiti i punti 3D e calcolata la normale alla superficie tramite differenze finite o regressione semplice, senza alcuna fase di clustering globale. Una cella è considerata non traversabile se la sua pendenza locale supera una soglia definita.
+
+Sebbene estremamente efficiente dal punto di vista computazionale (richiede solo operazioni vettoriali lineari rispetto al numero di pixel), questo approccio non fornisce una rappresentazione strutturata dell'ambiente (oggetti distinti) ma solo una mappa di costo densa.
+
+\section{Advantages and Limitations}
+\label{sec:advantages_limitations}
+
+Il confronto tra la pipeline geometrica sviluppata (DBSCAN + RANSAC), la baseline deterministica e l'approccio semantico (YOLO) evidenzia diversi trade-off:
+
+\begin{itemize}
+    \item \textbf{Robustezza e Semantica}: La pipeline proposta offre una robustezza superiore rispetto alla baseline deterministica. Il clustering DBSCAN permette di filtrare il rumore e di trattare gli ostacoli come entità fisiche distinte, fornendo al sistema decisionale (RL) osservazioni compatte (distanza e angolo del centroide) invece di una mappa rumorosa. L'integrazione con YOLO aggiunge uno strato semantico, permettendo di identificare rocce anche in condizioni di scarsa profondità geometrica.
+    \item \textbf{Sensibilità al rumore}: La baseline deterministica soffre maggiormente il rumore del sensore, generando "falsi ostacoli" dovuti a singoli pixel errati che alterano la normale locale. Il metodo DBSCAN, basandosi sulla densità, ignora naturalmente gli outlier.
+    \item \textbf{Costo Computazionale}: La Figura~\ref{fig:benchmark_pipeline} mostra i tempi di esecuzione su Raspberry Pi 4. Mentre la baseline è estremamente veloce (pochi ms), la pipeline DBSCAN + RANSAC richiede un tempo di calcolo maggiore, che scala con il numero di punti. Tuttavia, grazie alla decimazione e all'ottimizzazione del codice, il tempo di esecuzione rimane entro il vincolo di 250ms (linea rossa), necessario per garantire una frequenza di controllo minima di 4 Hz sul Raspberry Pi 5.
+\end{itemize}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.85\textwidth]{imgs/05_perception_pipeline/newBENCHpipeline.png}
+    \caption{Benchmarking della pipeline geometrica (DBSCAN+RANSAC) su Raspberry Pi 4. I tempi medi per task mostrano che l'esecuzione rientra nel limite di 250ms (linea rossa) per garantire 4 FPS, requisito rispettato con margine sul Raspberry Pi 5.}
+    \label{fig:benchmark_pipeline}
+\end{figure}
+
+\section{Fine-tuning of DBSCAN Parameters on Real Data}
+\label{sec:finetuning_clustering}
+
+Un aspetto cruciale per l'efficacia della pipeline geometrica è stata la calibrazione dei parametri di clustering \texttt{eps} ($\varepsilon$) e \texttt{min\_samples}. Il passaggio dall'ambiente simulato (Isaac Lab) al mondo reale ha introdotto sfide significative legate al rumore del sensore.
+
+In simulazione, il sensore ideale produce nuvole di punti pulite, permettendo l'uso di valori di $\varepsilon$ ridotti ($\approx 0.12$) per separare oggetti anche molto vicini (Figura~\ref{fig:sim_vs_real_clustering}, sinistra). Nel dominio reale, fenomeni come riflessioni, assorbimento della luce IR su superfici scure e vibrazioni del rover introducono una dispersione dei punti che frammenta i cluster o crea ponti di rumore tra oggetti distinti.
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{imgs/05_perception_pipeline/pic1.png}
+        \label{fig:sim_pic1}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{imgs/05_perception_pipeline/slope1.png}
+        \label{fig:sim_slope1}
+    \end{subfigure}
+    
+    \vspace{2mm}
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{imgs/05_perception_pipeline/pic2.png}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{imgs/05_perception_pipeline/slope2.png}
+    \end{subfigure}
+
+        \vspace{2mm}
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{imgs/05_perception_pipeline/pic3.png}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{imgs/05_perception_pipeline/slope3.png}
+    \end{subfigure}
+    \caption{Risultati in simulazione (Isaac Lab). A sinistra le viste prospettiche, a destra l'output della pipeline. L'assenza di rumore permette una segmentazione nitida con parametri standard.}
+    \label{fig:sim_vs_real_clustering}
+\end{figure}
+
+Per affrontare questo problema, è stata condotta una ricerca su griglia nello spazio dei parametri sui dati reali:
+\[
+\varepsilon \in [0.12, 0.35], \quad \texttt{min\_samples} \in [10, 40]
+\]
+L'obiettivo era massimizzare la stabilità dei cluster minimizzando i falsi positivi dovuti al rumore. La configurazione ottimale identificata per l'ambiente reale è:
+\[
+\varepsilon = 0.22, \quad \texttt{min\_samples} = 18
+\]
+Come mostrato in Figura~\ref{fig:real_tuning}, questa configurazione evita la frammentazione degli ostacoli (tipica di $\varepsilon$ bassi) e riduce il rumore spurio (filtrato da un \texttt{min\_samples} adeguato).
+
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{imgs/05_perception_pipeline/raw_dbscan0.png}
+        \caption{Output rumoroso pre-tuning}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{imgs/05_perception_pipeline/raw_dbscan1.png}
+        \caption{Output stabile post-tuning}
+    \end{subfigure}
+    \caption{Effetto del fine-tuning su dati reali. (a) Parametri non ottimizzati generano cluster frammentati e rumorosi. (b) I parametri ottimali ($\varepsilon=0.22, \text{samples}=18$) producono una stima coerente della pendenza.}
+    \label{fig:real_tuning}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{imgs/05_perception_pipeline/depth_1437_slope.png}
+        \caption{Output rumoroso pre-tuning}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{imgs/05_perception_pipeline/depth_1479_slope.png}
+        \caption{Output stabile post-tuning}
+    \end{subfigure}
+    \caption{altri esempi di risultati della pipeline geometrica su dati reali dopo il fine-tuning dei parametri DBSCAN. come si vede la segmentazioe degli ostacoli è più nitida e coerente.}
+    \label{fig:real_tuning}
+\end{figure}
+
+\section{Perception Outputs for the RL Policy}
+\label{sec:perception_outputs}
+
+L'ultimo stadio della pipeline percettiva consiste nell'aggregazione e normalizzazione dei dati per l'agente di Reinforcement Learning. Le informazioni estratte dalle pipeline YOLO e Geometrica vengono convertite in un vettore di osservazioni compatto.
+
+Per ogni frame, il sistema fornisce:
+\begin{enumerate}
+    \item \textbf{Array ostacoli (Rocce)}: Una lista ordinata delle $N$ rocce più vicine rilevate da YOLO, caratterizzate da distanza $d \in [0, d_{max}]$ e angolo $\psi \in [-\pi, \pi]$.
+    \item \textbf{Array pendenze (Slope)}: Una lista dei cluster geometrici pericolosi rilevati da DBSCAN, anch'essi definiti da distanza e angolo rispetto al rover.
+    \item \textbf{Fusione Sensoriale}: Se un oggetto viene rilevato sia come "Roccia" da YOLO che come "Slope Pericolosa" dalla pipeline geometrica, viene trattato con priorità massima, confermando la natura dell'ostacolo attraverso due modalità sensoriali indipendenti.
+\end{enumerate}
+
+Questi vettori, insieme allo stato cinematico del rover e al vettore obiettivo (Goal), costituiscono l'input dello spazio di osservazione su cui la policy di navigazione apprende a operare.

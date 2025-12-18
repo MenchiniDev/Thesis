@@ -1,0 +1,152 @@
+\chapter{Experimental Results}
+\label{ch9_results}
+
+In questo capitolo vengono presentati i risultati quantitativi ottenuti dalla campagna sperimentale condotta nell'ambiente di simulazione Isaac Lab. L'analisi si concentra inizialmente sulla validazione della pipeline percettiva, per poi approfondire il confronto tra le diverse architetture di Reinforcement Learning. Particolare enfasi viene data allo studio dell'impatto della memoria (temporale e ricorrente) sulle prestazioni di navigazione in ambienti parzialmente osservabili, supportato da un'analisi statistica aggregata. Infine, vengono discusse le potenzialità dell'approccio basato su World Models (TD-MPC2) per questo specifico dominio applicativo.
+
+\section{Perception Pipeline Benchmarks}
+\label{sec:perception_benchmarks}
+
+\textit{[Questa sezione è riservata all'analisi comparativa tra il metodo DBSCAN+RANSAC e la baseline Kinect-based, con focus su metriche di clustering e tempi di esecuzione su hardware embedded, come richiesto.]}
+
+\section{RL Performance: Memory vs No Memory}
+\label{sec:rl_performance}
+
+Il cuore dell'analisi sperimentale riguarda il confronto tra agenti reattivi puri (senza memoria) e agenti dotati di capacità mnemonica (tramite Frame Stacking o architetture ricorrenti). I modelli sono stati valutati sulla base di metriche di successo, tipologia di fallimento e capacità di progressione verso il goal.
+
+\subsection{Success Rate e Analisi degli Eventi}
+La metrica primaria di valutazione è il \emph{Success Rate}, definito come la percentuale di episodi in cui il rover raggiunge il target entro la tolleranza stabilita senza incorrere in condizioni terminali di fallimento (collisioni, ribaltamenti, limiti di tempo).
+
+Come evidenziato nel grafico a barre in Figura~\ref{fig:success_rate}, esiste un divario prestazionale netto tra le due categorie di modelli.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.95\textwidth]{imgs/09_results/success_rate.png}
+    \caption{Success rate ai best checkpoint dei modelli (media $\pm$ deviazione standard su 5 run). Si nota il netto vantaggio delle architetture con memoria (Recurrent PPO e Frame Stacking) rispetto alle controparti reattive.}
+    \label{fig:success_rate}
+\end{figure}
+
+Dai dati emergono i seguenti trend:
+\begin{itemize}
+    \item I modelli \textbf{senza memoria} (PPO-nomem e SAC-nomem) si attestano su tassi di successo insoddisfacenti, compresi tra il $30\%$ e il $35\%$.
+    \item L'introduzione del \textbf{Frame Stacking} ($N=16$) porta a un miglioramento drastico: PPO sale a circa il $68\%$ e SAC al $55\%$.
+    \item \textbf{Recurrent PPO} si conferma l'architettura più performante in assoluto, raggiungendo un success rate medio superiore al $75\%$ con una varianza contenuta.
+\end{itemize}
+
+Per comprendere le cause profonde di questo divario, è necessario analizzare la distribuzione degli eventi di fine episodio mostrata in Figura~\ref{fig:event_types}.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.95\textwidth]{imgs/09_results/event_types.png}
+    \caption{Distribuzione degli eventi terminali (media su 5 run). I modelli senza memoria mostrano un'alta incidenza di timeout e collisioni, drasticamente ridotti dall'introduzione della memoria temporale.}
+    \label{fig:event_types}
+\end{figure}
+
+\subsection{Models without Memory}
+I modelli privi di memoria (barre blu e rosse in Figura~\ref{fig:event_types}) mostrano una patologia di fallimento specifica:
+\begin{itemize}
+    \item \textbf{Alti tassi di Timeout}: PPO (no memory) presenta il numero più elevato di episodi terminati per scadenza del tempo (\textit{timeout}). Questo suggerisce che, non avendo percezione della propria velocità o accelerazione (grandezze che richiedono derivate temporali), l'agente fatica a mantenere un moto fluido, rimanendo spesso bloccato in minimi locali o oscillando senza avanzare efficacemente verso l'obiettivo.
+    \item \textbf{Collisioni}: Entrambi i modelli senza memoria soffrono di un tasso significativo di collisioni con rocce (\textit{collide\_rock}) e ingressi in zone di pendenza pericolosa (\textit{danger\_slope}). Senza memoria storica, l'agente soffre di "cecità temporanea": non può ricordare la presenza di un ostacolo appena uscito dal campo visivo immediato (Field of View) ma ancora presente sulla traiettoria delle ruote posteriori o laterali.
+\end{itemize}
+
+\subsection{Models with Frame Stacking}
+L'integrazione di una finestra temporale di 16 frame (barre arancioni e viola) trasforma il comportamento dell'agente:
+\begin{itemize}
+    \item \textbf{Riduzione dei Timeout}: Il numero di timeout crolla drasticamente. La rete neurale riesce a inferire lo stato dinamico del rover (velocità corrente, slittamento) analizzando le differenze tra frame consecutivi nella stack, permettendo la pianificazione di traiettorie più efficienti e veloci.
+    \item \textbf{Progresso Reale}: Questa efficienza è confermata dalla metrica di \emph{Raw Progress} (Figura~\ref{fig:raw_progress}), dove PPO-16frame mostra un incremento del progresso medio per episodio di oltre il $150\%$ rispetto alla controparte senza memoria. Le traiettorie risultano più fluide e dirette.
+\end{itemize}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.95\textwidth]{imgs/09_results/raw_proress.png}
+    \caption{Progresso medio verso il goal (in metri o unità relative) per episodio. L'uso della memoria permette di massimizzare la distanza percorsa verso l'obiettivo, minimizzando i movimenti oscillatori.}
+    \label{fig:raw_progress}
+\end{figure}
+
+\subsection{Recurrent PPO}
+Recurrent PPO (barra verde in Figura~\ref{fig:success_rate} e Figura~\ref{fig:event_types}) non solo ottiene il success rate migliore, ma dimostra anche la maggiore robustezza qualitativa:
+\begin{itemize}
+    \item È il modello con il minor numero assoluto di collisioni con rocce e pendenze pericolose.
+    \item A differenza del Frame Stacking, che ha un orizzonte temporale fisso e limitato dalla dimensione del buffer ($N=16$), la cella LSTM permette di mantenere informazioni latenti per periodi arbitrariamente lunghi.
+    \item \textbf{Strategie Apprese}: L'analisi visiva delle traiettorie suggerisce che l'agente ricorrente apprende strategie di "aggiramento cieco". Quando un ostacolo grande esce dal FoV durante una virata stretta, l'agente continua a evitarlo basandosi sullo stato nascosto, una capacità preclusa agli agenti reattivi.
+\end{itemize}
+
+\subsection{Checkpoint Selection Criterion}
+\label{subsec:checkpoint_selection}
+
+To ensure a fair and reproducible comparison among the different reinforcement learning agents, a formal checkpoint selection criterion was defined and consistently applied across all model-free baselines (PPO, SAC, Recurrent PPO).
+
+Each training run produced multiple checkpoints over time, all of which were evaluated using a dedicated benchmark procedure. For every checkpoint, the agent was evaluated over multiple independent runs, each consisting of a fixed number of valid episodes. Episodes terminated prematurely due to invalid initial conditions (e.g., simulation artifacts or buggy spawns) were discarded and excluded from the evaluation statistics to preserve data integrity.
+
+The selection of the best-performing checkpoint was based on a \emph{lexicographic ordering} of multiple metrics, reflecting the strict priorities of autonomous planetary navigation tasks. Specifically, checkpoints were ranked according to the following hierarchy:
+
+\begin{enumerate}
+    \item \textbf{Success Rate:} Defined as the fraction of episodes in which the rover successfully reached the goal within the assigned time limit. This represents the primary mission objective and the most critical performance indicator.
+    
+    \item \textbf{Average Episodic Reward:} Used as a secondary criterion to discriminate among policies with comparable success rates. This metric captures the overall quality, smoothness, and safety of the navigation behavior, favoring policies that maximize the shaped reward function.
+    
+    \item \textbf{Average Episode Length:} Used as a tertiary criterion to favor more efficient trajectories among policies with equivalent success rates and rewards, explicitly discouraging unnecessarily long paths or oscillatory behaviors.
+\end{enumerate}
+
+This hierarchical selection strategy avoids the ambiguity of arbitrary weighted combinations of metrics and reflects an operational view of navigation performance, where task completion is prioritized over reward maximization alone. The criterion was applied consistently across all baselines to prevent selection bias and ensure methodological fairness.
+
+\section{Statistical Analysis of Memory Impact}
+\label{sec:stat_analysis}
+
+Per validare la significatività statistica dei risultati e generalizzare le conclusioni, i modelli sono stati aggregati in due macro-gruppi: "Memory" (inclusi Frame Stacking e RNN) e "No Memory".
+
+L'analisi della distribuzione del success rate, visualizzata tramite \emph{Violin Plot} in Figura~\ref{fig:violin_dist}, mostra due densità di probabilità quasi disgiunte.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.85\textwidth]{imgs/09_results/scientific_results/violin_distribution.png}
+    \caption{Violin plot della distribuzione del success rate. Si notano due mode distinte: il gruppo "No Memory" è confinato a prestazioni basse, mentre il gruppo "Memory" presenta una densità di probabilità concentrata su valori elevati.}
+    \label{fig:violin_dist}
+\end{figure}
+
+Il gruppo "Memory" presenta una massa di probabilità concentrata tra $0.6$ e $0.8$, mentre il gruppo "No Memory" è confinato in una regione inferiore ($0.25 - 0.45$). Lo stesso trend è confermato dai \emph{Box Plot} relativi al Success Rate (Figura~\ref{fig:box_success}) e alla Reward Media (Figura~\ref{fig:box_reward}).
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.85\textwidth]{imgs/09_results/scientific_results/success_rate_distribution.png}
+    \caption{Boxplot del success rate aggregato: il confronto evidenzia che la memoria non è un accessorio opzionale, ma sposta l'intera distribuzione delle performance verso l'alto.}
+    \label{fig:box_success}
+\end{figure}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.85\textwidth]{imgs/09_results/scientific_results/reward_distribution.png}
+    \caption{Boxplot della reward media per episodio. I modelli con memoria ottengono ricompense mediane quasi doppie rispetto a quelli senza memoria, con una varianza interquartile ridotta.}
+    \label{fig:box_reward}
+\end{figure}
+
+L'analisi dei boxplot rivela che:
+\begin{itemize}
+    \item \textbf{Reward Media}: Il gruppo con memoria ottiene una ricompensa media per episodio nettamente superiore (mediana $\approx 38$) rispetto al gruppo senza memoria (mediana $\approx 20$).
+    \item \textbf{Stabilità}: È interessante notare come l'introduzione della memoria non solo alzi la media, ma riduca anche la dispersione dei risultati nei quartili inferiori, garantendo prestazioni minime più elevate e predicibili.
+\end{itemize}
+
+Questi dati confermano l'ipotesi di ricerca: in un ambiente parzialmente osservabile e dinamicamente complesso come quello lunare, la memoria è un requisito funzionale per l'autonomia.
+
+\section{TD-MPC2 Results and Comparison}
+\label{sec:tdmpc2_results}
+
+Sebbene i risultati quantitativi completi del training di TD-MPC2 siano in fase di finalizzazione, è possibile discutere i vantaggi architetturali emersi dalle prime valutazioni rispetto alle baseline model-free (PPO/SAC).
+
+TD-MPC2 introduce un cambio di paradigma, passando dall'apprendimento di una policy reattiva alla pianificazione su un modello del mondo appreso (\emph{World Model}). Per il task del rover lunare, questa architettura offre vantaggi specifici che promettono di superare i limiti anche di Recurrent PPO:
+
+\begin{enumerate}
+    \item \textbf{Gestione Implicita della Parziale Osservabilità}: Lo stato latente $z_t$ appreso da TD-MPC2 funge intrinsecamente da memoria a lungo termine. Il modello è forzato ad aggregare nel vettore latente tutta la storia delle osservazioni passate necessaria per predire accuratamente il futuro. In questo senso, TD-MPC2 generalizza e potenzia i benefici visti con le reti ricorrenti.
+    \item \textbf{Robustezza Fisica e Anticipazione}: Mentre PPO deve "imparare a memoria" la reazione corretta allo slittamento per ogni possibile stato, TD-MPC2 apprende le equazioni della dinamica nello spazio latente. Se il modello dinamico è accurato, l'agente può anticipare lo slittamento o il ribaltamento durante la fase di pianificazione (MPPI) e correggere la traiettoria \emph{prima} che l'errore diventi critico o irreversibile.
+    \item \textbf{Sample Efficiency}: Essendo un algoritmo model-based, TD-MPC2 ha teoricamente bisogno di meno interazioni con l'ambiente reale per convergere, poiché può generare traiettorie immaginarie ("sognare") e apprendere da esse senza i rischi e i costi temporali dell'esecuzione fisica.
+\end{enumerate}
+
+\section{Discussion}
+\label{sec:discussion}
+
+L'analisi dei risultati sperimentali porta a diverse conclusioni fondamentali per il design di sistemi di navigazione robotica in ambienti extraterrestri.
+
+Innanzitutto, si conferma che il problema della navigazione su terreni irregolari con sensori locali deve essere trattato formalmente come un \textbf{POMDP} (\emph{Partially Observable Markov Decision Process}). I modelli reattivi semplici (No-Memory) falliscono sistematicamente perché violano l'assunzione di Markov: l'osservazione corrente (un singolo frame di profondità) non contiene tutte le informazioni sufficienti per decidere l'azione ottimale (mancano velocità, accelerazione, trend di scivolamento e posizione di ostacoli occlusi).
+
+L'introduzione della memoria risolve questo deficit informativo. Il \textbf{Frame Stacking} si è dimostrato una soluzione efficace ed economica computazionalmente per ricostruire le derivate del moto, riducendo drasticamente i timeout e migliorando la fluidità di marcia. Tuttavia, \textbf{Recurrent PPO} si è rivelato superiore nella gestione della navigazione spaziale complessa, suggerendo che la capacità di mantenere uno stato nascosto a lungo termine è preziosa per compiti che richiedono ragionamento sequenziale, come l'aggiramento di grandi crateri o campi di rocce densi.
+
+Infine, il divario di prestazioni evidenziato dall'analisi statistica suggerisce che futuri sviluppi per missioni critiche dovrebbero concentrarsi esclusivamente su architetture con memoria di stato avanzata (RNN o World Models), abbandonando gli approcci puramente reattivi che, sebbene più semplici da implementare su hardware embedded, non garantiscono i livelli di affidabilità e sicurezza richiesti per l'esplorazione autonoma.

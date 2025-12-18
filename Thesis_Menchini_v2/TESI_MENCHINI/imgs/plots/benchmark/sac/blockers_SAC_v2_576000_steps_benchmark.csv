@@ -1,0 +1,6 @@
+checkpoint,run_id,episodes,success_rate,avg_ep_rew,median_ep_rew,avg_ep_len,success,oob,collide_rock,danger_slope,rollover,timeout,error
+/home/loren/Desktop/luna-lrs/checkpoints/isaaclab/blockers_SAC_v2/blockers_SAC_v2_576000_steps.zip,1,100,0.37,18.64003727078438,20.462048530578613,109.69,37,2,14,27,0,20,
+/home/loren/Desktop/luna-lrs/checkpoints/isaaclab/blockers_SAC_v2/blockers_SAC_v2_576000_steps.zip,2,100,0.31,20.822719167377798,22.45709991455078,113.96,31,3,20,21,0,25,
+/home/loren/Desktop/luna-lrs/checkpoints/isaaclab/blockers_SAC_v2/blockers_SAC_v2_576000_steps.zip,3,100,0.37,24.765420946627856,22.27391529083252,102.26,37,5,17,24,0,17,
+/home/loren/Desktop/luna-lrs/checkpoints/isaaclab/blockers_SAC_v2/blockers_SAC_v2_576000_steps.zip,4,100,0.33,23.455087850987912,22.546801567077637,120.68,33,3,14,24,0,26,
+/home/loren/Desktop/luna-lrs/checkpoints/isaaclab/blockers_SAC_v2/blockers_SAC_v2_576000_steps.zip,5,100,0.36,23.519075133502483,22.536949157714844,104.91,36,4,12,29,0,19,

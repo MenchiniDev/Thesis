@@ -1,0 +1,411 @@
+\section{Slope Estimation Pipeline}
+\label{sec:slope_estimation}
+
+La seconda pipeline percettiva utilizzata in questo lavoro ha l’obiettivo di identificare ostacoli
+geometricamente pericolosi a partire dai frame di profondità acquisiti dalla Intel RealSense D455f.
+A differenza della pipeline YOLO, specializzata esclusivamente nel riconoscimento delle rocce da
+immagini RGB, questa pipeline lavora direttamente sulla geometria 3D della scena ed è in grado di
+rilevare qualunque oggetto che presenti una superficie inclinata o irregolare tale da rappresentare
+un rischio per la traversabilità. La procedura è implementata nella funzione
+\texttt{estimate\_slope\_from\_depth\_image} (riportata nel codice sorgente) e si articola in più fasi
+principali, descritte di seguito.
+
+\subsection{Preprocessing del depth frame}
+Il depth frame viene convertito in \texttt{float32}, filtrato con una leggera sfocatura gaussiana
+per ridurre il rumore e decimato tramite uno \emph{stride} selezionabile.  
+Questa decimazione riduce il numero di punti senza comprometterne la struttura, permettendo
+l’elaborazione in tempo reale anche su hardware embedded.
+
+I parametri intrinseci della camera vengono scalati coerentemente con la risoluzione decimata, così
+da mantenere la corretta proiezione dei punti nello spazio.
+
+\subsection{Ricostruzione dei punti 3D e rimozione del terreno}
+I pixel validi vengono proiettati in coordinate 3D nel frame della camera o, se disponibile,
+nel frame mondo tramite la trasformazione \texttt{cam\_T\_world}.  
+Prima di cercare ostacoli, la pipeline stima e rimuove il piano del terreno tramite un modello
+lineare adattato con RANSAC. Il terreno viene eliminato solo se l’inclinazione stimata è
+compatibile con un suolo pianeggiante (\emph{ground tilt} sotto una soglia configurabile).
+
+Questa rimozione previene la formazione di cluster erronei dovuti al piano di appoggio del rover.
+
+\subsection{Clustering degli ostacoli tramite DBSCAN}
+Sui punti rimanenti viene applicato \texttt{DBSCAN}, un algoritmo di clustering basato sulla densità,
+in grado di:
+
+\begin{itemize}
+    \item separare oggetti differenti anche se di forma irregolare;
+    \item ignorare automaticamente il rumore;
+    \item gestire cluster di forma arbitraria, caratteristica utile in contesti outdoor irregolari.
+\end{itemize}
+
+I parametri \texttt{eps} e \texttt{min\_samples} sono stati calibrati su dati reali raccolti in campagna
+e ulteriormente adattati ai dati simulati.
+
+Se il primo tentativo di clustering produce zero cluster, la funzione implementa un fallback
+progressivo aumentando la tolleranza \texttt{eps} fino a ottenere almeno un ostacolo riconosciuto.
+
+\subsection{Stima per-cluster della pendenza via RANSAC}
+Per ogni cluster individuato, viene adattato un piano tramite RANSAC per stimarne
+l’orientamento.  
+Il normale del piano viene confrontato con il vettore \texttt{world\_up} (o l’asse Y della camera
+quando il frame mondo non è disponibile) per ottenere la pendenza:
+
+\[
+\text{slope\_deg} = \arccos \left( |n \cdot \text{up}| \right ) .
+\]
+
+La funzione include anche una correzione per il tilt del rover: quando si opera nel frame camera,
+la pendenza osservata deve essere sommata all’inclinazione del rover stesso, stimata tramite
+la trasformazione \texttt{cam\_T\_world}.  
+Questo permette alla pipeline di evitare falsi positivi dovuti a oscillazioni del robot.
+
+Solo i cluster con pendenza superiore a una soglia (\texttt{min\_slope\_deg}, tipicamente 25°)
+vengono considerati realmente pericolosi.
+
+\section{Fine-tuning del clustering su dati reali}
+\label{sec:finetuning-clustering}
+
+In questa sezione vengono analizzati i risultati ottenuti dalla pipeline percettiva
+all'interno dell'ambiente simulato Isaac Lab e, successivamente, viene mostrato come
+la transizione al dominio reale abbia richiesto un fine-tuning mirato dei parametri di
+DBSCAN al fine di ottenere cluster robusti, stabili e privi di rumore.
+
+L'obiettivo della pipeline è segmentare i punti appartenenti al terreno e stimarne la
+pendenza locale attraverso un modello planare. Tale procedura si compone di due
+passaggi fondamentali:
+
+\begin{enumerate}
+    \item \textbf{Clustering spaziale dei punti tramite DBSCAN};
+    \item \textbf{Stima della pendenza locale per ciascun cluster tramite fitting planare}.
+\end{enumerate}
+
+\subsection{Risultati in simulazione: Isaac Lab}
+All'interno di Isaac Lab, le condizioni ambientali sono controllate e il rumore dei
+sensori è minimo. Questo ha permesso di ottenere una segmentazione estremamente
+stabile delle superfici, con cluster ben separati e pendenze stimate con precisione.
+
+In Figura~\ref{fig:isaac-slope} si mostrano i risultati tipici ottenuti in simulazione:
+le superfici vengono correttamente raggruppate e la pipeline è in grado di isolare
+regioni a pendenza elevata, evidenziando in modo affidabile aree non percorribili.
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{imgs/fine_tuning/pic1.png}
+        %\caption{Scenario 1}
+        \label{fig:rock1}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{imgs/fine_tuning/slope1.png}
+        %\caption{Scenario 2}
+        \label{fig:rock2}
+    \end{subfigure}
+
+    \vspace{4mm}
+
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{imgs/fine_tuning/pic2.png}
+        %\caption{Scenario 3}
+        \label{fig:rock3}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{imgs/fine_tuning/slope2.png}
+        %\caption{Scenario 4}
+        \label{fig:rock4}
+    \end{subfigure}
+
+        \vspace{4mm}
+
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{imgs/fine_tuning/pic3.png}
+        %\caption{Scenario 3}
+        \label{fig:rock3}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{imgs/fine_tuning/slope3.png}
+        %\caption{Scenario 4}
+        \label{fig:rock4}
+    \end{subfigure}
+
+    \caption{a sinistra immagini prospettiche ottenute dalle simulazioni di Isaac Lab;
+             a destra, i corrispondenti output della pipeline di stima della pendenza,
+             con i cluster colorati in base alla pendenza stimata (colore più caldo
+             indica pendenza maggiore).}
+    \label{fig:quattro-immagini}
+\end{figure}
+In questo contesto, i valori di DBSCAN utilizzati in simulazione si sono rivelati
+sufficientemente stabili:
+\[
+\varepsilon \in [0.10, 0.15], \quad \texttt{min\_samples} = 25 .
+\]
+Il basso livello di rumore consente infatti di utilizzare valori ridotti di \(\varepsilon\)
+e soglie di densità elevate, ottenendo cluster ben definiti.
+
+\subsection{Passaggio al dominio reale: problemi di rumore}
+
+L’acquisizione di dati reali ha introdotto un livello di rumore significativamente più
+alto rispetto a quanto osservato in simulazione. Tale rumore deriva da:
+
+\begin{itemize}
+    \item riflessioni e assorbimenti della luce su superfici irregolari;
+    \item perdita di informazione nei bordi delle immagini di profondità;
+    \item quantizzazione e limitazioni del sensore;
+    \item vibrazioni e micro-movimenti del rover.
+\end{itemize}
+
+Il risultato è un insieme di punti con outlier distribuiti nello spazio, i quali tendono
+a degradare l'output di DBSCAN generando cluster frammentati o eccessivamente rumorosi.
+In Figura~\ref{fig:real-before-after} si mostra il confronto tra il clustering
+prima e dopo il fine-tuning.
+
+Per ottenere cluster stabili nel dominio reale è stato necessario modificare i
+parametri di DBSCAN, in particolare:
+
+\[
+\text{DBSCAN}(\varepsilon,\, \texttt{min\_samples})
+\]
+
+\paragraph{Effetto dei parametri:}
+
+\begin{itemize}
+    \item \textbf{\(\varepsilon\)} controlla la distanza massima tra due punti affinché
+          vengano considerati connessi.  
+          Un valore troppo basso produce cluster frammentati; troppo alto fonde
+          regioni non contigue introducendo rumore.
+    \item \textbf{\texttt{min\_samples}} determina la densità minima richiesta per
+          formare un cluster.  
+          Valori alti eliminano molti outlier, ma rischiano di perdere superfici
+          piccole o poco dense; valori bassi producono cluster rumorosi.
+\end{itemize}
+
+\subsection{Fine-tuning dei parametri}
+Il fine-tuning è stato condotto esplorando la combinazione dei due parametri secondo
+una griglia:
+
+\[
+\varepsilon \in [0.12,\, 0.35], \qquad
+\texttt{min\_samples} \in [10,\, 40].
+\]
+
+L'obiettivo era trovare un compromesso ottimale tra:
+
+\begin{itemize}
+    \item \textbf{robustezza al rumore},  
+    \item \textbf{mantenimento della qualità geometrica dei cluster},  
+    \item \textbf{stabilità della stima della pendenza}.  
+\end{itemize}
+
+I valori che hanno mostrato le migliori prestazioni sui dati reali sono stati:
+
+\[
+\varepsilon = 0.22, \qquad \texttt{min\_samples} = 18 .
+\]
+
+Questa configurazione riduce significativamente il rumore, mantenendo intatta la
+struttura del terreno necessaria alla stima della pendenza.
+
+\subsection{Risultati finali sul dominio reale}
+
+In Figura~\ref{fig:real-before-after} viene riportato il risultato del clustering sui dati reali.
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{imgs/fine_tuning/depth_1437_slope.png}
+        \caption{Output iniziale con forti rumori e cluster disomogenei.}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{imgs/fine_tuning/depth_1479_slope.png}
+        \caption{Clustering dopo il fine-tuning dei parametri di DBSCAN.}
+    \end{subfigure}
+    \caption{immagini post processed che mostrano la capacità della pipeline di clusterizzare oggetti distinti e di stimare correttamente la pendenza delle superfici.}
+    \label{fig:real-before-after}
+\end{figure}
+
+La pipeline ottimizzata permette di ottenere cluster molto più regolari e una stima
+della pendenza meglio definita. Questo ha reso possibile integrare in modo affidabile
+la pipeline percettiva con il controller di navigazione del rover, garantendo che le
+regioni ad alta pendenza venissero correttamente identificate anche in presenza di
+rumore significativo.
+
+
+\subsection{Output della pipeline}
+Per ogni ostacolo pericoloso vengono estratte due grandezze:
+
+\begin{itemize}
+    \item \textbf{distanza minima} dal rover, calcolata nel frame camera come norma di ciascun punto del cluster,
+    \item \textbf{angolo mediano} rispetto al rover, ottenuto da \(\arctan2(x, z)\), utile per discretizzare la direzione del pericolo.
+\end{itemize}
+
+L’output finale è quindi un vettore di distanze e un vettore di angoli, già normalizzati e pronti
+per essere passati alla policy RL.
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{imgs/slope_estimation/rgb.png}
+        %\caption{Scenario 1}
+        \label{fig:rock1}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{imgs/slope_estimation/segmented_depth.png}
+        %\caption{Scenario 2}
+        \label{fig:rock2}
+    \end{subfigure}
+
+    \vspace{4mm}
+
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{imgs/slope_estimation/cluster_depth.png}
+        %\caption{Scenario 3}
+        \label{fig:rock3}
+    \end{subfigure}
+    \caption{step della pipeline per i depth frame. L'immagine rgb non è parte della pipeline, ma è
+             mostrata a scopo illustrativo. In alto a sinistra, l'immagine RGB acquisita dalla camera;
+             in alto a destra, il depth frame ottenuto, dove il colore più chiaro indica maggiore distanza;
+             in basso, i cluster individuati da DBSCAN evidenziati con colori differenti in base alla pendenza stimata.}
+    \label{fig:quattro-immagini}
+\end{figure}
+
+\subsection{Interazione con la pipeline YOLO: complementarità}
+Questa pipeline, essendo basata sulle geometrie 3D, classifica come pericolosi tutti gli oggetti che
+presentano superfici molto inclinate, incluse le rocce.  
+Tuttavia, la pipeline YOLO RGB è in grado di riconoscere rocce anche quando:
+
+\begin{itemize}
+    \item la profondità è disturbata da ombre estreme (tipiche dell’illuminazione lunare radente),
+    \item la roccia è poco strutturata o parzialmente occlusa,
+    \item il cluster geometrico risulta troppo piccolo per essere isolato tramite DBSCAN.
+\end{itemize}
+
+Quando un oggetto è identificato come roccia da YOLO \emph{e} come pendenza pericolosa dalla pipeline
+geometrica, la policy lo interpreta come ostacolo ad alta priorità.  
+Questo comportamento integrato produce una navigazione più prudente, robusta e coerente anche in
+scenari complessi.
+
+\begin{figure}[H] 
+    \centering 
+    \includegraphics[width=0.95\textwidth]{imgs/slope_estimation/yolo.png} 
+    \caption{applicazione della pipeline YOLO per il riconoscimento delle rocce nella LUNA analog Facility all'European Astronaut Centre.} 
+    \label{fig:isaac-architecture} 
+\end{figure}
+
+\subsection{Collegamento ai metodi deterministici}
+La pipeline qui descritta costituisce la base geometrica per il confronto con algoritmi deterministici
+di stima della traversabilità, trattati nella sezione successiva.  
+In particolare, verranno analizzati sia le prestazioni computazionali su hardware embedded (Raspberry~Pi~5),
+sia la qualità delle stime ottenute rispetto a metodi classici.
+
+
+\section{Deterministic Traversability Analysis: Kinect-based Method}
+\label{sec:kinect_traversability}
+
+Oltre alla pipeline geometrica basata su DBSCAN e RANSAC descritta nella Sezione~\ref{sec:slope_estimation},
+in questo lavoro è stato considerato anche un approccio deterministico classico, derivato dal
+metodo presentato nel paper \emph{Efficient Traversability Analysis for Mobile Robots Using the Kinect Sensor}.
+Questo metodo è stato scelto come baseline poiché rappresenta una delle soluzioni più semplici,
+computazionalmente leggere e consolidate per stimare la traversabilità del terreno a partire da
+una mappa di profondità.
+
+\subsection{Principi del metodo}
+L’idea alla base del metodo è quella di generare una stima locale di traversabilità analizzando
+la variazione delle normali o dei gradienti della superficie osservata.  
+Il depth frame proveniente dal sensore viene suddiviso in una griglia regolare; per ciascuna cella:
+
+\begin{enumerate}
+    \item vengono ricostruiti i punti 3D tramite proiezione inversa;
+    \item viene stimata la normale locale tramite differenze finite o regressione semplice;
+    \item viene calcolata la pendenza locale rispetto al vettore “up” del robot;
+    \item la cella viene classificata come \emph{traversabile} oppure \emph{non traversabile}
+          se l’inclinazione supera una soglia predefinita.
+\end{enumerate}
+
+Si tratta quindi di un algoritmo basato sul concetto di:
+\[
+\text{Traversabilità} = f(\text{pendenza locale}, \text{rugosità}, \text{discontinuità})
+\]
+
+Rispetto a metodi più complessi basati su segmentazione o clustering, questo approccio opera
+direttamente sulla struttura locale della superficie senza ricercare oggetti o cluster coerenti.
+
+\subsection{Caratteristiche computazionali}
+Il metodo è stato progettato per essere compatibile con piattaforme a bassa potenza computazionale,
+come microcontrollori o SBC privi di accelerazione grafica.  
+Le principali caratteristiche che lo rendono efficiente sono:
+
+\begin{itemize}
+    \item assenza di clustering (DBSCAN) e fasi iterative costose;
+    \item utilizzo di normali locali o gradienti calcolati tramite semplici differenze;
+    \item complessità lineare rispetto al numero di pixel considerati.
+\end{itemize}
+
+Per questo motivo, il metodo è molto indicato per l’esecuzione su Raspberry~Pi~5,
+poiché richiede solo operazioni vettoriali e nessun fitting complesso come RANSAC.
+
+\subsection{Limitazioni principali}
+Nonostante l’efficienza, il metodo presenta diverse limitazioni note:
+
+\begin{itemize}
+    \item \textbf{sensitivity al rumore del depth}: la stima locale delle normali è fortemente disturbata da pixel rumorosi, specialmente a distanza elevata;
+    \item \textbf{incapacità di distinguere ostacoli semanticamente diversi}: il metodo interpreta solo la pendenza, senza distinguere rocce, buche, margini o superfici verticali;
+    \item \textbf{assenza di clustering} significa che un singolo ostacolo può generare molte celle instabili, rendendo il segnale meno strutturato rispetto ai cluster DBSCAN;
+    \item \textbf{nessuna stima della distanza o direzione dell’ostacolo}: la traversabilità è una mappa locale, ma non fornisce feature compatte per un modello RL (come distanza e angolo).
+\end{itemize}
+
+Queste limitazioni rendono il metodo efficace come baseline deterministica, ma meno adatto
+per una pipeline RL che richiede osservazioni compatte e semanticamente significative.
+
+\subsection{Confronto concettuale con il metodo sviluppato in questa tesi}
+
+Il metodo Kinect-based fornisce una stima di traversabilità locale per ogni cella,
+mentre il metodo DBSCAN+RANSAC sviluppato in questa tesi:
+
+\begin{itemize}
+    \item raggruppa gli ostacoli in cluster geometrici coerenti;
+    \item stima la pendenza tramite fitting robusto;
+    \item produce osservazioni compatte: distanza e angolo per ogni ostacolo pericoloso;
+    \item assegna priorità agli ostacoli individuati anche dalla pipeline YOLO.
+\end{itemize}
+
+Dal punto di vista della navigazione autonoma:
+
+\begin{itemize}
+    \item il metodo Kinect-based è ideale per un controller deterministico locale;
+    \item la pipeline DBSCAN+RANSAC è ideale come pre-processore per una policy RL.
+\end{itemize}
+
+La differenza fondamentale è che il metodo deterministico fornisce una mappa densa,
+mentre il metodo proposto fornisce un insieme di feature sparse e interpretabili.
+
+\subsection{Prestazioni su Raspberry Pi 5}
+Nella valutazione riportata nel Capitolo~\ref{chap:results}, il metodo Kinect-based ha mostrato
+tempi di esecuzione estremamente ridotti su Raspberry~Pi~5, tipicamente dell’ordine di pochi millisecondi a frame, mentre la pipeline DBSCAN+RANSAC richiede significativamente più tempo,
+soprattutto nei casi con molteplici cluster.
+
+Tuttavia, la qualità delle stime di pendenza del metodo deterministico è risultata inferiore in
+presenza di superfici complesse, rumore di profondità e ostacoli irregolari.  
+Il metodo sviluppato in questa tesi produce stime più robuste, soprattutto nelle zone critiche
+che influenzano la sicurezza del rover.
+
+\begin{figure}[ht]
+    \centering
+    % Sostituisci con la tua immagine o tieni come placeholder
+    \includegraphics[width=0.85\textwidth]{imgs/plots/charts/newBENCHpipeline.png}
+    \caption{risultati della pipeline con DBSCAN+RANSAC eseguita su Raspberry Pi 4, riportata in tempi medi per singola task all'interno del nodo ROS2 dedicato. In rosso è rappresentato il tempo limite di 250ms su raspberrypi 5 per rispettare il vincolo di minimo 4 fps.}
+    \label{fig:isaaclab_architecture}
+\end{figure}

@@ -1,0 +1,535 @@
+\section{Analisi comparativa dei modelli di Reinforcement Learning}
+\label{sec:rl-results}
+
+In questa sezione vengono analizzati i risultati ottenuti dai diversi algoritmi di
+Reinforcement Learning sviluppati e testati nel corso del progetto. Ogni modello è
+stato addestrato nell’ambiente simulato Isaac Lab con la medesima reward function,
+configurazione di scenario e pipeline percettiva. Sono stati valutati tre principali
+agenti:
+
+\begin{itemize}
+    \item \textbf{SAC senza memoria} (\textit{SAC--nomem});
+    \item \textbf{SAC con history di 16 frame} (\textit{SAC--16frame});
+    \item \textbf{Recurrent PPO} (\textit{R-PPO});
+\end{itemize}
+
+A questi si aggiunge un quarto modello, \textbf{PPO}, attualmente in fase di
+addestramento, i cui risultati saranno inseriti successivamente.
+
+Per ogni modello vengono analizzate tre categorie di metriche:
+
+\begin{enumerate}
+    \item \textbf{Goal metrics}: distanza dal goal, progresso verso il goal, goal reward;
+    \item \textbf{Episode metrics}: episode return e episode length;
+    \item \textbf{Reward shaping metrics}: contributo delle singole componenti della ricompensa.
+\end{enumerate}
+
+I grafici mostrati nelle sezioni seguenti includono sia gli scatter plot delle metriche
+durante il training, sia una regressione polinomiale per evidenziare i trend globali.
+Tali trend risultano utili per confrontare stabilità, convergenza e robustezza dei
+diversi modelli.
+
+% ============================================================
+%  SAC NOMEM
+% ============================================================
+
+\subsection{Soft Actor–Critic senza memoria (SAC--nomem)}
+Il modello SAC senza memoria rappresenta la versione base dell'agente off-policy.
+Questa configurazione utilizza come osservazione esclusivamente lo stato corrente, senza
+integrare una finestra temporale dei frame passati.
+
+I risultati mostrano che il modello è in grado di apprendere un comportamento coerente,
+ma la mancanza di informazione temporale riduce la qualità del policy gradient nelle
+situazioni più dinamiche, come gli attraversamenti di pendenze o manovre di correzione.
+
+\subsubsection{Goal metrics}
+La Figura~\ref{fig:sac-nomem-goal} mostra tre fenomeni principali:
+
+\begin{itemize}
+    \item la \textbf{mean\_dist\_to\_goal\_m} tende a diminuire nella prima metà del
+          training, indicando un miglioramento della navigazione, ma presenta oscillazioni
+          e un plateau nella fase finale;
+    \item la \textbf{mean\_progress} rimane bassa e con grande varianza, suggerendo
+          difficoltà nel mantenere movimento costante verso il target;
+    \item la \textbf{goal reward} si stabilizza su valori molto piccoli, indice di
+          miglioramenti marginali nelle traiettorie finali.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{imgs/plots/training/dist_progress_goal_SAC_nomem.png}
+    \caption{Goal metrics per SAC--nomem.}
+    \label{fig:sac-nomem-goal}
+\end{figure}
+
+\subsubsection{Episode metrics}
+Dalla Figura~\ref{fig:sac-nomem-episode} emerge che:
+
+\begin{itemize}
+    \item l'\textbf{episode return} mostra un leggero calo nella seconda metà del
+          training, indicando un comportamento meno efficiente nel lungo termine;
+    \item l'\textbf{episode length} segue un trend decrescente, segno di terminazioni
+          premature, spesso dovute a rollover o out-of-bounds.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{imgs/plots/training/episode_SAC_nomem.png}
+    \caption{Episode metrics per SAC--nomem.}
+    \label{fig:sac-nomem-episode}
+\end{figure}
+
+\subsubsection{Reward shaping metrics}
+La Figura~\ref{fig:sac-nomem-reward} conferma che il modello non sfrutta pienamente le
+componenti della ricompensa: il \textbf{progress reward} converge su valori minimi e il
+\textbf{total reward} presenta forte varianza.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{imgs/plots/training/progress_goal_total_SAC_nomem.png}
+    \caption{Reward shaping metrics per SAC--nomem.}
+    \label{fig:sac-nomem-reward}
+\end{figure}
+
+% ============================================================
+%  SAC 16 FRAME STACKING
+% ============================================================
+
+\subsection{Soft Actor–Critic con frame stacking (SAC--16frame)}
+In questa configurazione, l'agente riceve come input una finestra temporale di 16 frame
+consecutivi. Ciò permette al modello di catturare la dinamica del movimento e ottenere
+una rappresentazione più ricca dello stato.
+
+I risultati mostrano un netto miglioramento rispetto alla versione senza memoria.
+
+\subsubsection{Goal metrics}
+La Figura~\ref{fig:sac-16-goal} mostra che:
+
+\begin{itemize}
+    \item la \textbf{mean\_dist\_to\_goal\_m} segue un trend chiaramente decrescente
+          durante la prima parte dell’addestramento;
+    \item il \textbf{progress} aumenta in modo consistente e stabile;
+    \item il \textbf{goal reward} raggiunge valori molto più alti e con minore varianza.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{imgs/plots/training/dist_progress_goal_SAC16FRAME.png}
+    \caption{Goal metrics per SAC--16frame.}
+    \label{fig:sac-16-goal}
+\end{figure}
+
+\subsubsection{Episode metrics}
+La Figura~\ref{fig:sac-16-episode} evidenzia che:
+
+\begin{itemize}
+    \item l'\textbf{episode return} mostra una crescita moderata e stabile;
+    \item l'\textbf{episode length} diminuisce nella prima fase ma si stabilizza
+          successivamente su valori più alti rispetto a SAC--nomem, indice di traiettorie
+          più durature e sicure.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{imgs/plots/training/episode_SAC16FRAME.png}
+    \caption{Episode metrics per SAC--16frame.}
+    \label{fig:sac-16-episode}
+\end{figure}
+
+\subsubsection{Reward shaping metrics}
+Come mostrato nella Figura~\ref{fig:sac-16-reward}, il modello sfrutta in maniera
+efficace le componenti della ricompensa: il \textbf{progress} cresce monotonicamente e
+il \textbf{total reward} segue un trend molto più regolare.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{imgs/plots/training/progress_goal_total_SAC16FRAME.png}
+    \caption{Reward shaping metrics per SAC--16frame.}
+    \label{fig:sac-16-reward}
+\end{figure}
+
+% ============================================================
+%  RECURRENT PPO
+% ============================================================
+
+\subsection{Recurrent PPO (R-PPO)}
+Il modello Recurrent PPO integra una GRU nella policy per mantenere uno stato nascosto e
+catturare dipendenze temporali di medio raggio. I risultati indicano performance
+intermedie tra SAC--nomem e SAC--16frame.
+
+\subsubsection{Goal metrics}
+Come mostrato in Figura~\ref{fig:recppo-goal}:
+
+\begin{itemize}
+    \item la distanza dal goal diminuisce nella prima parte e poi si stabilizza;
+    \item il progresso mostra trend crescente, ma con maggiore varianza rispetto a
+          SAC--16frame;
+    \item la goal reward è superiore al SAC--nomem ma inferiore al SAC con frame stacking.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{imgs/plots/training/dist_progress_goal_recppo.png}
+    \caption{Goal metrics per Recurrent PPO.}
+    \label{fig:recppo-goal}
+\end{figure}
+
+\subsubsection{Episode metrics}
+Dalla Figura~\ref{fig:recppo-episode} emerge che:
+
+\begin{itemize}
+    \item l’\textbf{episode return} è più stabile rispetto a SAC--nomem;
+    \item l’\textbf{episode length} presenta un andamento concavo simile a quello osservato
+          in SAC--16frame, ma con maggiore oscillazione.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{imgs/plots/training/episode_recppo.png}
+    \caption{Episode metrics per Recurrent PPO.}
+    \label{fig:recppo-episode}
+\end{figure}
+
+\subsubsection{Reward shaping metrics}
+La Figura~\ref{fig:recppo-reward} mostra che il modello sfrutta meglio del SAC--nomem la
+struttura della ricompensa, ma non raggiunge la coerenza del SAC--16frame.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{imgs/plots/training/progress_goal_total_recppo.png}
+    \caption{Reward shaping metrics per Recurrent PPO.}
+    \label{fig:recppo-reward}
+\end{figure}
+
+% ============================================================
+%  PLACEHOLDER PPO
+% ============================================================
+
+\subsection{Proximal Policy Optimization (PPO)}
+\label{sec:ppo-results}
+
+In questa sezione vengono presentati i risultati ottenuti dai due modelli PPO valutati
+nel progetto: una versione \textbf{senza memoria} (PPO–nomem) e una versione con
+\textbf{frame stacking di 16 osservazioni} (PPO–16frame).  
+Entrambi utilizzano la stessa architettura MLP per policy e value network, ma differiscono
+nel tipo di informazione temporale fornita all'agente.
+
+I risultati mostrano in modo evidente che il frame stacking porta benefici significativi
+nella stabilità della policy, nella qualità del controllo e nella capacità di compiere
+progressi continui verso il goal.
+
+% ============================================================
+%  PPO NOMEM
+% ============================================================
+
+\subsubsection{PPO senza memoria (PPO–nomem)}
+
+\paragraph{Goal metrics.}
+La Figura~\ref{fig:ppo-nomem-goal} mostra un comportamento analogo a quello osservato per
+SAC–nomem: l'agente impara inizialmente a ridurre la distanza dal goal, ma la curva
+tende successivamente a stabilizzarsi su un plateau. Il progresso rimane basso e la
+goal reward presenta forte varianza.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{imgs/plots/training/dist_progress_goal_PPO_nomem.png}
+    \caption{Goal metrics per PPO--nomem.}
+    \label{fig:ppo-nomem-goal}
+\end{figure}
+
+\paragraph{Episode metrics.}
+La Figura~\ref{fig:ppo-nomem-episode} evidenzia un calo progressivo dell’episode length,
+indicativo di episodi che terminano presto, spesso a causa di collisioni o invalidazioni.
+L’episode return resta relativamente basso e non mostra una crescita significativa.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{imgs/plots/training/episode_PPO_nomem.png}
+    \caption{Episode metrics per PPO--nomem.}
+    \label{fig:ppo-nomem-episode}
+\end{figure}
+
+\paragraph{Reward shaping metrics.}
+La Figura~\ref{fig:ppo-nomem-reward} mostra un progress reward che cresce moderatamente,
+ma la goal reward rimane molto irregolare. Il total reward segue un trend crescente, ma
+con alta varianza.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{imgs/plots/training/progress_goal_total_PPO_nomem.png}
+    \caption{Reward shaping metrics per PPO--nomem.}
+    \label{fig:ppo-nomem-reward}
+\end{figure}
+
+
+% ============================================================
+%  PPO 16 FRAME STACKING
+% ============================================================
+
+\subsubsection{PPO con frame stacking (PPO–16frame)}
+
+\paragraph{Goal metrics.}
+Rispetto alla versione senza memoria, PPO–16frame mostra un miglioramento evidente.
+Dalla Figura~\ref{fig:ppo-16-goal} si vede che:
+
+\begin{itemize}
+    \item la distanza dal goal decresce nettamente nei primi $200$--$250$k timesteps;
+    \item il progresso medio cresce in modo più uniforme rispetto a PPO–nomem;
+    \item la goal reward assume valori più alti e con minore varianza.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{imgs/plots/training/dist_progress_goal_PPO16FRAME.png}
+    \caption{Goal metrics per PPO--16frame.}
+    \label{fig:ppo-16-goal}
+\end{figure}
+
+\paragraph{Episode metrics.}
+La Figura~\ref{fig:ppo-16-episode} mostra un miglioramento marcato rispetto alla versione
+senza memoria:
+
+\begin{itemize}
+    \item l’episode return è più stabile e leggermente crescente;
+    \item l’episode length segue una curva concava, con un minimo intorno alla metà del training,
+          per poi risalire, indice di episodi più lunghi e meglio controllati.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{imgs/plots/training/episode_PPO16FRAME.png}
+    \caption{Episode metrics per PPO--16frame.}
+    \label{fig:ppo-16-episode}
+\end{figure}
+
+\paragraph{Reward shaping metrics.}
+La Figura~\ref{fig:ppo-16-reward} evidenzia una notevole differenza qualitativa rispetto
+a PPO–nomem:
+
+\begin{itemize}
+    \item progress e total reward mostrano trend molto più regolari e crescenti;
+    \item la goal reward, pur rimanendo rumorosa, presenta valori più elevati;
+    \item la componente totale cresce linearmente, segno che l’agente sta capitalizzando
+          in modo progressivo i segnali di ricompensa.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{imgs/plots/training/progress_goal_total_PPO16FRAME.png}
+    \caption{Reward shaping metrics per PPO--16frame.}
+    \label{fig:ppo-16-reward}
+\end{figure}
+
+
+\section{Risultati sperimentali}
+\label{sec:results}
+
+In questa sezione vengono presentati i risultati ottenuti dai modelli di Reinforcement
+Learning addestrati nel simulatore Isaac Lab. L’analisi si articola in tre livelli:
+
+\begin{itemize}
+    \item valutazione delle \textbf{performance globali} dei modelli al best checkpoint;
+    \item confronto dei modelli tramite \textbf{success rate}, \textbf{event types} e
+          \textbf{progress};
+    \item verifica statistica dell’impatto della \textbf{memoria} (frame stacking o reti
+          ricorrenti) sulle prestazioni dell’agente.
+\end{itemize}
+
+I risultati mostrano in maniera chiara e riproducibile che l’introduzione della memoria,
+sia tramite frame stacking sia tramite Recurrent PPO, porta benefici significativi alla
+stabilità e alle capacità di navigazione del rover.
+
+% ============================================================
+%  GENERAL PERFORMANCE (EVENT TYPES)
+% ============================================================
+
+\subsection{Performance generali: analisi degli eventi}
+La Figura~\ref{fig:event-types} mostra la distribuzione media degli eventi registrati
+durante 100 episodi ai best checkpoint di ogni modello, calcolata su 5 run indipendenti.
+
+Gli eventi considerati sono:
+\textit{oob} (fuori mappa),
+\textit{collide\_rock} (collisione con roccia),
+\textit{danger\_slope} (pendenza eccessiva),
+\textit{rollover} (ribaltamento),
+\textit{timeout} (fine tempo),
+\textit{success}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{imgs/plots/event_types.png}
+    \caption{Distribuzione degli eventi nei best checkpoint (media $\pm$ std su 5 run).}
+    \label{fig:event-types}
+\end{figure}
+
+Dai risultati emergono tre osservazioni principali:
+
+\begin{itemize}
+    \item \textbf{Recurrent PPO} presenta il numero più basso di eventi negativi
+          (collisioni, oob, danger\_slope) e il più alto success rate.
+    \item \textbf{SAC con memoria} riduce drasticamente collisioni e failure rispetto alla
+          versione senza memoria.
+    \item Tutti i modelli con memoria registrano una \textbf{riduzione dei timeout},
+          suggerendo traiettorie più efficienti e fluide.
+\end{itemize}
+
+Questa analisi offre una prima conferma qualitativa del beneficio apportato dalla
+memoria nel processo decisionale.
+
+% ============================================================
+%  SUCCESS RATE (BEST CHECKPOINT)
+% ============================================================
+
+\subsection{Success rate dei modelli}
+In Figura~\ref{fig:success-rate}, si confronta la percentuale di episodi completati
+con successo dai diversi modelli.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{imgs/plots/success_rate.png}
+    \caption{Success rate ai best checkpoint dei modelli (media $\pm$ std su 5 run).}
+    \label{fig:success-rate}
+\end{figure}
+
+I risultati mostrano chiaramente che:
+
+\begin{itemize}
+    \item \textbf{Recurrent PPO} raggiunge la performance migliore, con un success rate
+          superiore al 75\%.
+    \item \textbf{PPO con memoria} e \textbf{SAC con memoria} raggiungono un livello molto
+          competitivo (55--70\%).
+    \item Le versioni \textbf{senza memoria} di PPO e SAC restano significativamente
+          inferiori, con success rate intorno al 30--35\%.
+\end{itemize}
+
+Questa differenza netta costituisce la prima evidenza quantitativa dell’impatto positivo
+dell’informazione temporale.
+
+% ============================================================
+%  RAW PROGRESS
+% ============================================================
+
+\subsection{Progress reale verso il goal}
+La metrica di progressione verso il goal fornisce una misura diretta dell’efficienza con
+cui il rover si muove in direzione dell’obiettivo.  
+La Figura~\ref{fig:raw-progress} mostra il valore medio (e varianza) del progresso
+cumulativo per episodio.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{imgs/plots/raw_proress.png}
+    \caption{Progress reale verso il goal per modello (media $\pm$ std su 5 run).}
+    \label{fig:raw-progress}
+\end{figure}
+
+Si osserva che:
+
+\begin{itemize}
+    \item \textbf{SAC con memoria} e \textbf{Recurrent PPO} ottengono i risultati più alti,
+          indicando traiettorie più dirette e meno dispersive.
+    \item \textbf{PPO senza memoria} ha il valore più basso e la deviazione standard più
+          alta, segno di comportamento instabile.
+    \item Tutti i modelli con memoria presentano una deviazione standard ridotta,
+          indicativa di una strategia più consistente.
+\end{itemize}
+
+% ============================================================
+%  MEMORY VS NO MEMORY (STATISTICAL ANALYSIS)
+% ============================================================
+
+\subsection{Analisi statistica: l’impatto della memoria}
+
+Per verificare se l’inclusione di informazione temporale (tramite frame stacking o
+ricorrenza) migliorasse significativamente le prestazioni, è stata condotta un’analisi
+statistica basata su 5 run indipendenti per ciascun modello, ciascuna composta da 100
+episodi nelle medesime condizioni ambientali (10 pendenze e 30 rocce).
+
+Le prestazioni sono state confrontate secondo due variabili:
+
+\begin{itemize}
+    \item \textbf{success rate},
+    \item \textbf{reward medio per episodio}.
+\end{itemize}
+
+\subsubsection{Distribuzione del success rate}
+La Figura~\ref{fig:success-rate-distribution-violin} mostra la distribuzione del success
+rate per il gruppo dei modelli con memoria e il gruppo senza memoria.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{imgs/plots/scientific_results/violin_distribution.png}
+    \caption{Distribuzione del success rate per modelli con e senza memoria.}
+    \label{fig:success-rate-distribution-violin}
+\end{figure}
+
+Si nota chiaramente che:
+
+\begin{itemize}
+    \item i modelli con memoria presentano una distribuzione spostata verso valori più
+          alti (0.6--0.8),
+    \item i modelli senza memoria sono confinati tra 0.25 e 0.40,
+    \item la varianza è più bassa nel gruppo con memoria, segno di maggiore stabilità.
+\end{itemize}
+
+\subsubsection{Distribuzione della reward}
+La Figura~\ref{fig:reward-distribution} confronta la reward media per episodio nei modelli
+con e senza memoria.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{imgs/plots/scientific_results/reward_distribution.png}
+    \caption{Distribuzione della reward media per episodio: memoria vs no memoria.}
+    \label{fig:reward-distribution}
+\end{figure}
+
+L’analisi mostra che:
+
+\begin{itemize}
+    \item i modelli con memoria ottengono reward medie significativamente superiori,
+          con valori centrati tra 35 e 40;
+    \item i modelli senza memoria restano confinati tra 15 e 25;
+    \item la varianza è ridotta nei modelli con memoria, indicando maggiore robustezza.
+\end{itemize}
+
+\subsubsection{Boxplot del success rate}
+La conferma finale è mostrata in Figura~\ref{fig:success-rate-distribution-boxplot}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{imgs/plots/scientific_results/success_rate_distribution.png}
+    \caption{Boxplot del success rate: memoria vs no memoria.}
+    \label{fig:success-rate-distribution-boxplot}
+\end{figure}
+
+In entrambi i gruppi, la soglia di prestazione dei modelli con memoria è chiaramente
+superiore rispetto a quella dei modelli senza memoria.
+
+\medskip
+Nel complesso, l’analisi statistica conferma quantitativamente che:
+
+\begin{quote}
+\textit{L’informazione temporale migliora significativamente il success rate, la reward
+media e la stabilità della policy.}
+\end{quote}
+
+% ============================================================
+%  CONCLUSIONI DELLA SEZIONE
+% ============================================================
+
+\subsection{Sintesi dei risultati}
+
+I risultati complessivi della campagna sperimentale possono essere riassunti come segue:
+
+\begin{itemize}
+    \item La \textbf{memoria} è un fattore chiave: frame stacking e ricorrenza migliorano
+          drasticamente prestazioni e stabilità.
+    \item \textbf{Recurrent PPO} emerge come il modello più performante in termini di
+          success rate, numero di eventi negativi e qualità delle traiettorie.
+    \item \textbf{SAC con memoria} mostra progressi e stabilità di alto livello,
+          superando di gran lunga la variante senza memoria.
+    \item Le versioni \textbf{senza memoria} dei modelli risultano meno affidabili, più
+          rumorose e con minore capacità di generalizzazione.
+\end{itemize}
+
+Questi risultati guidano la scelta di esplorare modelli con forte componente dinamica,
+come \textbf{TD-MPC2}, per sfruttare al massimo l’informazione temporale del sistema.

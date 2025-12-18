@@ -1,0 +1,186 @@
+
+\chapter{Future Works}
+\label{ch11_future_works}
+
+Il lavoro presentato in questa tesi ha dimostrato l'efficacia di un approccio ibrido alla navigazione autonoma in ambienti extraterrestri, combinando pipeline percettive geometriche e semantiche con politiche di controllo apprese tramite Reinforcement Learning massivo in simulazione. I risultati ottenuti con il rover Odin, validati sia in Isaac Lab che nella LUNA Analog Facility, confermano che l'uso della memoria (tramite architetture ricorrenti o World Models) è una condizione necessaria per gestire la parziale osservabilità tipica dei terreni non strutturati.
+
+Tuttavia, lo scenario esplorato rappresenta solo un sottoinsieme delle sfide che la robotica spaziale dovrà affrontare nel prossimo decennio. Le limitazioni intrinseche della locomozione su ruote, la necessità di esplorare aree vaste in tempi ridotti e la complessità di crateri profondi richiedono un cambio di paradigma sia nell'hardware che negli algoritmi di controllo.
+In questo capitolo vengono discusse in dettaglio le direzioni di ricerca future, proponendo estensioni metodologiche e architetturali che, partendo dalle fondamenta gettate in questo lavoro, mirano a superare i limiti attuali verso una maggiore autonomia e versatilità operativa.
+
+\section{Extension to Humanoid and Quadruped Platforms}
+\label{sec:future_legged}
+
+Una delle limitazioni principali evidenziate durante i test nella LUNA Facility riguarda la mobilità del rover su terreni estremamente accidentati. Sebbene le quattro ruote indipendenti offrano stabilità statica, esse sono vincolate dalla cinematica del veicolo: ostacoli di altezza superiore al raggio della ruota o pendenze con coefficienti di attrito incoerenti rappresentano barriere insormontabili.
+L'evoluzione naturale per l'esplorazione di zone impervie (e.g., *lunar highlands*, *lava tubes*) è l'adozione di piattaforme con arti, come quadrupedi (e.g., ANYmal, Spot) o umanoidi.
+
+L'estensione della pipeline sviluppata in questa tesi a tali piattaforme introduce sfide di complessità crescente, che possono essere categorizzate in tre aree: ridefinizione della traversabilità, stabilità dinamica e gerarchia di controllo.
+
+\subsection{Ridefinizione della Traversabilità e Percezione}
+La pipeline percettiva basata su DBSCAN e RANSAC, descritta nel Capitolo 5, classifica come "ostacolo" qualsiasi oggetto che emerga dal piano del terreno oltre una certa soglia o che presenti una pendenza elevata. Per un rover, questa definizione è binaria: l'ostacolo va evitato.
+Per un robot quadrupede o umanoide, tuttavia, la definizione di ostacolo è sfumata:
+\begin{itemize}
+    \item \textbf{Ostacoli come Appigli}: Una roccia di 20 cm, che per il rover Odin rappresenta un pericolo di collisione, per un robot quadrupede è un potenziale \emph{foothold} (punto di appoggio) per scavalcare un'area scivolosa.
+    \item \textbf{Analisi della Rugosità Locale}: La pipeline geometrica dovrà evolvere per stimare non solo la pendenza media, ma anche la rugosità locale e la stabilità del materiale. Sarà necessario introdurre un modulo di \emph{Foothold Score Prediction}, addestrato per valutare la probabilità di slittamento di un singolo piede su una superficie inclinata.
+\end{itemize}
+In questo contesto, l'algoritmo DBSCAN potrebbe essere utilizzato per segmentare "isole di stabilità" (superfici piane su rocce) piuttosto che ostacoli da evitare, invertendo la logica di navigazione da *obstacle avoidance* a *foothold selection*.
+
+\subsection{Dinamica Complessa e Spazio delle Azioni}
+Mentre il rover è controllato da un vettore azione a due dimensioni $A_t = [v, \omega]$, un robot umanoide o quadrupede opera in uno spazio ad altissima dimensionalità (da 12 a più di 30 gradi di libertà). L'applicazione diretta di algoritmi model-free come PPO o SAC su tale spazio comporta problemi di *sample efficiency* e convergenza.
+
+Una possibile estensione del lavoro svolto prevede l'adozione di un'architettura di controllo gerarchica (\emph{Hierarchical Reinforcement Learning}):
+\begin{enumerate}
+    \item \textbf{High-Level Policy (Navigation)}: Simile alla policy sviluppata per il rover, questa rete riceve in input la mappa locale e il goal, ma invece di produrre comandi di velocità per le ruote, genera comandi di velocità del Centro di Massa (CoM) e direzioni di marcia desiderate ($v_x, v_y, \omega_z$). Questa policy opererebbe a bassa frequenza (e.g., 10 Hz).
+    \item \textbf{Low-Level Policy (Locomotion)}: Un controller basato su RL o MPC (Model Predictive Control) che traduce i comandi del CoM in coppie di giunto ($\tau$) per le gambe, gestendo l'equilibrio dinamico e il rifiuto dei disturbi ad alta frequenza (e.g., 400 Hz).
+\end{enumerate}
+
+L'ambiente Isaac Lab si presta perfettamente a questo scenario, permettendo di addestrare le due policy in cascata o \emph{end-to-end}, sfruttando la parallelizzazione GPU per simulare la fisica complessa dei contatti intermittenti.
+
+\subsection{Percezione Attiva e Bilanciamento}
+A differenza del rover, che mantiene una posa relativamente stabile (a meno di pitch/roll indotti dal terreno), un robot camminatore oscilla continuamente durante il ciclo del passo. Questo introduce un rumore significativo nelle mappe di profondità acquisite dalla RealSense.
+Estensioni future dovranno integrare:
+\begin{itemize}
+    \item \textbf{Stabilizzazione Software}: Utilizzo dell'IMU e della cinematica degli arti per compensare il movimento della camera in tempo reale, proiettando la nuvola di punti in un frame stabilizzato (e.g., \emph{odom\_stabilized}).
+    \item \textbf{Whole-Body Control con Percezione}: Integrare la percezione nel loop di bilanciamento. Ad esempio, se la camera rileva un improvviso dislivello, il controller deve reagire non solo cambiando traiettoria, ma modificando la postura (e.g., abbassando il CoM) per aumentare la stabilità preventiva.
+\end{itemize}
+
+\section{Collaborative Policies and Multi-robot Mapping}
+\label{sec:future_multiagent}
+
+Lo scenario operativo considerato in questa tesi prevede un singolo agente isolato. Tuttavia, le future missioni lunari (e.g., Artemis) prevedono l'impiego di flotte di rover eterogenei che collaborano per esplorare vaste aree, trasportare carichi o costruire infrastrutture.
+L'estensione naturale del framework proposto è verso il \emph{Multi-Agent Reinforcement Learning} (MARL), passando da un problema POMDP a un \emph{Decentralized POMDP} (Dec-POMDP).
+
+\subsection{Formulazione del Problema Multi-Agente}
+In uno scenario multi-robot, l'obiettivo non è più minimizzare il tempo di arrivo del singolo rover, ma massimizzare una funzione di utilità globale, come l'area mappata collettivamente o il numero di campioni raccolti, minimizzando al contempo il rischio complessivo.
+Lo stato globale $S_t$ include la configurazione di tutti gli $N$ agenti e dell'ambiente, ma ogni agente $i$ riceve solo un'osservazione locale $O_t^i$.
+
+Le sfide principali che emergono in questo contesto sono:
+\begin{itemize}
+    \item \textbf{Non-stazionarietà}: Dal punto di vista del singolo agente, l'ambiente non è stazionario perché gli altri agenti (che apprendono e modificano le loro policy) fanno parte dell'ambiente stesso. Questo rende instabile l'addestramento con algoritmi standard come PPO indipendente (IPPO).
+    \item \textbf{Scalabilità}: Aumentare il numero di agenti aumenta esponenzialmente la complessità dello spazio degli stati congiunti.
+\end{itemize}
+
+\subsection{Algoritmi: CTDE e QMIX}
+Per affrontare queste sfide in Isaac Lab, si propone l'adozione del paradigma \emph{Centralized Training, Decentralized Execution} (CTDE). Durante l'addestramento in simulazione, l'algoritmo ha accesso allo stato globale (posizioni di tutti i rover, mappa completa delle rocce), ma la policy appresa deve dipendere solo dalle osservazioni locali per poter essere eseguita sul rover reale.
+
+Algoritmi promettenti da integrare nella pipeline sono:
+\begin{itemize}
+    \item \textbf{MAPPO (Multi-Agent PPO)}: Estende PPO utilizzando una funzione valore centralizzata $V(S_{global})$ che guida l'aggiornamento delle policy locali $\pi(a^i|o^i)$. Questo approccio sfrutta l'efficienza di PPO mantenendo la coerenza tra agenti.
+    \item \textbf{QMIX / VDN}: Nel caso di spazi di azione discreti o discretizzati, questi algoritmi apprendono una funzione valore congiunta $Q_{tot}$ che è una combinazione non lineare delle utilità individuali $Q_a$. Questo permette di decomporre il task globale in sotto-task individuali (e.g., "Rover A esplora il cratere Nord, Rover B esplora il cratere Sud") senza bisogno di comunicazione esplicita complessa.
+\end{itemize}
+
+\subsection{Condivisione di Mappe di Rischio e Copertura Cooperativa}
+Un'applicazione pratica immediata della collaborazione riguarda la condivisione delle informazioni percettive. Attualmente, ogni rover costruisce una mappa di traversabilità locale effimera. In uno scenario collaborativo, i rover potrebbero condividere una \emph{Risk Map} persistente.
+
+Si ipotizza un'architettura in cui:
+\begin{enumerate}
+    \item Ogni rover elabora la propria nuvola di punti con la pipeline geometrica (Capitolo 5) e identifica le zone non traversabili.
+    \item Invece di trasmettere l'intera nuvola di punti (bandwidth-intensive), il rover trasmette solo i parametri dei cluster di ostacoli (centroide, raggio, pendenza) o aggiornamenti di una \emph{Grid Map} probabilistica compressa.
+    \item Gli altri rover integrano queste informazioni nella loro osservazione ("Virtual Sensor"). Se il Rover A rileva una zona di sabbia soffice pericolosa, il Rover B, che sta pianificando una traiettoria verso quella zona, riceve un feedback di costo elevato ancor prima di poter vedere l'ostacolo con i propri sensori.
+\end{enumerate}
+
+Questa "percezione estesa" ridurrebbe drasticamente il tasso di esplorazione inutile e di incidenti, permettendo alla flotta di agire come un singolo organismo sensoriale distribuito. L'addestramento in Isaac Lab permetterebbe di ottimizzare non solo la navigazione, ma anche il protocollo di comunicazione stesso, penalizzando l'uso eccessivo di banda nella funzione di reward.
+
+
+\section{Crater Detection and Negative Obstacles}
+\label{sec:future_craters}
+
+Una delle limitazioni più insidiose della pipeline geometrica attuale, basata sulla stima delle pendenze positive e degli ostacoli sporgenti (rocce), è la difficoltà intrinseca nel rilevare e caratterizzare gli **ostacoli negativi**, ovvero depressioni, crateri, canali di lava collassati (*skylights*) o crepacci.
+
+In ottica di esplorazione lunare a lungo raggio, i crateri rappresentano una doppia entità: da un lato sono zone scientificamente prioritarie (per l'analisi stratigrafica o la ricerca di ghiaccio nelle zone in ombra perenne), dall'altro costituiscono trappole mortali per la mobilità del rover. Se il veicolo entra in un cratere con pendenze interne superiori all'angolo di riposo della regolite, potrebbe non essere più in grado di risalire, segnando la fine della missione.
+
+\subsection{Limiti della Geometria Proiettiva}
+Il problema fondamentale nel rilevamento dei crateri con una camera montata in basso (come la configurazione attuale a 40 cm da terra) è di natura geometrica. A differenza di una roccia, che proietta un profilo visibile sopra l'orizzonte, un cratere è visibile solo quando ci si trova estremamente vicini al bordo (*rim*). A distanza, il bordo anteriore del cratere occulta l'interno e il bordo posteriore, rendendo la depressione invisibile o indistinguibile da una zona d'ombra piana.
+In termini di nuvola di punti, questo si traduce in una "assenza di dati" piuttosto che nella presenza di una struttura geometrica definita. La pipeline attuale DBSCAN tende a classificare queste zone vuote come rumore o, peggio, come terreno piano non osservato, portando potenzialmente l'agente RL a pianificare traiettorie che attraversano il cratere ignaro del pericolo.
+
+\subsection{Pipeline Dedicata: Negative Obstacle Detector}
+Per mitigare questo rischio, lavori futuri dovranno integrare una pipeline parallela specializzata, definita *Negative Obstacle Detector*. Si propongono due approcci complementari:
+
+\begin{enumerate}
+    \item \textbf{Analisi delle Discontinuità Geometriche}: Invece di cercare cluster di punti densi (come per le rocce), l'algoritmo deve cercare "bordi di occlusione" nel depth map. Un bordo di occlusione è una linea di pixel dove la profondità salta bruscamente da un valore finito (il bordo del cratere) a un valore "infinito" o molto grande (il fondo del cratere o il bordo opposto). Analizzando il gradiente della mappa di profondità, è possibile segmentare questi bordi curvi che tipicamente denotano l'ingresso di una depressione.
+    
+    \item \textbf{Apprendimento Supervisionato Semantico}: Dato che la geometria è spesso ambigua, l'aspetto visivo (texture e ombreggiatura) gioca un ruolo chiave. I crateri lunari hanno firme visive molto specifiche: un arco illuminato seguito da un arco in ombra (o viceversa, a seconda della posizione del sole). È possibile addestrare una rete neurale convoluzionale (CNN) specifica, o una branca aggiuntiva della rete YOLO già in uso, per segmentare semanticamente l'ellisse del cratere direttamente dall'immagine RGB.
+\end{enumerate}
+
+L'output di questo rilevatore non sarebbe un semplice ostacolo puntiforme, ma una \emph{Cost Zone} probabilistica ellittica che viene proiettata sulla mappa locale. L'agente RL riceverebbe quindi un input vettoriale aggiuntivo (e.g., distanza dal bordo, raggio stimato, profondità stimata), imparando strategie conservative come l'aggiramento a largo raggio o l'avvicinamento tangenziale per l'ispezione scientifica.
+
+\section{Multi-camera and Active Perception}
+\label{sec:future_multicam}
+
+L'attuale configurazione sensoriale del rover Odin si affida a un'unica camera Intel RealSense D455 fissa, orientata frontalmente. Sebbene questa soluzione sia efficiente in termini di costo e complessità computazionale, presenta evidenti limiti di campo visivo (FoV) e robustezza, che diventano critici in scenari complessi o ad alta velocità.
+L'evoluzione verso un sistema di \textbf{Percezione Attiva e Multi-camera} è il passo logico successivo per aumentare la *Situational Awareness* del sistema autonomo.
+
+\subsection{Architettura a Doppia Camera (High-Low Setup)}
+Una configurazione promettente, da validare in future simulazioni su Isaac Lab, prevede l'aggiunta di una seconda camera posizionata su un mast (albero) estensibile o fisso a un'altezza maggiore (e.g., 1.0 - 1.5 metri).
+Questo setup "High-Low" offre vantaggi sinergici:
+\begin{itemize}
+    \item \textbf{Camera Bassa (Navigazione Reattiva)}: Mantiene la funzione attuale di rilevare ostacoli immediati, rocce piccole e tessitura del terreno proprio davanti alle ruote. È essenziale per la sicurezza tattica e il controllo dell'interazione ruota-suolo.
+    \item \textbf{Camera Alta (Pianificazione Strategica)}: Grazie alla prospettiva più elevata, questa camera soffre meno delle occlusioni e può vedere "dentro" le depressioni (migliorando la rilevazione dei crateri discussa sopra) e oltre i campi di rocce densi.
+\end{itemize}
+
+La fusione sensoriale di questi due flussi non è banale. Richiede una calibrazione estrinseca precisa e dinamica (se il mast è mobile) e algoritmi di registrazione delle nuvole di punti in tempo reale. Tuttavia, fornire all'agente TD-MPC2 o PPO una mappa di profondità fusa estenderebbe l'orizzonte di pianificazione efficace da 3-4 metri a oltre 10-15 metri, permettendo al rover di anticipare vicoli ciechi e ottimizzare il percorso energetico su scala globale.
+
+\subsection{Percezione Attiva (Active Vision)}
+Oltre ad aggiungere sensori, il futuro della navigazione autonoma risiede nel rendere i sensori "intelligenti" e mobili. La percezione attiva implica che il sistema di controllo non subisca passivamente il flusso dati, ma agisca per migliorare la qualità dell'informazione acquisita.
+In termini di Reinforcement Learning, questo significa espandere lo spazio delle azioni includendo i gradi di libertà del sensore (e.g., $A_t = [v, \omega, \theta_{pan}, \phi_{tilt}]$).
+
+Scenari applicativi includono:
+\begin{itemize}
+    \item \textbf{Sguardo nell'Azione (Gaze Control)}: Se il rover sta per curvare a destra, la policy dovrebbe imparare a ruotare preventivamente la camera (pan) verso destra per anticipare gli ostacoli nella nuova direzione di moto, emulando il comportamento dei piloti umani.
+    \item \textbf{Gestione dell'Esposizione}: In condizioni di luce estreme (controluce o ombre profonde), l'agente potrebbe apprendere a modificare l'angolo di tilt o i parametri di esposizione della camera per massimizzare il contrasto nella zona di interesse, riducendo le zone sovraesposte o sottoesposte che causano buchi nella mappa di profondità.
+    \item \textbf{Esplorazione dell'Incertezza}: Se il modello del mondo (TD-MPC2) ha un'alta incertezza epistemica su una regione del terreno (e.g., "non so se quella macchia scura è ombra o un buco"), l'agente potrebbe generare un'azione esplorativa ("avvicinati leggermente e guarda meglio") per risolvere l'ambiguità prima di impegnarsi nell'attraversamento.
+\end{itemize}
+
+Implementare la percezione attiva in Isaac Lab è fattibile grazie alla possibilità di controllare i giunti della camera virtuale e di accedere ai parametri interni del renderer, offrendo un banco di prova ideale per sviluppare agenti che sono non solo "guidatori", ma "osservatori" consapevoli.
+
+
+\section{Improved World Models and Planning}
+\label{sec:future_worldmodels}
+
+L'introduzione di TD-MPC2 in questo lavoro di tesi ha segnato un punto di svolta rispetto agli approcci *model-free* (PPO, SAC), dimostrando che la capacità di "immaginare" le conseguenze delle proprie azioni è fondamentale per una navigazione sicura. Tuttavia, l'architettura attuale, basata su reti MLP deterministiche per la stima della dinamica latente, rappresenta solo il punto di partenza.
+Il futuro della pianificazione autonoma in ambienti incerti risiede nell'evoluzione verso modelli del mondo più espressivi, probabilistici e consapevoli dei vincoli energetici.
+
+\subsection{Probabilistic Dynamics e Diffusion Models}
+L'attuale modello TOLD (\emph{Task-Oriented Latent Dynamics}) utilizzato in TD-MPC2 è deterministico: dato uno stato $z_t$ e un'azione $a_t$, predice un unico stato futuro $z_{t+1}$. Nella realtà fisica della locomozione su regolite, la dinamica è intrinsecamente stocastica. Lo stesso comando motore può produrre esiti diversi a seconda di variabili non osservabili (densità locale della sabbia, presenza di sassi sotto la superficie).
+Un modello deterministico tende a mediare questi risultati, producendo previsioni "sfocate" o eccessivamente ottimistiche che possono portare a fallimenti catastrofici.
+
+Le estensioni future dovrebbero esplorare l'integrazione di **Modelli di Diffusione** (\emph{Diffusion Models}) all'interno del ciclo di pianificazione. A differenza dei modelli gaussiani semplici, i modelli di diffusione possono rappresentare distribuzioni di probabilità multimodali complesse.
+In un contesto di navigazione, questo permetterebbe all'agente di ragionare in termini di rischio bimodale: \emph{"Se passo a sinistra di questa roccia, c'è un 70\% di probabilità di passare e un 30\% di scivolare nel cratere"}. Un pianificatore \emph{risk-aware} potrebbe quindi scartare azioni che, sebbene ottimali in media, presentano code di distribuzione con esiti fatali, aumentando drasticamente la sicurezza della missione (Safety-Critical RL).
+
+\subsection{Transformer-based Latent Spaces}
+La capacità di memoria dei modelli attuali (sia LSTM che TD-MPC2 standard) soffre del problema del *vanishing gradient* su orizzonti temporali molto lunghi. Durante traversate di chilometri, il rover potrebbe incontrare condizioni del terreno cicliche o simili a situazioni già viste minuti o ore prima.
+Sostituire la dinamica ricorrente con un'architettura basata su **Transformer** (come in \emph{Decision Transformer} o \emph{Iris}) permetterebbe di sfruttare il meccanismo di \emph{Self-Attention}.
+Questo consentirebbe al rover di:
+\begin{itemize}
+    \item **Attenzione al Passato Remoto**: Recuperare contesti specifici dalla memoria a lungo termine (e.g., "Ho già incontrato questa texture di sabbia scura 20 minuti fa e ho slittato molto, quindi devo ridurre la velocità").
+    \item **Generalizzazione In-Context**: Adattare la policy in tempo reale alle condizioni mutevoli senza modificare i pesi della rete, ma semplicemente condizionando la generazione della traiettoria sulla storia recente delle interazioni (Meta-Learning implicito).
+\end{itemize}
+
+\subsection{Energy-Aware Planning e Terrameccanica}
+Attualmente, la funzione di costo utilizzata per l'addestramento penalizza principalmente il tempo e la distanza dal goal. Tuttavia, per un rover lunare alimentato a batteria o pannelli solari, l'efficienza energetica è critica quanto la velocità.
+Il modello del mondo futuro dovrà incorporare un **Modello Energetico Latente**. Invece di ottimizzare solo la cinematica, il planner MPPI dovrà minimizzare una funzione di costo mista:
+
+\[
+J(\pi) = \sum_{t=0}^{H} \left( \alpha \cdot \text{Cost}_{geo}(s_t) + \beta \cdot \text{Cost}_{energy}(s_t, a_t) \right)
+\]
+
+Dove $\text{Cost}_{energy}$ stima il consumo metabolico del robot (\emph{Cost of Transport}), tenendo conto che:
+\begin{itemize}
+    \item Risalire una pendenza su terreno soffice consuma esponenzialmente più energia che su terreno duro.
+    \item Lo slittamento (\emph{slip}) dissipa energia senza produrre avanzamento.
+\end{itemize}
+Addestrando questo modello su Isaac Lab, dove è possibile misurare la coppia motore esatta, l'agente imparerà naturalmente strategie "pigre" ma efficienti, come seguire le curve di livello invece di affrontare pendenze dirette, o sfruttare terreni rocciosi più compatti rispetto a zone sabbiose ad alto attrito volvente, estendendo l'autonomia operativa del rover reale.
+
+\section{Conclusion}
+\label{sec:conclusion}
+
+Questa tesi ha affrontato il problema della navigazione autonoma di rover in ambienti lunari non strutturati, proponendo e validando una metodologia completa che spazia dalla simulazione massiva al dispiegamento su hardware reale.
+L'integrazione di Isaac Lab come ambiente di addestramento parallelo ha permesso di superare i limiti tradizionali della robotica basata su dati, generando dataset di esperienza vasta e variegata impossibili da raccogliere fisicamente.
+
+I risultati sperimentali hanno fornito evidenze quantitative cruciali:
+\begin{enumerate}
+    \item La \textbf{memoria} non è opzionale: la transizione da agenti reattivi ad agenti ricorrenti (Recurrent PPO) o predittivi (TD-MPC2) è il fattore determinante per trasformare un sistema instabile in un navigatore robusto capace di gestire la parziale osservabilità.
+    \item Il \textbf{Sim-to-Real} è risolvibile: attraverso un'attenta modellazione dei sensori, l'uso di pipeline geometriche robuste al rumore (DBSCAN ottimizzato) e la randomizzazione del dominio, è stato possibile trasferire una policy neurale addestrata in un mondo virtuale su un processore embedded (Raspberry Pi 5) operante nella LUNA Analog Facility, senza necessità di ri-addestramento sul campo.
+    \item L'\textbf{Hardware COTS} è sufficiente: l'architettura proposta dimostra che algoritmi avanzati di AI possono girare in tempo reale su hardware commerciale a basso costo e basso consumo, aprendo la strada a una nuova generazione di micro-rover sacrificabili ma intelligenti (stile Ingenuity/CubeRover).
+\end{enumerate}
+
+In conclusione, il lavoro svolto getta le basi per sistemi di esplorazione planetaria in grado di operare non più come semplici esecutori di comandi teleoperati, ma come agenti decisionali autonomi. Le estensioni proposte in questo capitolo — dai robot legged alla collaborazione multi-agente, fino alla percezione attiva dei crateri — tracciano il percorso verso l'obiettivo finale: rendere l'esplorazione del sistema solare scalabile, sicura e scientificamente autonoma.

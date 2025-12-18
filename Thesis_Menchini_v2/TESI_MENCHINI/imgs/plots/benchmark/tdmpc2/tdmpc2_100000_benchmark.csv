@@ -1,0 +1,2 @@
+checkpoint,run_id,episodes,success_rate,avg_ep_rew,median_ep_rew,avg_ep_len,success,oob,collide_rock,danger_slope,rollover,timeout,error
+/home/loren/Desktop/luna-lrs/tdmpc2/tdmpc2/logs/isaac-rover/1/default/agent_step_100000.pt,1,100,0.24,34.51760482788086,26.88043212890625,187.27,24,33,0,24,0,19,

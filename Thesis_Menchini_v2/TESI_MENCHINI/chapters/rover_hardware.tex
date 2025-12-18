@@ -1,0 +1,170 @@
+\chapter{Piattaforma hardware del rover}
+\label{chap:hardware}
+
+In questo capitolo viene descritta la piattaforma hardware del rover utilizzato per gli esperimenti di navigazione autonoma. Il sistema è stato progettato come dimostratore da laboratorio, con l'obiettivo di avvicinarsi, per quanto possibile, ai vincoli computazionali dei rover lunari e marziani, pur rimanendo basato su componenti commerciali (\emph{commercial off-the-shelf}, COTS). Nella seconda parte del capitolo viene presentato un confronto qualitativo e quantitativo tra l'hardware di bordo del prototipo e quello impiegato in missioni spaziali reali.
+
+\section{Struttura meccanica e locomozione}
+
+La struttura del rover è organizzata attorno a un telaio principale in acrilico, scelto per la sua \emph{leggerezza}, facilità di lavorazione e trasparenza (utile in fase di debug e ispezione del cablaggio interno). Su questo telaio sono montati:
+
+\begin{itemize}
+    \item quattro ruote stampate in 3D, progettate per garantire un buon compromesso tra aderenza e semplicità costruttiva;
+    \item i supporti per la camera di profondità;
+    \item i supporti per il pacco batterie e l'elettronica di potenza;
+    \item il piano per l'elettronica di controllo (Raspberry~Pi, acceleratore AI, cablaggi).
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}{0.49\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{imgs/hardware/esterno.png}
+        \\{\scriptsize (a) vista esterna del rover}
+    \end{minipage}\hfill
+    \begin{minipage}{0.49\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{imgs/hardware/interno.png}
+        \\{\scriptsize (b) vista interna del rover}
+    \end{minipage}
+
+    \caption{Odin, Il testBed utilizzato, nella sua vista interna (a) ed esterna (b).}
+    \label{fig:kinect-traversability}
+\end{figure}
+
+Il rover adotta una configurazione a quattro ruote indipendenti, soluzione comune nei dimostratori di navigazione terrestre grazie alla sua semplicità, anche se meno sofisticata rispetto agli schemi a sei ruote con sospensioni tipo rocker--bogie utilizzati nei rover planetari moderni. In questa tesi l'attenzione è focalizzata principalmente sulla pipeline percettiva e di controllo, pertanto la parte meccanica è stata mantenuta deliberatamente semplice.
+
+\section{Sottosistema di percezione}
+
+La percezione dell'ambiente è affidata a una camera di profondità Intel RealSense D455f, variante della serie D400. La D455 è una camera stereo attiva che fornisce sia immagini RGB sia mappe di profondità, con campo visivo orizzontale di circa $87^\circ$ e verticale di $58^\circ$, una risoluzione di profondità fino a \mbox{$1280\times720$} pixel, e una distanza di lavoro tipica compresa tra circa 0.6~m e 6~m \cite{realsense_d455_datasheet,realsense_d455_overview}. La versione D455 introduce un baseline maggiore rispetto ai modelli precedenti della stessa famiglia, migliorando la qualità della stima di profondità a distanze maggiori, caratteristica particolarmente utile per scenari di navigazione in ambienti aperti.
+
+La camera utilizza un otturatore globale per i sensori di profondità, riducendo gli artefatti di \emph{motion blur} e \emph{rolling shutter} in presenza di movimento del rover \cite{realsense_d455_datasheet}. Il dispositivo è supportato dalla libreria Intel RealSense SDK 2.0, compatibile con diversi sistemi operativi e linguaggi di programmazione, e ciò ne facilita l'integrazione in pipeline di percezione basate su Linux e middleware robotici come ROS.
+
+\section{Sottosistema di calcolo a bordo}
+
+Il cuore computazionale del rover è rappresentato da una scheda \emph{single-board computer} Raspberry~Pi~5, cui è affiancato un acceleratore AI dedicato Hailo-8 in formato HAT/M.2.
+
+\subsection{Raspberry Pi 5}
+
+La Raspberry~Pi~5 integra un SoC Broadcom BCM2712 con CPU quad-core Arm Cortex-A76 a 64 bit, operante a 2.4~GHz \cite{raspberrypi5_brief}. Rispetto alla generazione precedente (Raspberry~Pi~4), la Raspberry~Pi~5 offre un incremento di prestazioni di circa $2$--$3\times$ sul piano della potenza di calcolo generale, mantenendo consumi contenuti e un fattore di forma compatto \cite{raspberrypi5_brief,raspberrypi5_product}. Le versioni disponibili raggiungono configurazioni di memoria RAM fino a 8--16~GB, sufficienti per eseguire modelli di \emph{deep learning} di dimensione medio-piccola e per gestire pipeline percettive e di controllo complete in tempo reale.
+
+Nel contesto di questa tesi, la Raspberry~Pi~5 ospita il sistema operativo Linux, lo stack software della pipeline percettiva e i modelli di Reinforcement Learning, delegando all'acceleratore AI Hailo-8 l'esecuzione delle parti più intensive dal punto di vista computazionale (ad esempio, reti convoluzionali per la stima di traversabilità).
+
+\subsection{Acceleratore AI Hailo-8}
+
+L'accelerazione hardware per l'inferenza di reti neurali è fornita da un modulo Hailo-8, un processore AI per l'\emph{edge} in grado di raggiungere fino a 26 TOPS (\emph{Tera-Operations Per Second}) \cite{hailo8_datasheet,hailo8_overview}. Il modulo in formato M.2 (o HAT compatibile con Raspberry~Pi) offre un'interfaccia PCIe Gen3 e un consumo tipico nell'ordine di pochi watt (circa 2.5~W tipici, con un massimo inferiore a 10~W) \cite{hailo8_m2_module}.
+
+L'architettura Hailo-8 è progettata per ottenere un'elevata efficienza energetica in scenari di inferenza continua a bordo di robot mobili e dispositivi embedded, supportando framework come TensorFlow, PyTorch e ONNX \cite{hailo8_overview}. In questo lavoro, il modulo viene utilizzato come acceleratore per le reti neurali coinvolte nel calcolo delle mappe di traversabilità e potenzialmente per l'implementazione di politiche RL complesse, riducendo il carico sulla CPU principale e avvicinando il profilo computazionale del sistema a quello di future piattaforme robotiche spaziali con accelerazione dedicata.
+
+\section{Alimentazione, interfacce e segnalazione}
+
+Il rover è alimentato da un pacco batterie al litio, scelto per garantire un buon compromesso tra densità energetica e semplicità di integrazione. L'accensione del sistema avviene tramite un pulsante \emph{ON/OFF} accessibile dall'esterno, collegato a un circuito di gestione dell'alimentazione che consente una sequenza ordinata di avvio e spegnimento della Raspberry~Pi e dell'acceleratore AI.
+
+Sono presenti inoltre LED di posizione e di stato che vengono utilizzati per:
+
+\begin{itemize}
+    \item indicare la presenza di alimentazione;
+    \item segnalare lo stato del sistema (boot, esecuzione, errore);
+    \item fornire un riscontro visivo durante test e dimostrazioni.
+\end{itemize}
+
+L'insieme di questi elementi rende il rover adatto a sessioni sperimentali ripetute e a misure sistematiche delle prestazioni delle diverse politiche di controllo testate nei capitoli successivi.
+
+\section{Confronto con i rover lunari e marziani reali}
+\label{sec:hw_confronto_spaziale}
+
+In questa sezione si confrontano, in termini puramente computazionali, l'hardware di bordo del rover sperimentale con quello impiegato in missioni lunari e marziane reali. L'obiettivo non è quello di proporre il sistema descritto come \emph{flight-ready}, ma di valutare se i requisiti di calcolo necessari alle pipeline sviluppate in questa tesi siano compatibili, almeno in ordine di grandezza, con le capacità dei computer di bordo spaziali attuali o prossimi.
+
+\subsection{Rover marziani: Curiosity, Perseverance e Ingenuity}
+
+Il rover marziano \emph{Curiosity} utilizza un computer di bordo basato su processore RAD750, un microprocessore PowerPC \emph{radiation-hardened} prodotto da BAE Systems \cite{rad750_bae,rad750_wiki}. Il RAD750 opera tipicamente a frequenze fino a 200~MHz e raggiunge prestazioni dell'ordine di centinaia di MIPS (\emph{Millions of Instructions Per Second}) \cite{rad750_bae}. Il computer principale di Curiosity dispone di circa 256~MB di RAM, 2~GB di memoria flash e memoria non volatile aggiuntiva per il codice di volo \cite{curiosity_computer}.
+
+Il rover \emph{Perseverance} adotta un'architettura simile, con due moduli identici denominati Rover Compute Element (RCE), in configurazione ridondante per aumentare la tolleranza ai guasti. Anche in questo caso la memoria e il processore sono progettati per resistere all'ambiente radiativo marziano e allo stress termico della missione \cite{perseverance_rce}.
+
+Un esempio interessante, più vicino alle architetture embedded moderne, è l'elicottero marziano \emph{Ingenuity}, che utilizza un processore Qualcomm Snapdragon~801, un SoC originariamente pensato per smartphone, eseguendo Linux e occupandosi tra l'altro della navigazione visiva tramite una camera dedicata \cite{ingenuity_snapdragon}. Questo processore è molto più potente, in termini di FLOPS, rispetto a un RAD750, ma non è \emph{radiation-hardened}; per questo motivo viene affiancato da microcontrollori più robusti per le funzioni critiche di controllo del volo \cite{ingenuity_snapdragon}.
+
+\subsection{Rover lunari: Apollo LRV, Yutu e missioni moderne}
+
+Il \emph{Lunar Roving Vehicle} (LRV) delle missioni Apollo non disponeva di un computer di bordo paragonabile a quelli dei rover moderni; la parte di navigazione automatizzata si basava su un'unità ibrida analogico-digitale, il cosiddetto \emph{Signal Processor Unit} (SPU), che integrava le misure degli odometri delle ruote e di un giroscopio per fornire posizione e distanza percorsa \cite{lrv_spu_nav,lrv_historical}. Le decisioni di alto livello erano demandate agli astronauti e al supporto da Terra \cite{lrv_overview}.
+
+Le missioni lunari cinesi Chang'e-3 e Chang'e-4 con i rover Yutu e Yutu-2 impiegano invece computer di bordo digitali moderni, in grado di eseguire algoritmi di visione artificiale per il supporto alla teleoperazione, utilizzando coppie di telecamere di navigazione e di evitamento ostacoli \cite{yutu_rover,yutu2_cv}. Sebbene i dettagli hardware completi non siano pubblici, è noto che anche in questo caso si utilizzano processori e memorie \emph{space-qualified}, spesso con prestazioni di calcolo inferiori, in frequenza e numero di core, rispetto a soluzioni COTS come la Raspberry~Pi~5, ma con elevatissima affidabilità e tolleranza alle radiazioni.
+
+\subsection{Confronto quantitativo e qualitativo}
+
+Dal punto di vista strettamente prestazionale, la combinazione Raspberry~Pi~5 + Hailo-8 offre una potenza di calcolo significativamente superiore a quella disponibile sulla maggior parte dei rover planetari attuali:
+
+\begin{itemize}
+    \item la CPU della Raspberry~Pi~5 (quad-core Cortex-A76 a 2.4~GHz) raggiunge prestazioni paragonabili a quelle di un moderno computer embedded, superando di ordini di grandezza la frequenza di clock (200~MHz) del RAD750 e disponendo di più RAM (diversi GB contro poche centinaia di MB) \cite{raspberrypi5_brief,rad750_bae,curiosity_computer};
+    \item l'acceleratore Hailo-8 raggiunge fino a 26~TOPS per l'inferenza di reti neurali, cifra che colloca il sistema in una classe di elaborazione AI che, al momento, è difficilmente eguagliata da soluzioni \emph{radiation-hardened} commercialmente disponibili \cite{hailo8_overview,hailo8_m2_module};
+    \item l'uso di una camera di profondità ad alta risoluzione come la RealSense D455 consente di acquisire mappe di profondità dense fino a 1280$\times$720 pixel, mentre molti rover planetari storici lavorano con immagini monoculari o stereo a risoluzione inferiore, spesso elaborate \emph{offline} o con forte supporto da Terra \cite{realsense_d455_datasheet,yutu2_cv}.
+\end{itemize}
+
+Tuttavia, questa superiorità apparente sul piano \emph{raw compute} va bilanciata con almeno tre differenze fondamentali:
+
+\begin{enumerate}
+    \item \textbf{Tolleranza alle radiazioni e robustezza}: i processori come il RAD750 sono progettati per resistere a dosi di radiazione totale dell'ordine di centinaia di kRad e a singoli eventi altamente energetici, con memorie dotate di meccanismi di correzione d'errore (EDAC) \cite{rad750_bae,rad750_wiki}. La Raspberry~Pi~5 e l'Hailo-8, in quanto dispositivi COTS, non sono progettati per tali condizioni e non sarebbero affidabili per missioni di lunga durata in ambiente spaziale senza schermature e ridondanza significative.
+    \item \textbf{Ridondanza e architettura di sistema}: rover come Curiosity e Perseverance utilizzano architetture ridondate, con almeno due computer di bordo completi (RCE) e percorsi dati multipli per garantire la continuità della missione in caso di guasti \cite{curiosity_computer,perseverance_rce}. Il rover sperimentale descritto in questa tesi utilizza un singolo SBC e un singolo acceleratore AI, senza ridondanza né \emph{failover} automatico.
+    \item \textbf{Vincoli termici e di alimentazione}: i sistemi spaziali devono operare in un intervallo di temperatura estremamente ampio e sotto vincoli energetici dettati da pannelli solari e batterie dimensionate per lunghi cicli giorno/notte (come nel caso delle notti lunari o marziane). I moduli descritti in questa tesi operano invece in ambienti di laboratorio o analoghi terrestri, con cicli termici e requisiti di durata molto meno stringenti.
+\end{enumerate}
+
+\subsection{Compatibilità dei requisiti computazionali}
+
+Nonostante queste differenze, una considerazione importante è che le pipeline percettive e le politiche di Reinforcement Learning sviluppate in questa tesi risultano eseguibili in tempo reale su una piattaforma embedded relativamente compatta (Raspberry~Pi~5 + Hailo-8). Ciò suggerisce che:
+
+\begin{itemize}
+    \item dal punto di vista \emph{algoritmico}, i requisiti di calcolo necessari per la navigazione autonoma basata su percezione stereo leggera e RL sono compatibili con sistemi di bordo futuri che integrino acceleratori AI dedicati (analogamente a quanto già avviene con l'uso di SoC tipo Snapdragon su Ingenuity) \cite{ingenuity_snapdragon,hailo8_overview};
+    \item le principali barriere al trasferimento diretto di questa architettura in ambito spaziale non sono computazionali, ma riguardano piuttosto la qualifica per lo spazio, la tolleranza alle radiazioni, la robustezza del software di volo e l'architettura di sistema (ridondanza, \emph{fault tolerance}, gestione termica).
+\end{itemize}
+
+In sintesi, il rover sperimentale adottato in questa tesi può essere considerato un prototipo rappresentativo dal punto di vista del carico computazionale e della complessità delle pipeline di percezione e controllo, pur essendo consapevolmente lontano, in termini di \emph{space readiness}, dai requisiti ingegneristici di un sistema di bordo destinato a missioni lunari o marziane reali.
+
+\section{Lezioni dall'elicottero marziano \emph{Ingenuity}: un nuovo paradigma per l'hardware di bordo}
+\label{sec:ingenuity_hardware}
+
+Un caso particolarmente rilevante per comprendere l'evoluzione dell'hardware robotico per missioni spaziali è rappresentato dall'elicottero marziano \emph{Ingenuity}, sviluppato dal Jet Propulsion Laboratory (JPL) come dimostratore tecnologico e trasportato su Marte insieme al rover \emph{Perseverance}. Ingenuity è stato il primo veicolo a effettuare un volo controllato su un altro pianeta e, soprattutto, il primo a farlo utilizzando un processore commerciale non \emph{radiation-hardened}: un Qualcomm Snapdragon~801, originariamente progettato per smartphone \cite{ingenuity_snapdragon}.
+
+\subsection{Un processore commerciale su Marte}
+
+L'impiego di un SoC consumer in un ambiente privo di magnetosfera, soggetto a radiazioni ionizzanti e cicli termici estremi, rappresenta una scelta radicalmente diversa rispetto alle architetture tradizionali basate su processori space-qualified come il RAD750 \cite{rad750_bae}. Tuttavia, diversi fattori hanno reso questa scelta non solo possibile, ma anche efficace:
+
+\begin{itemize}
+    \item il processore Snapdragon non è coinvolto nelle funzioni critiche di controllo del volo, che sono invece gestite da microcontrollori tolleranti alle radiazioni;
+    \item Ingenuity era stato progettato inizialmente per una missione di soli 30 giorni e cinque voli, limitando quindi la dose totale di radiazione attesa;
+    \item il SoC è fisicamente schermato e termicamente isolato all'interno della struttura dell'elicottero, riducendo la probabilità di guasti dovuti a singoli eventi radiativi;
+    \item la potenza di calcolo del Qualcomm era necessaria per eseguire algoritmi di navigazione visiva in tempo reale, impossibili su processori space-qualified della stessa epoca.
+\end{itemize}
+
+La missione ha superato ogni aspettativa: invece di cinque voli, Ingenuity ha compiuto decine di voli nell'arco di più anni, dimostrando una robustezza ben superiore a quanto inizialmente previsto \cite{ingenuity_snapdragon}.
+
+\subsection{Implicazioni per l'hardware robotico spaziale}
+
+Il successo di Ingenuity ha evidenziato che, per abilitare forme avanzate di autonomia robotica, la potenza di calcolo può diventare più limitante della resistenza alle radiazioni. In altre parole, il tradizionale compromesso tra affidabilità e prestazioni computazionali può essere rimodulato attraverso:
+
+\begin{itemize}
+    \item l'uso di componenti commerciali ad alte prestazioni (\emph{COTS}) affiancati da microcontrollori space-qualified per le funzioni critiche;
+    \item tecniche di mitigazione dei guasti, come la ridondanza software, il monitoraggio dello stato e il fallback su controllori più semplici;
+    \item l'integrazione di acceleratori AI dedicati (simili, per capacità, all'Hailo-8 usato in questo lavoro), non ancora disponibili in versione rad-hard ma validi per futuri dimostratori tecnologici.
+\end{itemize}
+
+Questi risultati suggeriscono che futuri rover autonomi potrebbero adottare architetture ibride, in cui un processore rad-tolerant garantisce la sopravvivenza della missione, mentre uno o più moduli COTS forniscono la potenza di calcolo necessaria per realizzare livelli di autonomia molto più elevati rispetto al passato.
+
+
+\begin{figure}[ht]
+    \centering
+    % Sostituisci con la tua immagine o tieni come placeholder
+    \includegraphics[width=0.85\textwidth]{imgs/hardware/ingenuity.png}
+    \caption{L'elicottero marziano Ingenuity, che utilizza un processore commerciale Qualcomm Snapdragon~801 per la navigazione visiva e il controllo di volo. Questa scelta innovativa ha permesso di eseguire algoritmi complessi in tempo reale, dimostrando che l'uso di componenti COTS può essere compatibile con missioni spaziali, se opportunamente integrato e protetto \cite{ingenuity_snapdragon}.}
+    \label{fig:isaaclab_architecture}
+\end{figure}
+
+\subsection{Rilevanza per il presente lavoro}
+
+La piattaforma hardware descritta in questo lavoro, composta da Raspberry~Pi~5 e acceleratore AI Hailo-8, non è progettata per l'ambiente spaziale, ma rappresenta una configurazione \emph{concettualmente compatibile} con le architetture emergenti dimostrate da Ingenuity:
+
+\begin{itemize}
+    \item un processore COTS relativamente potente per la gestione della pipeline percettiva e del controllo;
+    \item un acceleratore AI dedicato per inferenza veloce e a basso consumo;
+    \item nessuna ridondanza intrinseca, poiché si tratta di un prototipo di ricerca, come nel caso del dimostratore Ingenuity;
+    \item esecuzione in tempo reale di algoritmi di visione e stima della traversabilità, operazione analoga alla navigazione visiva dell'elicottero marziano.
+\end{itemize}
+
+In sintesi, Ingenuity mostra che sistemi basati su hardware commerciale, quando opportunamente protetti e integrati in architetture ibride, possono essere validi candidati per missioni esplorative future. Ciò rende particolarmente interessante lo studio di pipeline percettive e di controllo ad alte prestazioni su piattaforme embedded come quella utilizzata in questa tesi.

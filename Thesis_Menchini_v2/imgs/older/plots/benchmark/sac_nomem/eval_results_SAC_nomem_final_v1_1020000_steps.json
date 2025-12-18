@@ -1,0 +1,120 @@
+{
+  "args": {
+    "stage": "test",
+    "model": "SAC",
+    "cfg_path": "cfg",
+    "num_envs": 30,
+    "max_num_rocks": 40,
+    "num_tot_steps": 1000000,
+    "env_spacing": 40,
+    "start_difficulty": 0.5,
+    "activate_cameras": true,
+    "show_cameras": false,
+    "no_gui": true,
+    "checkpoint": "/home/loren/Desktop/luna-lrs/checkpoints/isaaclab/SAC_nomem_final_v1/SAC_nomem_final_v1_1020000_steps.zip",
+    "eval_episodes": 100,
+    "deterministic": true,
+    "out_dir": "./eval_results",
+    "quiet_eval": false,
+    "debug": false,
+    "enable_cameras": true,
+    "headless": true,
+    "hide_ui": true,
+    "create_new_stage": false,
+    "physics_gpu": 0,
+    "active_gpu": 0
+  },
+  "results": [
+    {
+      "checkpoint": "/home/loren/Desktop/luna-lrs/checkpoints/isaaclab/SAC_nomem_final_v1/SAC_nomem_final_v1_1020000_steps.zip",
+      "run_id": 1,
+      "episodes": 100,
+      "metrics": {
+        "episodes": 100,
+        "success_rate": 0.55,
+        "avg_ep_rew": 31.694117780029774,
+        "median_ep_rew": 33.59089660644531,
+        "avg_ep_len": 140.13,
+        "success": 55,
+        "oob": 1,
+        "collide_rock": 2,
+        "danger_slope": 8,
+        "rollover": 0,
+        "timeout": 34
+      }
+    },
+    {
+      "checkpoint": "/home/loren/Desktop/luna-lrs/checkpoints/isaaclab/SAC_nomem_final_v1/SAC_nomem_final_v1_1020000_steps.zip",
+      "run_id": 2,
+      "episodes": 100,
+      "metrics": {
+        "episodes": 100,
+        "success_rate": 0.6,
+        "avg_ep_rew": 37.048360661268234,
+        "median_ep_rew": 37.87284469604492,
+        "avg_ep_len": 134.47,
+        "success": 60,
+        "oob": 0,
+        "collide_rock": 0,
+        "danger_slope": 7,
+        "rollover": 0,
+        "timeout": 33
+      }
+    },
+    {
+      "checkpoint": "/home/loren/Desktop/luna-lrs/checkpoints/isaaclab/SAC_nomem_final_v1/SAC_nomem_final_v1_1020000_steps.zip",
+      "run_id": 3,
+      "episodes": 100,
+      "metrics": {
+        "episodes": 100,
+        "success_rate": 0.59,
+        "avg_ep_rew": 36.25548286557198,
+        "median_ep_rew": 38.968711853027344,
+        "avg_ep_len": 133.4,
+        "success": 59,
+        "oob": 2,
+        "collide_rock": 0,
+        "danger_slope": 10,
+        "rollover": 0,
+        "timeout": 29
+      }
+    },
+    {
+      "checkpoint": "/home/loren/Desktop/luna-lrs/checkpoints/isaaclab/SAC_nomem_final_v1/SAC_nomem_final_v1_1020000_steps.zip",
+      "run_id": 4,
+      "episodes": 100,
+      "metrics": {
+        "episodes": 100,
+        "success_rate": 0.55,
+        "avg_ep_rew": 35.453125110268594,
+        "median_ep_rew": 36.36735725402832,
+        "avg_ep_len": 132.96,
+        "success": 55,
+        "oob": 3,
+        "collide_rock": 1,
+        "danger_slope": 12,
+        "rollover": 0,
+        "timeout": 29
+      }
+    },
+    {
+      "checkpoint": "/home/loren/Desktop/luna-lrs/checkpoints/isaaclab/SAC_nomem_final_v1/SAC_nomem_final_v1_1020000_steps.zip",
+      "run_id": 5,
+      "episodes": 100,
+      "metrics": {
+        "episodes": 100,
+        "success_rate": 0.46,
+        "avg_ep_rew": 34.37362323775888,
+        "median_ep_rew": 33.40818977355957,
+        "avg_ep_len": 134.76,
+        "success": 46,
+        "oob": 3,
+        "collide_rock": 1,
+        "danger_slope": 13,
+        "rollover": 0,
+        "timeout": 37
+      }
+    }
+  ],
+  "elapsed_sec": 1250.4337520599365
+}

@@ -1,0 +1,44 @@
+\chapter{Introduction}
+
+\begin{abstract}
+
+Questa tesi affronta il problema della navigazione autonoma di un rover in ambienti lunari 
+mediante lo sviluppo di una pipeline integrata che combina modelli 
+di Reinforcement Learning con metodi geometrici deterministici a basso costo computazionale. 
+L’obiettivo principale è valutare se agenti RL, addestrati in \textit{Isaac Sim} 
+tramite PPO, SAC e Recurrent PPO e ottimizzati mediante 
+\textit{curriculum learning} possano fornire soluzioni più robuste, 
+adattive e generalizzabili rispetto ai planner deterministici 
+tradizionali, considerando sia la qualità dei percorsi generati 
+sia la capacità di reagire a variazioni improvvise del terreno.
+
+La pipeline percettiva è basata sulla stima della pendenza ottenuta 
+da mappe di profondità e su un algoritmo di clustering geometrico 
+interpretabile, progettato per sostituire o affiancare approcci classici 
+di slope estimation. A tal fine viene proposto un confronto sistematico 
+tra metodi deterministici rule--based e tecniche derivate da features 
+apprese, valutando stabilità, continuità del segnale e impatto sul comportamento 
+dei modelli RL.
+
+Un aspetto centrale del lavoro riguarda i vincoli dell'\textit{edge computing}: 
+sia le politiche RL sia la pipeline di percezione sono state sviluppate 
+per funzionare su piattaforme a risorse limitate, 
+come Raspberry Pi 5 e sistemi embedded analoghi. Questo ha richiesto 
+scelte architetturali orientate alla minimizzazione del consumo energetico, 
+alla riduzione della latenza, e all’impiego di pipeline numeriche leggere, 
+prive di componenti neurali ad alto costo computazionale.
+
+I modelli addestrati in simulazione sono stati valutati tramite metriche di stabilità del training, 
+capacità di generalizzazione e robustezza dinamica, quindi trasferiti su piattaforma reale tramite ROS2, 
+dove sono state analizzate prestazioni, 
+latenza end--to--end e comportamento emergente in scenari fisici.
+
+I risultati mostrano che l’integrazione tra RL, percezione geometrica ottimizzata 
+per l’edge computing e simulazione realistica consente al rover di 
+prendere decisioni più reattive e flessibili rispetto ai metodi deterministici, 
+pur mantenendo un budget di calcolo ed energia compatibile con missioni robotiche in ambienti lunari. 
+Il lavoro fornisce infine indicazioni su possibili estensioni future, 
+incluse strategie di \textit{sim-to-real} più affidabili e nuove modalità di integrazione tra modelli RL e percezione tradizionale.
+
+
+\end{abstract}

@@ -1,0 +1,429 @@
+\chapter{Reinforcement Learning Environment and Training Pipeline}
+\label{chap:rl_env}
+
+Questo capitolo descrive in dettaglio l'ambiente di navigazione sviluppato in Isaac Lab, il modello
+di Reinforcement Learning utilizzato e l'intera pipeline di addestramento. L’ambiente implementa
+una simulazione fisicamente realistica del rover ODIN su terreno lunare, integrando ostacoli
+rocciosi, pendenze non percorribili, un sensore di profondità e componenti cinematiche coerenti
+con il robot reale. Il codice completo dell’ambiente è riportato nei file
+\texttt{isaaclab\_envs.py}\footnote{Vedi file sorgente: \texttt{./luna-lrs/src/envs/isaaclab\_envs.py}} 
+e lo script di addestramento in
+\texttt{isaaclab\_train.py}\footnote{Vedi file sorgente: \texttt{./luna-lrs/isaaclab\_train.py}}.
+% ------------------------------------------------------------------------------
+\section{Background: Previous Implementation}
+\label{sec:prev_impl}
+
+Prima dell’inizio del presente lavoro, una versione preliminare dell'ambiente era stata sviluppata
+da Luca Ostrogovich. Tale ambiente includeva:
+\begin{itemize}
+    \item una prima configurazione del terreno lunare;
+    \item un set iniziale di rocce e ostacoli semplici;
+    \item un modello RL in grado di navigare su terreno pianeggiante evitando rocce sparse;
+    \item un prototipo di \emph{curriculum learning} basato su graduale incremento della densità di ostacoli;
+    \item le basi per l’utilizzo di Isaac Lab per la simulazione multi-env e la raccolta di osservazioni.
+\end{itemize}
+
+Il suo lavoro ha rappresentato il punto di partenza per lo sviluppo del sistema completo presentato
+in questa tesi, che estende l’ambiente introducendo superfici di pendenza non percorribili
+(\emph{slopes}), una pipeline percettiva più ricca, un modello di reward più articolato,
+un sistema di spawning dinamico, e agenti RL addestrati in condizioni realistiche su scenari
+lunari complessi.
+
+
+\section{Reinforcement Learning Policy Architecture}
+\label{sec:rl_model}
+
+Dopo il lavoro preliminare svolto da Luca Ostrogovich, descritto nella Sezione~\ref{sec:prev_impl},
+il presente lavoro si concentra sulla progettazione di un modello di Reinforcement Learning
+più strutturato, modulare ed estensibile, adatto alla navigazione autonoma su terreni lunari
+complessi. Questa sezione descrive nel dettaglio la struttura della rete neurale, gli input e gli output
+della policy, le motivazioni alla base delle scelte architetturali e i vantaggi dell’approccio
+modulare basato su pipeline percettive esterne alla rete.
+
+% ------------------------------------------------------------------------------
+\subsection{Design degli input: rappresentazione compatta dello stato}
+\label{sec:rl_inputs}
+
+Una delle caratteristiche fondamentali dell’ambiente sviluppato in questa tesi è che la rete neurale
+non riceve direttamente l’immagine della camera come input.  
+Al contrario, tutte le informazioni visive (rocce, pendenze, zone pericolose) vengono preprocessate
+da una pipeline percettiva indipendente e convertite in un insieme di feature geometriche
+compatibili con RL su piattaforme embedded.
+
+Gli input alla rete, come implementati in \texttt{isaaclab\_envs.py}\footnote{File sorgente: :contentReference[oaicite:0]{index=0}}, sono:
+
+\begin{itemize}
+    \item \textbf{cinematica del rover}: velocità lineare normalizzata, velocità angolare;
+    \item \textbf{relazione con il target}: distanza normalizzata e direzione codificata come $\sin\theta, \cos\theta$;
+    \item \textbf{rocce osservate}: per ciascuna delle $N_{\text{rocks}}$ rocce rilevate,
+    si forniscono angolo normalizzato e distanza normalizzata;
+    \item \textbf{slopes osservate}: stessa codifica delle rocce, con massimo $N_{\text{slopes}}$;
+    \item \textbf{flag di sicurezza}: un bit binario che indica se il rover si trova in una zona ad alta penalità.
+\end{itemize}
+
+La dimensione complessiva dello stato è dell’ordine di 40–50 elementi, a seconda della
+configurazione specifica.  
+Questo approccio consente alla rete di operare con un input vettoriale molto compatto, evitando costi
+computazionali tipici delle CNN.
+
+% ------------------------------------------------------------------------------
+\subsection{Output della policy}
+\label{sec:rl_outputs}
+
+La rete neurale produce un vettore di due dimensioni che controlla la locomozione differenziale del rover:
+
+\[
+a = (\omega, v)
+\]
+
+dove:
+\begin{itemize}
+    \item $\omega$ è la velocità angolare normalizzata ($[-1, 1]$);
+    \item $v$ è la velocità lineare normalizzata ($[0, 1]$).
+\end{itemize}
+
+Questo formato è semplice, interpretabile e compatibile con il controller cinematico utilizzato nel simulatore
+e sul rover reale.
+
+% ------------------------------------------------------------------------------
+\subsection{Architettura della rete neurale}
+\label{sec:net_arch}
+
+La rete utilizzata per PPO, SAC e Recurrent PPO è una Multi-Layer Perceptron (MLP) composta da:
+
+\begin{itemize}
+    \item tre hidden layer con $256$ neuroni ciascuno,
+    \item attivazione \texttt{ReLU},
+    \item normalizzazione implicita dei dati di input,
+    \item per le versioni ricorrenti: un blocco LSTM con 256 unità.
+\end{itemize}
+
+Questa architettura è deliberatamente compatta.  
+La dimensione ridotta è motivata da:
+
+\begin{enumerate}
+    \item \textbf{osservazioni già altamente strutturate}: la pipeline percettiva
+    fornisce feature informative, riducendo la necessità di modelli più profondi;
+    \item \textbf{generalizzazione}: reti più piccole tendono a sovradattarsi meno
+    quando gli scenari simulati presentano rumore e variabilità;
+    \item \textbf{portabilità}: la policy deve poter essere eseguita su hardware embedded
+    come Raspberry~Pi~5 e moduli acceleratori come Hailo-8;
+    \item \textbf{latenza}: per la navigazione reattiva è fondamentale mantenere la
+    frequenza di controllo elevata.
+\end{enumerate}
+
+Una rete più grande aumenterebbe il costo computazionale senza apportare benefici apprezzabili,
+poiché gran parte dell’informazione semantica proviene dalla pipeline esterna.
+
+% ------------------------------------------------------------------------------
+\subsection{Perché un’architettura così piccola può funzionare?}
+
+Fattori chiave:
+
+\paragraph{1. Feature ingegnerizzate ad alta informatività}
+Le osservazioni non sono pixel, ma rappresentazioni geometriche essenziali:
+angoli e distanze rispetto a ostacoli e target.  
+Questo riduce drasticamente la complessità della funzione di policy.
+
+\paragraph{2. Struttura del problema}
+La navigazione locale è un problema relativamente a bassa dimensionalità:
+evitare ostacoli, mantenere il rover in zone sicure, avvicinarsi al target.
+
+\paragraph{3. Efficienza nell’apprendimento}
+Policy piccole convergono più rapidamente, soprattutto in ambienti RL con reward
+sparsamente informativi.
+
+% ------------------------------------------------------------------------------
+\subsection{Architettura Modulare: Vantaggi}
+
+L’intero sistema è composto da tre blocchi separati:
+
+\[
+\text{Perception Pipelines} \quad\Rightarrow\quad \text{RL Policy} \quad\Rightarrow\quad \text{Rover Control}
+\]
+\paragraph{Perception Pipeline}
+
+Nel presente lavoro vengono integrate due pipeline percettive distinte, entrambe basate su dati acquisiti dalla camera Intel RealSense D455f. Le due pipeline sono complementari e concorrono a fornire alla policy RL una rappresentazione geometrica e semantica coerente dell’ambiente circostante.
+
+\subparagraph{1. Pipeline basata su YOLO finetunato (riconoscimento rocce da RGB)}
+La prima pipeline utilizza i frame RGB ottenuti dalla camera e un modello YOLO finetunato da Martina Burgisi in una precedente tesi.  
+Questo modello è stato addestrato per riconoscere rocce in condizioni di illuminazione molto differenti tra loro:
+
+\begin{itemize}
+    \item luce artificiale perpendicolare al suolo (tipica di ambienti di laboratorio);
+    \item luce quasi radente, analoga a quella del polo sud lunare, caratterizzata da forti contrasti, ombre molto estese e regioni illuminate quasi bianche.
+\end{itemize}
+
+Questa pipeline fornisce alla policy una stima diretta della posizione angolare e della distanza apparente delle rocce, permettendo un riconoscimento robusto anche quando la profondità è disturbata, in ombra o con superfici poco strutturate.
+
+\subparagraph{2. Pipeline geometrica basata su Depth + DBSCAN + RANSAC (riconoscimento ostacoli generali e stima pendenze)}
+La seconda pipeline non è specializzata sulle rocce ma sugli ostacoli in senso generale.  
+Utilizza i frame di profondità provenienti dalla stessa RealSense e procede in due fasi:
+
+\begin{enumerate}
+    \item \textbf{clusterizzazione con DBSCAN}: dal depth frame vengono estratti punti vicini
+    formando cluster coerenti, ognuno dei quali rappresenta un potenziale ostacolo (roccia, bordo, parete inclinata, cratere);
+    \item \textbf{fitting con RANSAC}: a ciascun cluster viene adattato un piano mediante RANSAC
+    per stimare l’inclinazione rispetto al terreno e determinare se tale oggetto possiede una pendenza tale da essere considerato pericoloso.
+\end{enumerate}
+
+Questa pipeline è completamente agnostica rispetto al tipo di oggetto: ciò che conta è la geometria.
+Per tale motivo, essa classifica come “pericolose” anche le rocce, poiché molte presentano inclinazioni significative e superfici irregolari rispetto al terreno locale.
+
+La pipeline geometrica sarà descritta nel dettaglio nella Sezione \emph{Slope Estimation}.
+
+\subparagraph{Combinazione delle due pipeline}
+La combinazione di entrambe le pipeline fornisce un vantaggio notevole:
+
+\begin{itemize}
+    \item la pipeline YOLO riconosce rocce indipendentemente dalla loro geometria locale;
+    \item la pipeline Depth+DBSCAN+RANSAC riconosce ostacoli più generali e valuta la pendenza, classificando anche rocce come “dangerous” quando inclinazione e forma lo suggeriscono.
+\end{itemize}
+
+Questo implica che le rocce identificate da entrambe le pipeline vengono percepite dalla policy come ostacoli ad alta priorità, aumentando la cautela e migliorando la stabilità del comportamento del rover.
+
+\paragraph{Vantaggi dell’architettura modulare}
+
+La scelta di mantenere la percezione separata dalla policy RL porta numerosi benefici:
+
+\begin{enumerate}
+    \item \textbf{Sostituibilità e aggiornabilità}: le pipeline percettive possono essere migliorate o rimpiazzate (ad esempio con reti neurali più recenti) senza riaddestrare necessariamente la policy, a condizione che le feature in ingresso rimangano coerenti.
+    
+    \item \textbf{Portabilità reale–simulato}: la policy opera soltanto su feature geometriche ad alta astrazione (angoli, distanze, pendenze). Ciò permette di eseguire il modello tanto in simulazione quanto sul rover reale, senza dover adattare la rete alle immagini raw della camera.
+
+    \item \textbf{Interpretabilità}: osservazioni vettoriali come “distanza roccia”, “angolo slope”, “pericolosità” permettono di comprendere cosa la policy sta utilizzando per decidere l’azione. Ciò rende l’RL più trasparente rispetto a modelli puramente end-to-end basati su CNN.
+
+    \item \textbf{Adattabilità a nuovi scenari}: per introdurre nuovi tipi di ostacoli (creste, piccoli crateri, aree cedevoli) è sufficiente estendere la pipeline percettiva, senza modificare l’architettura della policy.
+
+    \item \textbf{Riduzione del sim-to-real gap}: poiché la percezione effettua da entrambi i domini (sim e real) le stesse operazioni — segmentazione, clustering, stima geometrica — la policy vede input equivalenti in entrambe le condizioni, mitigando il rischio di comportamenti divergenti.
+\end{enumerate}
+
+Questa architettura modulare segue un paradigma comune nei sistemi robotici moderni: separare la percezione — potenzialmente complessa e soggetta a cambiamenti — dal livello decisionale, che rimane compatto, interpretabile e adatto all’esecuzione su hardware embedded.
+
+
+% ------------------------------------------------------------------------------
+\section{Isaac Lab Environment Architecture}
+\label{sec:env_arch}
+
+L’ambiente sviluppato in questa tesi sfrutta le capacità di Isaac Lab per simulare simultaneamente
+decine di istanze parallele del rover, sfruttando la GPU per fisica, sensori e rendering.  
+Il modello per ogni ambiente è composto da:
+
+\begin{enumerate}
+    \item \textbf{Terreno lunare}: mesh 3D digitale derivata da scansioni reali della superficie
+    (file \texttt{LUNA\_terrain\_3D\_scan.usd}).
+    \item \textbf{Rocce}: fino a $70$ ostacoli con mesh reali, scala randomizzata e
+    posizionamento controllato tramite algoritmo di sampling vincolato.
+    \item \textbf{Pendenze non percorribili}: superfici addizionali che rappresentano
+    crateri o pareti ripide. Sono trattate come ostacoli ``soft'' e percepite attraverso la camera
+    o tramite \emph{semantic rendering} quando non si usa la pipeline geometrica.
+    \item \textbf{Robot}: il modello USD del rover ODIN, con controlli di guida differenziale
+    e attuatori PhysX.
+    \item \textbf{Sensore}: una camera RGB–Depth–Semantic (Realsense D455 simulata) configurata
+    come camera tiling con rendering RTX accelerato.
+\end{enumerate}
+
+La \autoref{fig:env_overview} mostra una vista schematica dell'ambiente.
+
+\begin{figure}[H] 
+    \centering 
+    \includegraphics[width=0.95\textwidth]{imgs/isaaclab/env1.png} 
+    \caption{immagine riassuntiva dell'ambiente di simulazione in Isaac Lab.} 
+    \label{fig:isaac-architecture} 
+\end{figure}
+
+% ------------------------------------------------------------------------------
+\section{Scene Configuration}
+\label{sec:scene_cfg}
+
+La classe \texttt{RoverSceneCfg} definisce:
+
+\begin{itemize}
+    \item il terreno statico (\texttt{AssetBaseCfg});
+    \item il rover come articolazione PhysX con attuatori a controllo di velocità;
+    \item la luce direzionale per ombreggiatura realistica;
+    \item la camera con output \emph{RGB, depth, semantic segmentation}.
+\end{itemize}
+
+Rocce e slopes sono definite tramite:
+\begin{itemize}
+    \item \texttt{RocksCfg}, che genera ostacoli rigidi con mesh casuali e scala campionata da una distribuzione troncata;
+    \item \texttt{SlopesUnfeasibleCfg}, che posiziona superfici non percorribili con vincoli di distanza dal rover e dal target.
+\end{itemize}
+
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{imgs/isaaclab/rock1.png}
+        %\caption{Scenario 1}
+        \label{fig:rock1}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{imgs/isaaclab/rock2.png}
+        %\caption{Scenario 2}
+        \label{fig:rock2}
+    \end{subfigure}
+
+    \vspace{4mm}
+
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{imgs/isaaclab/rock3.png}
+        %\caption{Scenario 3}
+        \label{fig:rock3}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{imgs/isaaclab/rock4.png}
+        %\caption{Scenario 4}
+        \label{fig:rock4}
+    \end{subfigure}
+
+    \caption{4 delle 20 rocce utilizzate nell'ambiente di simulazione Isaac Lab. la dimensione e posizione sono randomizzate ad ogni episodio.}
+    \label{fig:quattro-immagini}
+\end{figure}
+
+
+\begin{figure}[H] 
+    \centering 
+    \includegraphics[width=0.95\textwidth]{imgs/isaaclab/slope1.png} 
+    \caption{esempio di slope non percorribile generata nell'ambiente Isaac Lab.} 
+    \label{fig:isaac-architecture} 
+\end{figure}
+% ------------------------------------------------------------------------------
+\section{Observations and State Representation}
+\label{sec:obs}
+
+L’osservazione passata alla policy è un vettore normalizzato composto da:
+
+\begin{enumerate}
+    \item \textbf{Cinematica del rover}:
+    velocità lineare normalizzata e velocità angolare.
+    \item \textbf{Target}:
+    distanza normalizzata, direzione del goal espressa come $(\sin\theta, \cos\theta)$.
+    \item \textbf{Rocce in campo visivo}:
+    fino a $20$ rocce, ognuna rappresentata da:
+    \[
+        (\text{angolo\_norm}, \text{distanza\_norm})
+    \]
+    estratte attraverso la segmentazione semantica della camera.
+    \item \textbf{Pendenze pericolose}:
+    stessa struttura delle rocce, ottenuta tramite:
+    \[
+        \text{DBSCAN+RANSAC (modalità pipeline)} \quad \text{oppure} \quad \text{semantic rendering (modalità veloce)}.
+    \]
+\end{enumerate}
+
+L’osservazione completa ha dimensione:
+\[
+    2 + 3 + 2N_{\text{rocks}} + 2N_{\text{slopes}}
+\]
+
+% ------------------------------------------------------------------------------
+\section{Action Space}
+\label{sec:actions}
+
+Il rover utilizza un controllo differenziale:
+
+\[
+a = (\omega, v)
+\]
+
+dove:
+\[
+\omega \in [-1, 1], \qquad
+v \in [0,1].
+\]
+
+L’azione viene convertita in velocità delle quattro ruote tramite il controller cinematico
+\texttt{DifferentialDriveController}.
+
+% ------------------------------------------------------------------------------
+\section{Reward Function}
+\label{sec:reward}
+
+La funzione di reward combina:
+
+\begin{itemize}
+    \item penalità di passo: $-0.01$;
+    \item penalità per prossimità a rocce e slopes, con tre bande di distanza:
+    \[
+        \text{SAFE},\; \text{MID},\; \text{DANGER};
+    \]
+    \item reward di progresso:
+    \[
+        r_{\text{progress}} = 5 \cdot \max(0, d_{t-1} - d_t);
+    \]
+    \item reward goal:
+    \[
+        r_{\text{goal}} = 20 \quad \text{se} \quad d_t < 0.8\,\text{m};
+    \]
+    \item penalità per uscita dai confini o collisioni.
+\end{itemize}
+
+Il sistema include anche un flag binario \texttt{is\_safe} per distinguere progresso sicuro
+da progresso in zone ad alta penalità.
+
+% ------------------------------------------------------------------------------
+\section{Episode Termination}
+\label{sec:termination}
+
+Un episodio termina quando si verifica una delle condizioni:
+
+\begin{itemize}
+    \item raggiungimento del target;
+    \item collisione con una roccia;
+    \item attraversamento di una pendenza non percorribile;
+    \item ribaltamento (pitch o roll $>60^\circ$);
+    \item uscita dai confini dell’area simulata;
+    \item timeout di episodio.
+\end{itemize}
+
+La variabile \texttt{done\_reason} viene loggata per analisi statistiche durante il benchmark.
+
+% ------------------------------------------------------------------------------
+\section{Curriculum Learning}
+\label{sec:curriculum}
+
+L’ambiente implementa un sistema di difficoltà progressiva basato su due modalità:
+
+\paragraph{Density curriculum}
+Aumenta con il tempo:
+\begin{itemize}
+    \item densità di rocce,
+    \item numero di slopes,
+    \item ampiezza delle bande di penalità.
+\end{itemize}
+
+\paragraph{Barrier-layer curriculum}
+Introduce barriere perpendicolari alla direzione del target, composte da rocce e slopes posizionate
+ad intervalli regolari, con un corridoio aperto che si restringe progressivamente.  
+Questa modalità richiede maggiori capacità di pianificazione locale da parte dell’agente.
+
+% ------------------------------------------------------------------------------
+\section{Training Pipeline}
+\label{sec:training}
+
+L’addestramento è eseguito con Stable Baselines3, tramite wrapper Isaac Lab--SB3 che
+permette l’esecuzione parallela di decine di ambienti GPU.
+
+Le configurazioni supportano:
+\begin{itemize}
+    \item \textbf{PPO},  
+    \item \textbf{SAC},  
+    \item \textbf{Recurrent PPO} (LSTM).
+\end{itemize}
+
+Il file \texttt{isaaclab\_train.py} include:
+\begin{itemize}
+    \item il setup degli ambienti,
+    \item il caricamento delle configurazioni \texttt{YAML},
+    \item la definizione di callback (loss logger, csv logger, replay buffer logger),
+    \item salvataggio periodico dei checkpoint,
+    \item supporto per resume training.
+\end{itemize}

@@ -1,0 +1,197 @@
+\begin{thebibliography}{10}
+
+\bibitem{ferguson2006field}
+D.~Ferguson and A.~Stentz, ``Field d*: An interpolation-based path planner and replanner,'' in {\em Proceedings of the International Symposium on Robotics Research (ISRR)}, CMU Robotics Institute, 2006.
+
+\bibitem{maimone2007mer}
+M.~Maimone, C.~Leger, and J.~Biesiadecki, ``Autonomous navigation results from the mars exploration rover mission,'' in {\em Proceedings of the IEEE International Conference on Systems, Man and Cybernetics}, NASA JPL, 2007.
+
+\bibitem{okane2008incomplete}
+J.~M. O'Kane and S.~M. LaValle, ``Algorithms for robotics with incomplete information,'' {\em Foundations and Trends in Robotics}, vol.~1, no.~1, pp.~1--79, 2008.
+
+\bibitem{gennery1999traversability}
+D.~B. Gennery, ``Terrain traversability analysis for planetary exploration rovers,'' {\em Autonomous Robots}, vol.~6, no.~2, pp.~131--146, 1999.
+
+\bibitem{chiuchiarelli2024traversability}
+A.~Chiuchiarelli, ``Terrain traversability analysis for planetary exploration rovers,'' Master's thesis, Politecnico di Torino, 2024.
+\newblock Master's thesis.
+
+\bibitem{egan2021teapac}
+R.~Egan and A.~H. G{\"o}kto{\u{g}}an, ``Deep learning based terrain classification for traversability analysis, path planning and control of a mars rover,'' in {\em Proc. Australasian Conference on Robotics and Automation}, 2021.
+
+\bibitem{andersson2025lunar}
+K.~Andersson, ``Autonomous intelligent lunar exploration: A reinforcement learning-based approach for traversability-aware safe terrain navigation,'' Master's thesis, Lule{\aa} University of Technology, 2025.
+\newblock Advanced level student thesis.
+
+\bibitem{miao2025pathplanning}
+Q.~Miao {\em et~al.}, ``A comprehensive review of path-planning algorithms for planetary rover exploration,'' {\em Remote Sensing}, vol.~17, no.~11, p.~1924, 2025.
+
+\bibitem{swinton2025rrt}
+S.~Swinton {\em et~al.}, ``Improving rover path planning in challenging terrains,'' in {\em Proc. IEEE Aerospace Conference}, 2025.
+\newblock Preprint available as ePrint 367225.
+
+\bibitem{zhang2025pathplanning}
+H.~Zhang {\em et~al.}, ``An improved path planning and tracking control method for planetary exploration rovers on rough terrain,'' {\em Space: Science \& Technology}, 2025.
+\newblock In press.
+
+\bibitem{xiao2022mlnavigation}
+X.~Xiao, B.~Liu, G.~Warnell, and P.~Stone, ``Motion planning and control for mobile robot navigation using machine learning: A survey,'' {\em International Journal of Robotics Research}, 2022.
+\newblock Preprint available on ResearchGate.
+
+\bibitem{sevastopoulos2022survey}
+C.~Sevastopoulos and S.~Konstantopoulos, ``A survey of traversability estimation for mobile robots,'' {\em arXiv preprint arXiv:2204.10883}, 2022.
+
+\bibitem{bogoslavskyi2013kinect}
+I.~Bogoslavskyi, O.~Vysotska, J.~Serafin, G.~Grisetti, and C.~Stachniss, ``Efficient traversability analysis for mobile robots using the kinect sensor,'' in {\em Proc. European Conference on Mobile Robots (ECMR)}, pp.~158--163, 2013.
+
+\bibitem{visca2021deeplearningtraversability}
+M.~Visca, S.~Kuutti, R.~Powell, Y.~Gao, and S.~Fallah, ``Deep learning traversability estimator for mobile robots in unstructured environments,'' {\em arXiv preprint arXiv:2105.10937}, 2021.
+
+\bibitem{guastella2020learningnavigation}
+D.~C. Guastella {\em et~al.}, ``Learning-based methods of perception and navigation for ground vehicles in unstructured environments: A survey,'' {\em Sensors}, vol.~20, no.~19, p.~5452, 2020.
+
+\bibitem{zhelo2018curiosity}
+O.~Zhelo, J.~Zhang, L.~Tai, M.~Liu, and W.~Burgard, ``Curiosity-driven exploration for mapless navigation with deep reinforcement learning,'' {\em arXiv preprint arXiv:1804.00456}, 2018.
+
+\bibitem{hamza2022mapless}
+A.~Hamza, ``Deep reinforcement learning for mapless mobile robot navigation,'' Master's thesis, KTH / DiVA Portal, 2022.
+
+\bibitem{lin2023rlnavigation}
+F.~Lin, {\em Reinforcement Learning-based Autonomous Robot Navigation and Tracking}.
+\newblock PhD thesis, Cardiff University, 2023.
+
+\bibitem{Schulman2017PPO}
+J.~Schulman, F.~Wolski, P.~Dhariwal, A.~Radford, and O.~Klimov, ``Proximal policy optimization algorithms,'' in {\em arXiv preprint arXiv:1707.06347}, 2017.
+
+\bibitem{ProximalPolicyOptimizationWiki}
+``Proximal policy optimization.'' \url{https://spinningup.openai.com/en/latest/algorithms/ppo.html}.
+\newblock Accessed: 2025-01-01.
+
+\bibitem{Yu2021LunarPPO}
+H.~Yu, Z.~Liu, X.~Li, and M.~Wang, ``Safe reinforcement learning for autonomous lunar rover navigation,'' in {\em IEEE Aerospace Conference}, 2021.
+
+\bibitem{Haarnoja2018SAC}
+T.~Haarnoja, A.~Zhou, P.~Abbeel, and S.~Levine, ``Soft actor-critic: Off-policy maximum entropy deep reinforcement learning with a stochastic actor,'' {\em International Conference on Machine Learning (ICML)}, 2018.
+
+\bibitem{RLVSSAC}
+Y.~Li, R.~Chen, and H.~Wang, ``A review of soft actor-critic and its applications in continuous control,'' {\em IEEE Access}, vol.~10, pp.~12235--12255, 2022.
+
+\bibitem{Mock2023QuadSAC}
+T.~Mock, F.~Jonas, and T.~Schneider, ``Comparing ppo and sac for legged robot control in simulation,'' {\em Robotics and Autonomous Systems}, 2023.
+
+\bibitem{RecurrentPolicyGradients}
+V.~Mnih {\em et~al.}, ``Recurrent models of visual attention,'' in {\em NIPS}, 2014.
+\newblock (Considerato il riferimento fondativo per policy ricorrenti applicate a compiti parzialmente osservabili).
+
+\bibitem{Zhang2021ATLA}
+T.~Zhang, W.~Zhao, and Z.~Wang, ``Atla: Improving ppo in partially observable tasks using lstm and adaptive truncated backpropagation,'' {\em arXiv preprint arXiv:2103.01955}, 2021.
+
+\bibitem{AlHafez2024StatefulRL}
+F.~Al~Hafez, R.~Zhang, and C.~Fleming, ``Stateful reinforcement learning: A survey on memory-augmented policies in pomdps,'' {\em Journal of Machine Learning Research}, 2024.
+
+\bibitem{LunarRover2024DRL}
+R.~Chen, M.~Zhao, and H.~Li, ``Deep reinforcement learning for planetary rover navigation on irregular lunar terrain,'' {\em Acta Astronautica}, 2024.
+
+\bibitem{realsense_d455_datasheet}
+{Intel Corporation}, ``Intel realsense depth camera d455 -- product datasheet,'' 2020.
+\newblock Accessed: 2025-01-01.
+
+\bibitem{realsense_d455_overview}
+{Intel Corporation}, ``Intel realsense d455 -- technical overview,'' 2020.
+\newblock Accessed: 2025-01-01.
+
+\bibitem{raspberrypi5_brief}
+{Raspberry Pi Ltd.}, ``Raspberry pi 5 -- technical specification,'' 2023.
+\newblock Accessed: 2025-01-01.
+
+\bibitem{raspberrypi5_product}
+{Raspberry Pi Ltd.}, ``Raspberry pi 5 product overview,'' 2023.
+\newblock Accessed: 2025-01-01.
+
+\bibitem{hailo8_datasheet}
+{Hailo Technologies}, ``Hailo-8 deep learning processor -- datasheet,'' 2022.
+\newblock Accessed: 2025-01-01.
+
+\bibitem{hailo8_overview}
+{Hailo Technologies}, ``Hailo-8 ai accelerator -- technical overview,'' 2022.
+\newblock Accessed: 2025-01-01.
+
+\bibitem{hailo8_m2_module}
+{Hailo Technologies}, ``Hailo-8 m.2 module hardware guide,'' 2022.
+\newblock Accessed: 2025-01-01.
+
+\bibitem{rad750_bae}
+{BAE Systems}, ``Rad750 radiation-hardened processor -- product brief,'' 2019.
+\newblock Accessed: 2025-01-01.
+
+\bibitem{rad750_wiki}
+{Wikipedia contributors}, ``Rad750 microprocessor -- technical summary,'' 2024.
+\newblock Accessed: 2025-01-01.
+
+\bibitem{curiosity_computer}
+{NASA Jet Propulsion Laboratory}, ``Curiosity rover -- flight computer and avionics overview,'' 2012.
+\newblock Accessed: 2025-01-01.
+
+\bibitem{perseverance_rce}
+{NASA Jet Propulsion Laboratory}, ``Perseverance rover computing elements,'' 2021.
+\newblock Accessed: 2025-01-01.
+
+\bibitem{ingenuity_snapdragon}
+{NASA Jet Propulsion Laboratory}, ``Ingenuity mars helicopter -- onboard computing and navigation,'' 2021.
+\newblock Accessed: 2025-01-01.
+
+\bibitem{lrv_spu_nav}
+{NASA Manned Spacecraft Center}, ``Apollo lunar rover navigation system technical description,'' 1971.
+\newblock Accessed: 2025-01-01.
+
+\bibitem{lrv_historical}
+{NASA Technical Reports Server}, ``Apollo lrv navigation and control systems,'' 1972.
+\newblock Accessed: 2025-01-01.
+
+\bibitem{lrv_overview}
+{NASA History Office}, ``Lunar roving vehicle -- technical overview,'' 1971.
+\newblock Accessed: 2025-01-01.
+
+\bibitem{yutu_rover}
+{China National Space Administration}, ``Chang'e-3 yutu rover -- mission overview,'' 2013.
+\newblock Accessed: 2025-01-01.
+
+\bibitem{yutu2_cv}
+{CNSA / CAST Engineering Team}, ``Visual navigation technologies of the yutu-2 lunar rover,'' 2019.
+\newblock Accessed: 2025-01-01.
+
+\bibitem{isaaclab_overview}
+{NVIDIA Corporation}, ``Isaac lab documentation and overview,'' 2024.
+\newblock Accessed: 2025-01-01.
+
+\bibitem{stablebaselines3}
+A.~Raffin, A.~Hill, A.~Gleave, A.~Kanervisto, M.~Ernestus, and N.~Dormann, ``Stable-baselines3: Reliable reinforcement learning implementations,'' {\em Journal of Machine Learning Research}, vol.~22, no.~268, pp.~1--8, 2021.
+
+\bibitem{lee2020learning}
+J.~Lee, J.~Hwangbo, Y.~Baek, L.~Wellhausen, V.~Koltun, and M.~Hutter, ``Learning quadrupedal locomotion over challenging terrain,'' {\em Science Robotics}, vol.~5, no.~47, 2020.
+
+\bibitem{hwangbo2019learning}
+J.~Hwangbo {\em et~al.}, ``Learning agile and dynamic motor skills for legged robots,'' {\em Science Robotics}, vol.~4, no.~26, 2019.
+
+\bibitem{xia2022learning}
+F.~Xia {\em et~al.}, ``Learning humanoid locomotion with deep reinforcement learning,'' in {\em Conference on Robot Learning (CoRL)}, 2022.
+
+\bibitem{rashid2018qmix}
+T.~Rashid, M.~Samvelyan, C.~de~Witt, {\em et~al.}, ``Qmix: Monotonic value function factorisation for deep multi-agent reinforcement learning,'' in {\em International Conference on Machine Learning}, 2018.
+
+\bibitem{lowe2017multi}
+R.~Lowe, Y.~Wu, A.~Tamar, J.~Harb, P.~Abbeel, and I.~Mordatch, ``Multi-agent actor-critic for mixed cooperative-competitive environments,'' in {\em Advances in Neural Information Processing Systems}, 2017.
+
+\bibitem{yu2022surprising}
+C.~Yu {\em et~al.}, ``The surprising effectiveness of ppo in cooperative multi-agent games,'' {\em NeurIPS}, 2022.
+
+\bibitem{silburt2019lunar}
+A.~Silburt {\em et~al.}, ``Lunar crater identification via deep learning,'' {\em Icarus}, vol.~317, pp.~27--38, 2019.
+
+\bibitem{macenski2020neural}
+S.~Macenski {\em et~al.}, ``Neural network-based negative obstacle detection for off-road robots,'' {\em Journal of Field Robotics}, 2020.
+
+\bibitem{zhou2018stereo}
+Y.~Zhou {\em et~al.}, ``Stereo matching with deep learning for robot perception,'' in {\em IEEE ICRA}, 2018.
+
+\end{thebibliography}

@@ -1,0 +1,111 @@
+\documentclass[a4paper,12pt]{report}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[italian,english]{babel}
+\usepackage{geometry}
+\geometry{margin=3cm}
+\usepackage{setspace}
+\onehalfspacing
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{caption}
+\usepackage{csquotes}
+\usepackage{float}
+\usepackage{comment}
+
+%%% for images into ch4_system_overview.tex
+\usepackage{tikz}
+\usetikzlibrary{shapes, arrows.meta, positioning, calc, fit, backgrounds, shadows}
+\usepackage{xcolor}
+
+% Colori personalizzati per un look professionale
+\definecolor{myblue}{RGB}{60, 120, 180}
+\definecolor{mygreen}{RGB}{60, 160, 80}
+\definecolor{mygrey}{RGB}{230, 230, 230}
+\definecolor{myred}{RGB}{200, 60, 60}
+\definecolor{myorange}{RGB}{230, 140, 40}
+
+\graphicspath{
+  {imgs/}
+  {imgs/01_introduction/}
+  {imgs/02_background/}
+  {imgs/03_related_work/}
+  {imgs/04_system_overview/}
+  {imgs/05_perception_pipeline/}
+  {imgs/06_simulation_environment/}
+  {imgs/07_real_environment/}
+  {imgs/08_training_and_models/}
+  {imgs/09_results/}
+  {imgs/10_sim2real/}
+  {imgs/11_future_works/}
+  {imgs/12_conclusions/}
+}
+
+\begin{document}
+
+% -------------------------------
+% FRONTMATTER
+% -------------------------------
+
+
+\begin{titlepage}
+  \centering
+
+ \includegraphics[keepaspectratio=true,scale=0.2]{imgs/01_introduction/unipi_logo.jpg}\par\vspace{8mm}
+
+  {\LARGE University of Pisa\par}
+  \vspace{3mm}
+  {\large DEPARTMENT OF INFORMATION ENGINEERING\par}
+  \vspace{3mm}
+  {\LARGE Master's degree in Artificial Intelligence and Data Engineering\par}
+
+  \vspace{15mm}
+  {\LARGE\bfseries Development of autonomous lunar vehicles based on reinforcement learning paradigm\par}
+
+  \vspace{20mm}
+  \begin{minipage}[t]{0.47\textwidth}
+    \raggedright
+    {\large Relatore:}\\[2mm]
+    {\large \textbf{Prof. Mario G.C.A. Cimino}}
+    {\large \textbf{Dott. Aidan Cowley}}\\[2mm]
+  \end{minipage}
+  \hfill
+  \begin{minipage}[t]{0.47\textwidth}
+    \raggedleft
+    {\large Candidato:}\\[2mm]
+    {\large \textbf{Lorenzo Menchini}}
+  \end{minipage}
+
+  \vfill
+  \hrulefill\\[2mm]
+  {\large Accademic Year 2025/2026}
+\end{titlepage}
+% --------------------------------------
+
+
+
+\selectlanguage{english} % or italian, as you prefer
+
+\tableofcontents
+
+\include{chapters/ch1_introduction}
+\include{chapters/ch2_background}
+\include{chapters/ch3_related_work}
+\include{chapters/ch4_system_overview}
+\include{chapters/ch5_perception_pipeline}
+\include{chapters/ch6_simulation_environment}
+\include{chapters/ch7_real_environment}
+\include{chapters/ch8_training_and_models}
+\include{chapters/ch9_results}
+\include{chapters/ch10_sim2real}
+\include{chapters/ch11_future_works}
+\include{chapters/ch12_conclusions}
+
+\bibliographystyle{ieeetr}
+\bibliography{bibliography}
+
+\end{document}

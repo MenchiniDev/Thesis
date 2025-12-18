@@ -1,0 +1,122 @@
+\chapter{Conclusions}
+\label{ch12_conclusions}
+
+Il presente lavoro di tesi si colloca in un momento storico cruciale per l'esplorazione spaziale. Con il programma Artemis e le future missioni verso Marte, l'umanità si appresta a tornare sulla superficie lunare non più per brevi visite, ma per stabilire una presenza permanente e sostenibile. In questo nuovo scenario operativo, il paradigma tradizionale della teleoperazione diretta, che ha guidato i rover storici come Lunokhod o i primi Mars Rover, mostra limiti insuperabili: la latenza delle comunicazioni, la limitata larghezza di banda e la necessità di coprire vaste aree di terreno impervio in tempi ridotti impongono una transizione verso sistemi robotici dotati di autentica autonomia decisionale.
+
+Questa tesi ha accettato la sfida di sviluppare, addestrare e validare un'architettura di navigazione autonoma completa, capace di operare in ambienti non strutturati utilizzando esclusivamente sensori di bordo e risorse computazionali limitate, comparabili a quelle disponibili su hardware spaziale (\emph{Edge Computing}).
+Attraverso un percorso che ha intrecciato la simulazione fisica massiva, l'apprendimento per rinforzo profondo e la validazione sperimentale in ambienti analoghi, il lavoro ha dimostrato che è possibile superare le limitazioni degli approcci classici mediante l'integrazione di modelli di memoria e pianificazione latente.
+
+Nelle pagine che seguono, verranno ripercorsi i contributi principali della ricerca, rispondendo puntualmente alle domande scientifiche poste in apertura e delineando come i risultati ottenuti possano influenzare il design dei futuri esploratori robotici.
+
+\section{Summary of Contributions}
+\label{sec:summary_contributions}
+
+Il contributo di questo lavoro non risiede in un singolo algoritmo o componente, ma nella definizione e validazione di una metodologia \emph{full-stack} per la robotica autonoma. I principali apporti originali possono essere categorizzati in quattro aree fondamentali: l'infrastruttura di simulazione, l'architettura percettiva ibrida, la gerarchia degli algoritmi di controllo e il successo del trasferimento Sim-to-Real.
+
+\subsection{1. Una Pipeline di Addestramento Massivo e Parallelo}
+Il primo contributo sostanziale è stata la progettazione e implementazione di un ambiente di addestramento basato su \textbf{Isaac Lab} (Capitolo 6). Superando i limiti dei simulatori sequenziali tradizionali (come Gazebo), questa tesi ha sfruttato la parallelizzazione su GPU per simulare centinaia di rover (fino a 128) contemporaneamente.
+Questa scelta architetturale ha permesso di:
+\begin{itemize}
+    \item \textbf{Accelerare la raccolta dati}: È stato possibile generare milioni di transizioni di esperienza in poche ore di calcolo, rendendo trattabile l'addestramento di algoritmi \emph{sample-inefficient} ma robusti come PPO e SAC.
+    \item \textbf{Implementare Curriculum Learning Dinamico}: La scalabilità dell'ambiente ha permesso di progettare scenari a difficoltà progressiva (da pianure sparse a "labirinti" di rocce e pendenze), essenziali per guidare l'agente fuori dai minimi locali iniziali.
+    \item \textbf{Randomizzazione del Dominio}: L'infrastruttura ha integrato nativamente la variazione procedurale delle proprietà fisiche (attrito, massa, texture) e geometriche del terreno, creando una policy robusta capace di generalizzare a condizioni mai viste durante il training.
+\end{itemize}
+
+\subsection{2. Architettura Percettiva Ibrida (Semantic + Geometric)}
+Contrariamente alla tendenza recente di affidare l'intera pipeline di navigazione a reti neurali \emph{end-to-end} (dai pixel ai motori), questa tesi ha proposto e validato un approccio modulare ibrido (Capitolo 5).
+\begin{itemize}
+    \item È stata sviluppata una pipeline geometrica basata su \textbf{DBSCAN e RANSAC}, ottimizzata per hardware embedded. Questo modulo ha dimostrato che è possibile estrarre informazioni di traversabilità critiche (pendenze, ostacoli fisici) senza la necessità di GPU potenti, garantendo un livello di sicurezza deterministico basato sulla fisica della scena.
+    \item A questa si è affiancata una pipeline semantica basata su \textbf{YOLO}, fine-tunata per il riconoscimento di rocce lunari. L'integrazione di queste due fonti ha permesso di risolvere ambiguità che avrebbero fatto fallire un sistema monolitico: riconoscere rocce "piatte" ma scivolose (visibili solo semanticamente) o ostacoli geometrici privi di texture (visibili solo geometricamente).
+    \item L'innovativa integrazione dell'\textbf{IMU} nella pipeline di stima della pendenza ha risolto il problema della "cecità da beccheggio", disaccoppiando la percezione della traversabilità dall'assetto istantaneo del rover.
+\end{itemize}
+
+\subsection{3. Il Ruolo Cruciale della Memoria nella Navigazione}
+Il cuore scientifico della tesi risiede nell'analisi comparativa delle architetture di Reinforcement Learning (Capitoli 8 e 9). Attraverso un rigoroso processo di \emph{ablation study}, il lavoro ha dimostrato in modo inequivocabile che la navigazione su terreni accidentati con sensori locali è un problema \textbf{POMDP} (\emph{Partially Observable Markov Decision Process}) che non può essere risolto da agenti reattivi puri.
+\begin{itemize}
+    \item È stato dimostrato che i modelli \emph{Memoryless} (PPO/SAC standard) falliscono sistematicamente (Success Rate $<35\%$) a causa dell'incapacità di stimare lo stato dinamico (velocità, slittamento) e di ricordare ostacoli occlusi.
+    \item L'introduzione del \textbf{Frame Stacking} ha mitigato il problema cinetico, ma è stato l'uso di architetture ricorrenti (\textbf{Recurrent PPO}) a segnare il salto di qualità (Success Rate $>75\%$), permettendo all'agente di sviluppare strategie di navigazione complesse come l'aggiramento cieco e la pianificazione sequenziale.
+    \item Infine, l'integrazione di \textbf{TD-MPC2} ha aperto la strada alla pianificazione model-based, dimostrando che l'apprendimento di un modello del mondo latente offre una robustezza superiore e una capacità di generalizzazione zero-shot che i modelli model-free faticano a raggiungere.
+\end{itemize}
+
+\subsection{4. Validazione Sim-to-Real nella LUNA Facility}
+L'ultimo contributo, fondamentale per la credibilità ingegneristica del lavoro, è stata la dimostrazione sul campo (Capitolo 10). Il dispiegamento del rover Odin all'interno della LUNA Analog Facility dell'ESA non è stato un semplice test dimostrativo, ma una prova di stress scientifica.
+Il successo delle prove ha confermato che:
+\begin{itemize}
+    \item La pipeline percettiva ottimizzata è in grado di girare a 4Hz su un Raspberry Pi 5, rispettando i vincoli real-time.
+    \item Le policy apprese in simulazione sono trasferibili alla realtà senza \emph{fine-tuning} distruttivo, grazie alla robustezza intrinseca acquisita tramite la randomizzazione del dominio e l'uso di osservazioni astratte (scan e vettori) piuttosto che immagini grezze.
+\end{itemize}
+
+\section{Answer to the Research Questions}
+\label{sec:research_questions_answers}
+
+Nell'introduzione di questa tesi (Capitolo 1) erano state formulate tre domande di ricerca principali (Research Questions, RQ) che hanno guidato l'intero sviluppo sperimentale. Alla luce dei risultati ottenuti, è ora possibile fornire risposte dettagliate e supportate dai dati.
+
+\subsection{RQ1: È possibile addestrare policy di navigazione robuste in simulazione e trasferirle su hardware reale limitato (Sim-to-Real) colmando il gap fisico e percettivo?}
+
+\textbf{Risposta: Sì, mediante l'astrazione dello spazio delle osservazioni e la modularizzazione della percezione.}
+
+I risultati del Capitolo 10 dimostrano che il trasferimento diretto (\emph{zero-shot transfer}) è possibile se si evita l'approccio "pixels-to-torque" end-to-end. Il gap tra le immagini simulate (renderizzate con Ray Tracing ideale) e quelle reali (affette da rumore, lens flare e ombre complesse) è troppo ampio per essere colmato solo con la \emph{domain randomization} visiva su hardware a bassa potenza.
+
+La soluzione vincente adottata in questa tesi è stata l'\textbf{astrazione intermedia}:
+\begin{enumerate}
+    \item La complessa elaborazione visiva (da RGB-D a nuvola di punti, a cluster di ostacoli) viene gestita da moduli deterministici (DBSCAN) o reti supervisionate (YOLO) che sono robuste e verificabili separatamente.
+    \item L'agente RL riceve in input una rappresentazione compatta e astratta dello stato (vettori distanza/angolo degli ostacoli, stato IMU).
+\end{enumerate}
+Poiché la simulazione in Isaac Lab genera questa rappresentazione astratta con alta fedeltà geometrica, la policy apprende a ragionare su concetti fisici (distanze, angoli) che sono invarianti tra simulazione e realtà. Questo ha permesso al rover reale di navigare nella LUNA Facility "pensando" di trovarsi ancora nell'ambiente di training, nonostante le differenze macroscopiche nella qualità visiva e nella fisica del suolo granulare.
+
+\subsection{RQ2: Qual è il ruolo della memoria e della consapevolezza temporale nella navigazione in ambienti parzialmente osservabili e non strutturati?}
+
+\textbf{Risposta: La memoria è una condizione necessaria e abilitante per la sicurezza della navigazione; senza di essa, l'agente è limitato a comportamenti reattivi sub-ottimali e pericolosi.}
+
+Questa è la conclusione scientifica più forte del lavoro, supportata dall'analisi statistica del Capitolo 9. Gli esperimenti hanno evidenziato due tipi di deficit informativi nei modelli senza memoria:
+\begin{itemize}
+    \item \textbf{Deficit Cinematico}: Senza una storia degli stati passati, l'agente non può stimare l'accelerazione o distinguere tra un rover fermo e un rover che sta slittando ma ha velocità delle ruote non nulla. Questo porta a oscillazioni di controllo e timeout (come visto in PPO-NoMem).
+    \item \textbf{Deficit Spaziale (Occlusione)}: In un ambiente denso di ostacoli, manovre di evitamento richiedono spesso di ruotare il rover in modo tale che l'ostacolo esca dal campo visivo (\emph{Field of View}). Per un agente senza memoria, un ostacolo non visibile cessa di esistere. Questo causa collisioni laterali o posteriori.
+\end{itemize}
+
+I modelli dotati di memoria risolvono questi problemi in modi diversi ma efficaci:
+\begin{itemize}
+    \item Il \textbf{Frame Stacking} risolve il deficit cinematico ricostruendo le derivate temporali, rendendo il controllo fluido.
+    \item Le \textbf{Reti Ricorrenti (LSTM)} e i \textbf{World Models (TD-MPC2)} risolvono il deficit spaziale mantenendo una rappresentazione latente persistente dell'ambiente. L'agente "ricorda" la posizione dell'ostacolo nel suo stato nascosto $h_t$ o $z_t$ e pianifica la traiettoria tenendone conto anche quando non lo osserva direttamente.
+\end{itemize}
+I dati mostrano che il passaggio da un'architettura reattiva a una ricorrente raddoppia letteralmente il tasso di successo (dal 35\% al 75\%), provando che in robotica mobile la percezione istantanea è insufficiente.
+
+\subsection{RQ3: I modelli basati sulla pianificazione latente (World Models) offrono vantaggi tangibili rispetto alle policy reattive in termini di efficienza e generalizzazione, e sono compatibili con i vincoli di calcolo di bordo?}
+
+\textbf{Risposta: I World Models rappresentano il futuro della navigazione spaziale, offrendo generalizzazione zero-shot e robustezza fisica, pur richiedendo ottimizzazioni specifiche per l'hardware embedded.}
+
+L'integrazione di TD-MPC2 ha permesso di rispondere a quest'ultima domanda fondamentale. Sebbene Recurrent PPO abbia mostrato prestazioni eccellenti nel task specifico di addestramento, i risultati sperimentali suggeriscono che l'approccio Model-Based offre vantaggi qualitativi superiori per missioni a lungo termine:
+\begin{itemize}
+    \item \textbf{Efficienza dei Dati (Sample Efficiency)}: Essendo in grado di "immaginare" traiettorie, TD-MPC2 richiede meno interazioni con l'ambiente reale per adattarsi a nuove condizioni. Questo è cruciale per un rover che atterra in un sito inesplorato con proprietà del suolo sconosciute.
+    \item \textbf{Sicurezza Intrinseca}: Mentre un agente model-free esegue un'azione perché "in passato ha funzionato", un agente model-based la esegue perché "prevede che funzionerà". L'algoritmo di pianificazione MPPI permette di scartare attivamente traiettorie che portano a stati terminali pericolosi (ribaltamento), offrendo un livello di interpretabilità e sicurezza superiore.
+    \item \textbf{Fattibilità Computazionale}: Contrariamente al pregiudizio comune che vede i metodi model-based come troppo pesanti, questa tesi ha dimostrato che pianificare nel dominio latente (spazio compresso $z$) è computazionalmente sostenibile. L'inferenza del modello TOLD su un Raspberry Pi 5 rientra nei margini di tempo reale (inferiore a 250ms), provando che non sono necessari supercomputer per l'intelligenza predittiva.
+\end{itemize}
+
+\section{Implications for Autonomous Lunar Exploration}
+\label{sec:implications}
+
+I risultati presentati in questa tesi trascendono lo specifico prototipo sviluppato e offrono indicazioni generali per il design delle future missioni robotiche sulla Luna e su Marte. Le implicazioni per l'industria aerospaziale e la ricerca robotica possono essere riassunte in tre cambi di paradigma necessari.
+
+\subsection{1. Dal "Telecomando" alla "Supervisione di Missione"}
+L'attuale modello operativo, che vede team di centinaia di ingegneri pianificare ogni singolo metro di avanzamento dei rover (micromanagement), non è scalabile. La dimostrazione che un'AI di bordo può gestire autonomamente la navigazione locale, l'evitamento ostacoli e la gestione del rischio cinematico suggerisce un nuovo modello operativo.
+In futuro, gli operatori umani e gli scienziati definiranno obiettivi di alto livello (e.g., "Esamina quella formazione rocciosa a 500 metri"), delegando al rover la responsabilità tattica del "come" arrivarci. Questo aumenterà esponenzialmente la produttività scientifica delle missioni, riducendo i tempi morti dovuti alla latenza Terra-Luna.
+
+\subsection{2. L'Hardware COTS come Risorsa Spaziale}
+Il successo dell'elicottero marziano Ingenuity e i risultati di questa tesi convergono su un punto: l'hardware commerciale (\emph{Commercial Off-The-Shelf}, COTS) è maturo per lo spazio.
+La nostra architettura si basa su processori ARM (Raspberry Pi) e acceleratori AI (simili a Google Coral o Hailo), componenti che costano una frazione dei processori \emph{rad-hard} tradizionali (come il RAD750) ma offrono prestazioni di calcolo ordini di grandezza superiori.
+Le missioni future dovranno adottare architetture ibride: un computer classico ultra-affidabile per le funzioni vitali (guida, controllo termico, comunicazioni) affiancato da coprocessori COTS ad alte prestazioni per la navigazione AI e la percezione. La ridondanza software e la capacità di reset rapido permetteranno di tollerare i guasti indotti dalle radiazioni sui chip commerciali, sbloccando capacità di autonomia oggi impensabili.
+
+\subsection{3. La Simulazione come "Terreno di Prova" Primario}
+Isaac Lab non è stato solo uno strumento, ma un componente integrante del sistema. La capacità di generare "digital twin" procedurali dell'ambiente lunare significa che le future AI non verranno programmate, ma "allevate" in mondi virtuali.
+Questo approccio riduce drasticamente il rischio di missione: prima ancora che il rover venga assemblato fisicamente, la sua "mente" avrà già guidato per milioni di chilometri virtuali, affrontando scenari di emergenza (guasti ai motori, sensori ciechi, frane) che sarebbe troppo costoso o pericoloso testare nella realtà. La simulazione massiva diventa quindi un requisito di certificazione per il software di volo autonomo.
+
+\section{Final Remarks}
+\label{sec:final_remarks}
+
+Concludendo questo percorso di ricerca, emerge con chiarezza come la robotica spaziale stia vivendo una fase di profonda trasformazione. L'incrocio tra la disponibilità di simulatori fisici ad alta fedeltà, algoritmi di apprendimento profondo sempre più stabili e hardware embedded potente sta abbattendo le barriere che storicamente hanno confinato i robot esploratori a muoversi con estrema cautela e lentezza.
+
+Il rover Odin, sviluppato e testato in questo lavoro, è un dimostratore tecnologico che incarna questa filosofia. Non è il rover più costoso o meccanicamente complesso mai costruito, ma è reso "intelligente" dal software che lo guida. Ha imparato a navigare non attraverso regole scritte a mano da un programmatore ("se vedi roccia, gira a destra"), ma attraverso l'esperienza accumulata in milioni di tentativi ed errori in un universo simulato, cristallizzando questa conoscenza in una rete neurale capace di operare nel mondo reale.
+
+Personalmente, ritengo che il risultato più significativo non sia il pur elevato tasso di successo raggiunto, ma la dimostrazione metodologica che il divario tra simulazione e realtà (\emph{Sim-to-Real Gap}) non è un abisso invalicabile, ma una sfida ingegneristica gestibile. Attraverso l'astrazione sensoriale, la randomizzazione del dominio e l'uso intelligente della memoria, abbiamo dimostrato che è possibile addestrare agenti nel metaverso e vederli operare con successo nella polvere lunare (o nel suo analogo terrestre).
+
+Guardando al futuro, spero che le architetture proposte in questa tesi — in particolare l'uso di World Models e la fusione di percezione geometrica e semantica — possano contribuire, anche in piccola parte, alla progettazione della prossima generazione di esploratori robotici. Robot che non si limiteranno a seguire tracce nella sabbia, ma che sapranno guardare l'orizzonte, comprendere il terreno sotto le loro ruote e decidere autonomamente la propria strada verso la scoperta.

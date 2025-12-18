@@ -1,0 +1,80 @@
+\chapter{Background}
+\label{ch2_background}
+La navigazione autonoma in ambienti extraterrestri rappresenta una delle sfide più complesse e interdisciplinari della robotica moderna. Missioni lunari e planetarie richiedono sistemi capaci di operare in modo robusto, affidabile ed energeticamente efficiente, in scenari privi di GPS, caratterizzati da terreni irregolari, sensori soggetti a rumore e limitazioni computazionali significative.  
+
+All'interno di questo contesto convivono due approcci principali. Da un lato vi sono i metodi deterministici basati su modelli geometrici, largamente impiegati nelle missioni spaziali per la loro prevedibilità e interpretabilità. Dall’altro vi sono tecniche basate sul Reinforcement Learning (RL), più flessibili e adattive, ma spesso più onerose dal punto di vista computazionale e della quantità di dati necessari per l’addestramento.  
+
+Il presente capitolo introduce i fondamenti teorici alla base del lavoro sviluppato in questa tesi. Vengono descritte le pipeline di navigazione classiche, i principi del Reinforcement Learning e del controllo basato su dinamiche latenti, il ruolo della simulazione fotorealistica e i vincoli computazionali del cosiddetto edge computing. L’obiettivo è fornire un quadro chiaro dei due paradigmi principali della navigazione robotica e preparare il terreno per i confronti sperimentali discussi nei capitoli successivi.
+
+\section{Classical Autonomous Navigation Pipelines}
+
+Le pipeline deterministiche tradizionalmente adottate nella robotica mobile sono strutturate in tre moduli fondamentali: percezione, pianificazione e controllo. La percezione estrae informazioni locali sull'ambiente, quali presenza di ostacoli, pendenze o irregolarità del terreno; il pianificatore costruisce un percorso sicuro verso il target; infine, il controllore converte la traiettoria in comandi motori eseguibili dal rover.
+
+La percezione geometrica riveste un ruolo particolarmente importante nelle missioni planetarie. Tecniche come la stima della pendenza tramite operatori di gradiente o PCA locale, insieme a strategie di clustering della nuvola di punti, permettono di distinguere in modo esplicito regioni navigabili e non navigabili. Tali tecniche sono leggere dal punto di vista computazionale e risultano adatte a piattaforme a risorse limitate.
+
+Un limite strutturale di questi approcci emerge tuttavia in ambienti in cui l’informazione disponibile è parziale o soggetta a occlusione. I planner deterministici assumono generalmente la disponibilità di una rappresentazione coerente dello stato, mentre i rover planetari costruiscono mappe locali necessariamente incomplete, che cambiano rapidamente nel tempo. Per questo vengono spesso introdotte strategie come l’utilizzo di costmap locali o il ripianificazione continua del percorso.  
+
+Questi meccanismi consentono al robot di adattare il percorso a nuove osservazioni, ma non affrontano esplicitamente la natura probabilistica dell’incertezza né la parziale osservabilità dell’ambiente. Studi classici come quelli di Ferguson e Stentz sul Field D* hanno mostrato come il replanning rappresenti un compromesso utile ma limitato, mentre analisi teoriche come quelle di O’Kane e LaValle evidenziano i limiti formali dei planner deterministici in condizioni di informazione incompleta. La navigazione lunare, che rientra naturalmente nella categoria dei problemi POMDP, richiede quindi approcci capaci di modellare la parziale osservabilità e le dinamiche temporali.
+
+\section{Reinforcement Learning for Robotics}
+
+Il Reinforcement Learning offre un paradigma alternativo, nel quale un agente apprende una politica di controllo interagendo direttamente con l’ambiente. Un problema di RL viene modellato come un Markov Decision Process (MDP) definito da insiemi di stati e azioni, da una dinamica di transizione e da una funzione di ricompensa. Ad ogni passo l’agente osserva lo stato, seleziona un’azione e riceve un feedback che guida l’ottimizzazione della politica.
+
+La figura~\ref{fig:rl-loop} mostra lo schema di interazione tipico di un agente RL.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.70\textwidth]{imgs/02_background/rl_intro.png}
+    \caption{Schema dell'interazione nel Reinforcement Learning. L'agente seleziona un'azione $A_t$ a partire dallo stato osservato $S_t$, l'ambiente evolve in un nuovo stato $S_{t+1}$ e fornisce una ricompensa $R_{t+1}$ che guida l'apprendimento.}
+    \label{fig:rl-loop}
+\end{figure}
+
+Metodi actor–critic come Proximal Policy Optimization (PPO), Soft Actor–Critic (SAC) e varianti ricorrenti di PPO hanno mostrato ottime prestazioni nella locomozione robotica, in particolare quando la natura del problema è intrinsecamente parzialmente osservabile. L'utilizzo di memoria esplicita o implicita permette infatti all’agente di integrare informazioni temporali non accessibili a partire da una singola osservazione, migliorando robustezza e stabilità.
+
+L’approccio RL presenta tuttavia anche alcune criticità. La necessità di grandi quantità di dati e di simulazioni accuratamente calibrate rende essenziale l’utilizzo di ambienti simulativi di qualità elevata. Inoltre, l’addestramento può essere soggetto a instabilità numeriche, oscillazioni nella ricompensa e fenomeni di sovra–adattamento.
+
+\section{Curriculum Learning and Training Stability}
+
+L’addestramento di politiche RL in ambienti complessi come terreni irregolari, campi di rocce o superfici ad alta pendenza può risultare altamente instabile.  
+Il curriculum learning affronta questo problema introducendo un incremento graduale della difficoltà del task: l’agente inizia operando in scenari relativamente semplici e, man mano che la politica migliora, vengono aumentati densità degli ostacoli, variabilità del terreno, rumorosità delle osservazioni o complessità della dinamica.
+
+Questo approccio consente di ottenere convergenza più stabile, comportamenti più generalizzabili e una maggiore robustezza alle perturbazioni fisiche. Inoltre riduce la probabilità che l’agente si trovi in condizioni troppo complesse nelle fasi iniziali del training, evitando interruzioni premature dell’apprendimento.
+
+\section{Perception Pipelines and Slope Estimation}
+
+La percezione basata su mappe di profondità è uno degli strumenti più efficaci per valutare la navigabilità del terreno in scenari lunari. La stima accurata della pendenza permette infatti di prevenire situazioni pericolose come ribaltamenti, perdite di aderenza o l'accesso involontario a zone altamente inclinate.
+
+I metodi tradizionali per la stima della pendenza includono calcolo dei gradienti locali, derivazione numerica della superficie e analisi PCA applicata a finestre della nuvola di punti. Accanto a questi approcci esistono metodi basati su apprendimento automatico che sfruttano reti neurali o clustering per estrarre strutture di rilievo dal dato grezzo.  
+
+Nel contesto delle missioni robotiche, dove i vincoli computazionali sono stringenti, l’impiego di pipeline geometriche leggere rappresenta spesso la scelta più sensata. Per questo in questa tesi viene adottata una pipeline basata esclusivamente su tecniche geometriche e clustering della nuvola di punti, progettata per essere compatibile con l’esecuzione su dispositivi embedded.
+
+\section{Simulation Frameworks for Robotics}
+
+La simulazione gioca un ruolo fondamentale nell’addestramento delle politiche RL. Simulatori come NVIDIA Isaac Sim permettono di combinare fotorealismo, fisica accurata e un'integrazione nativa con gli strumenti necessari alla generazione di dati e all’addestramento in parallelo.
+
+La figura~\ref{fig:isaac-architecture} mostra una schematizzazione dell’architettura di Isaac Sim.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{imgs/02_background/isaacsim_structure.png}
+    \caption{Architettura di NVIDIA Isaac Sim. Il simulatore integra motore fisico, rendering, sensori virtuali e strumenti per l’addestramento massivo di politiche RL.}
+    \label{fig:isaac-architecture}
+\end{figure}
+
+Isaac Sim, insieme al modulo Isaac Lab, offre strumenti avanzati per l’importazione di modelli robotici, la simulazione di sensori come camere RGB–D e la creazione di scenari complessi. L’integrazione con ROS2 consente inoltre un passaggio naturale tra simulazione e piattaforma reale.
+
+\section{Edge Computing Constraints}
+
+I rover destinati ad ambienti extraterrestri devono operare con capacità computazionali e disponibilità energetiche estremamente limitate. Le architetture di bordo raramente includono GPU ad alte prestazioni, e l’utilizzo continuativo di algoritmi complessi può compromettere la stabilità termica o i consumi del sistema.
+
+La pipeline progettata in questa tesi è stata quindi sviluppata adottando i principi dell’edge computing: ridurre la latenza, ottimizzare l’efficienza energetica, minimizzare la complessità numerica e garantire la piena eseguibilità su microcomputer embedded come Raspberry Pi 5.
+
+\section{Sim-to-Real Transfer}
+
+Il trasferimento di politiche dalla simulazione al mondo reale è reso difficile dalle inevitabili differenze tra modello simulato e dinamica fisica effettiva. Fenomeni come variazioni nell’attrito, irregolarità non modellate del terreno, rumore sensoriale o ritardi nei motori possono compromettere la validità della politica appresa.
+
+Per mitigare questo problema vengono comunemente adottate tecniche come la domain randomization, l’iniezione di rumore artificiale durante l’addestramento e la randomizzazione di parametri fisici. In questo lavoro, l’integrazione con ROS2 e l’esecuzione su hardware reale hanno permesso di validare in modo diretto la robustezza della politica e della pipeline percettiva.
+
+\section{Approach Adopted in This Thesis}
+
+In sintesi, questa tesi affronta il problema della navigazione autonoma su terreni lunari confrontando pipeline deterministiche e agenti RL addestrati in Isaac Sim, utilizzando una pipeline percettiva leggera ottimizzata per l’esecuzione su dispositivi embedded. L’analisi congiunta di percezione, controllo e vincoli computazionali permette di valutare in modo rigoroso l’impatto della parziale osservabilità e delle limitazioni hardware sulle prestazioni dei diversi approcci alla navigazione robotica.

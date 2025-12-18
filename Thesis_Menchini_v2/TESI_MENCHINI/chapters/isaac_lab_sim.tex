@@ -1,0 +1,100 @@
+\chapter{Isaac Lab: simulazione massiva e addestramento di agenti RL}
+\label{sec:isaaclab}
+
+Isaac Lab è il framework di simulazione robotica sviluppato da NVIDIA per la ricerca avanzata in \emph{Reinforcement Learning} (RL), controllo e robotica autonoma. Deriva direttamente da Isaac Sim, che fornisce l'infrastruttura fisica, grafica e sensoriale basata su Unreal/Omniverse, ma introduce un insieme di strumenti aggiuntivi specificamente progettati per l'addestramento su larga scala di agenti intelligenti, con particolare attenzione alla parallelizzazione, all'automazione e alla riproducibilità degli esperimenti \cite{isaaclab_overview}.
+
+In Figura~\ref{fig:isaaclab_architecture} è riportata una rappresentazione schematica dell'architettura di Isaac Lab e della sua relazione con Isaac Sim e gli algoritmi di RL.
+
+\begin{figure}[ht]
+    \centering
+    % Sostituisci con la tua immagine o tieni come placeholder
+    \includegraphics[width=0.85\textwidth]{imgs/isaaclab/structure.png}
+    \caption{Schema generale dell'architettura di Isaac Lab. Il livello di simulazione fisica e sensoriale è fornito da Isaac Sim, mentre Isaac Lab introduce funzionalità per la creazione di ambienti RL, il controllo massivo degli scenari e la parallelizzazione su GPU.}
+    \label{fig:isaaclab_architecture}
+\end{figure}
+
+\subsection{Relazione tra Isaac Sim e Isaac Lab}
+
+Isaac Sim fornisce:
+\begin{itemize}
+    \item un motore fisico avanzato (PhysX 5) con supporto GPU;
+    \item un ecosistema completo di sensori virtuali: camere RGB, depth, LIDAR, IMU, odometria;
+    \item strumenti per la creazione di mondi simulati realistici basati su USD;
+    \item un'interfaccia Python ad alto livello per configurare robot, materiali, terreni, luci, telecamere.
+\end{itemize}
+
+Isaac Lab si inserisce sopra questo livello e aggiunge:
+\begin{itemize}
+    \item \textbf{un'interfaccia standardizzata per la creazione di ambienti RL}, compatibile con OpenAI Gym e RL di terze parti;
+    \item \textbf{parallelizzazione massiva su GPU}, permettendo di eseguire migliaia di ambienti simultaneamente per ridurre drasticamente i tempi di addestramento;
+    \item \textbf{strumenti di randomizzazione (\emph{domain randomization})}, necessari per ridurre il \emph{sim-to-real gap};
+    \item \textbf{gestione automatica dei buffer di osservazioni, reward, reset} in ambienti RL complessi;
+    \item \textbf{un sistema modulare di registri di scenari}, robot e configurazioni riproducibili.
+\end{itemize}
+
+In sintesi, mentre Isaac Sim è un simulatore robotico ad alta fedeltà, Isaac Lab è una piattaforma completa per esperimenti RL su larga scala, integrata nativamente con Isaac Sim.
+
+\subsection{Vantaggi principali di Isaac Lab per l'addestramento di agenti RL}
+
+Isaac Lab introduce alcune funzionalità che risultano particolarmente importanti per questa tesi, specialmente nella fase di addestramento delle politiche di navigazione del rover.
+
+\subsubsection{Simulazione massiva su GPU}
+Uno dei principali vantaggi è la capacità di eseguire un numero molto elevato di copie parallele dell'ambiente di simulazione sulla GPU. Ciò permette di accelerare l'apprendimento di PPO, SAC e altri algoritmi basati su gradienti, rendendo possibile raccogliere milioni di step al secondo su hardware adeguato.
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}{0.49\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{imgs/isaaclab/ambiente.png}
+        \\{\scriptsize (a) IsaacLab con ambiente Lunare}
+    \end{minipage}\hfill
+    \begin{minipage}{0.49\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{imgs/isaaclab/training.png}
+        \\{\scriptsize (b) IsaacLab con addestramento parallelo di 128 ambienti}
+    \end{minipage}
+
+    \caption{Esempio di utilizzo di Isaac Lab per la simulazione di un rover lunare. (a) Un singolo ambiente simulato con terreno lunare e ostacoli. (b) Addestramento parallelo di 128 ambienti identici, ognuno con il proprio rover, per l'apprendimento di una politica di navigazione basata su RL.}
+    \label{fig:kinect-traversability}
+\end{figure}
+
+Tale approccio segue la filosofia dei moderni framework RL come Isaac Gym e DeepMind Acme, dove la scalabilità è essenziale per ottenere prestazioni elevate e tempi di addestramento ridotti.
+
+\subsubsection{Sensori virtuali fedeli, derivati da Isaac Sim}
+Isaac Lab eredita da Isaac Sim la capacità di simulare sensori con elevato realismo fisico:
+\begin{itemize}
+    \item camere RGB e depth;
+    \item LIDAR 3D;
+    \item IMU, giroscopi e accelerometri;
+    \item odometria e encoder delle ruote;
+    \item camere stereo e matrici di profondità analoghe alla Intel RealSense.
+\end{itemize}
+
+Per il caso del rover, questo è particolarmente rilevante poiché la pipeline di percezione e la stima della traversabilità dipendono dalla disponibilità di mappe di profondità affidabili. La possibilità di simulare tali sensori con modelli realistici permette un addestramento che replica fedelmente la percezione a bordo del rover reale.
+
+\subsubsection{Domain randomization integrata}
+In scenari sim-to-real, la capacità di introdurre variabilità nelle condizioni ambientali è essenziale. Isaac Lab permette di randomizzare automaticamente:
+\begin{itemize}
+    \item materiali del terreno e coefficienti di frizione;
+    \item illuminazione;
+    \item texture e rugosità superficiali;
+    \item rumore sensoriale;
+    \item posizioni iniziali e perturbazioni dinamiche.
+\end{itemize}
+
+Questa funzionalità diventa cruciale per ridurre l'overfitting alla simulazione e aumentare la probabilità di trasferimento su robot reali.
+
+\subsection{Integrazione con algoritmi di Reinforcement Learning: Stable-Baselines3}
+
+Isaac Lab fornisce un'interfaccia compatibile con gli standard RL di Python, permettendo l'integrazione diretta con librerie come Stable-Baselines3 (SB3). In questa tesi, gli algoritmi PPO, SAC e Recurrent PPO utilizzati per addestrare la politica di navigazione fanno parte della libreria SB3 \cite{stablebaselines3}.
+
+Isaac Lab semplifica notevolmente:
+\begin{itemize}
+    \item la creazione dell'ambiente RL secondo le API Gym;
+    \item la raccolta dei dati di addestramento in forma vettoriale;
+    \item la gestione dei reset e delle terminazioni di episodio;
+    \item il monitoraggio del reward, della sicurezza e delle prestazioni;
+    \item la scalabilità dell'apprendimento grazie alla parallelizzazione GPU.
+\end{itemize}
+
+Grazie a queste caratteristiche, Isaac Lab diventa la piattaforma ideale per addestrare il rover in scenari lunari virtuali complessi, sia con pipeline deterministiche sia con agenti RL addestrati in parallelo.

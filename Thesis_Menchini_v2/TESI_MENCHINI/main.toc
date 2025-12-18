@@ -1,0 +1,137 @@
+\contentsline {chapter}{\numberline {1}Introduction}{5}{chapter.1}%
+\contentsline {chapter}{\numberline {2}Background}{1}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Classical Autonomous Navigation Pipelines}{1}{section.2.1}%
+\contentsline {subsection}{\numberline {2.1.1}Limitations in Partially Observable Environments}{2}{subsection.2.1.1}%
+\contentsline {section}{\numberline {2.2}Reinforcement Learning for Robotics}{2}{section.2.2}%
+\contentsline {section}{\numberline {2.3}Curriculum Learning and Training Stability}{3}{section.2.3}%
+\contentsline {section}{\numberline {2.4}Perception Pipelines and Slope Estimation}{3}{section.2.4}%
+\contentsline {section}{\numberline {2.5}Simulation Frameworks for Robotics}{4}{section.2.5}%
+\contentsline {section}{\numberline {2.6}Edge Computing Constraints}{5}{section.2.6}%
+\contentsline {section}{\numberline {2.7}Sim-to-Real Transfer}{5}{section.2.7}%
+\contentsline {section}{\numberline {2.8}Approach Adopted in This Thesis}{5}{section.2.8}%
+\contentsline {chapter}{\numberline {3}Related Work}{6}{chapter.3}%
+\contentsline {subsection}{\numberline {3.0.1}Planetary Rover Navigation and Traversability}{6}{subsection.3.0.1}%
+\contentsline {subsection}{\numberline {3.0.2}Deterministic Motion Planning on Rough Terrain}{7}{subsection.3.0.2}%
+\contentsline {subsection}{\numberline {3.0.3}Traversability Estimation for Mobile Robots}{8}{subsection.3.0.3}%
+\contentsline {subsection}{\numberline {3.0.4}Learning-based and RL Methods for Mapless and Planetary Navigation}{10}{subsection.3.0.4}%
+\contentsline {subsection}{\numberline {3.0.5}Positioning of This Work}{11}{subsection.3.0.5}%
+\contentsline {section}{\numberline {3.1}Algoritmi di Reinforcement Learning per la navigazione lunare}{12}{section.3.1}%
+\contentsline {subsection}{\numberline {3.1.1}Proximal Policy Optimization (PPO)}{12}{subsection.3.1.1}%
+\contentsline {subsection}{\numberline {3.1.2}Soft Actor-Critic (SAC)}{13}{subsection.3.1.2}%
+\contentsline {subsection}{\numberline {3.1.3}Recurrent PPO e politiche con memoria}{13}{subsection.3.1.3}%
+\contentsline {subsection}{\numberline {3.1.4}RL per rover lunari in letteratura}{14}{subsection.3.1.4}%
+\contentsline {subsection}{\numberline {3.1.5}Risultati sperimentali di PPO e SAC}{14}{subsection.3.1.5}%
+\contentsline {subsection}{\numberline {3.1.6}Motivazione per l'aggiunta di memoria e Recurrent PPO}{15}{subsection.3.1.6}%
+\contentsline {paragraph}{Frame stacking.}{15}{subsection.3.1.6}%
+\contentsline {paragraph}{Perché una LSTM può aiutare.}{16}{subsection.3.1.6}%
+\contentsline {subsection}{\numberline {3.1.7}Possibili estensioni per migliorare la memoria}{16}{subsection.3.1.7}%
+\contentsline {chapter}{\numberline {4}Piattaforma hardware del rover}{18}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Struttura meccanica e locomozione}{18}{section.4.1}%
+\contentsline {section}{\numberline {4.2}Sottosistema di percezione}{19}{section.4.2}%
+\contentsline {section}{\numberline {4.3}Sottosistema di calcolo a bordo}{19}{section.4.3}%
+\contentsline {subsection}{\numberline {4.3.1}Raspberry Pi 5}{19}{subsection.4.3.1}%
+\contentsline {subsection}{\numberline {4.3.2}Acceleratore AI Hailo-8}{20}{subsection.4.3.2}%
+\contentsline {section}{\numberline {4.4}Alimentazione, interfacce e segnalazione}{20}{section.4.4}%
+\contentsline {section}{\numberline {4.5}Confronto con i rover lunari e marziani reali}{20}{section.4.5}%
+\contentsline {subsection}{\numberline {4.5.1}Rover marziani: Curiosity, Perseverance e Ingenuity}{21}{subsection.4.5.1}%
+\contentsline {subsection}{\numberline {4.5.2}Rover lunari: Apollo LRV, Yutu e missioni moderne}{21}{subsection.4.5.2}%
+\contentsline {subsection}{\numberline {4.5.3}Confronto quantitativo e qualitativo}{22}{subsection.4.5.3}%
+\contentsline {subsection}{\numberline {4.5.4}Compatibilità dei requisiti computazionali}{23}{subsection.4.5.4}%
+\contentsline {section}{\numberline {4.6}Lezioni dall'elicottero marziano \emph {Ingenuity}: un nuovo paradigma per l'hardware di bordo}{23}{section.4.6}%
+\contentsline {subsection}{\numberline {4.6.1}Un processore commerciale su Marte}{23}{subsection.4.6.1}%
+\contentsline {subsection}{\numberline {4.6.2}Implicazioni per l'hardware robotico spaziale}{24}{subsection.4.6.2}%
+\contentsline {subsection}{\numberline {4.6.3}Rilevanza per il presente lavoro}{24}{subsection.4.6.3}%
+\contentsline {section}{\numberline {4.7}Analisi comparativa dei modelli di Reinforcement Learning}{26}{section.4.7}%
+\contentsline {subsection}{\numberline {4.7.1}Soft Actor–Critic senza memoria (SAC--nomem)}{26}{subsection.4.7.1}%
+\contentsline {subsubsection}{Goal metrics}{26}{subsection.4.7.1}%
+\contentsline {subsubsection}{Episode metrics}{27}{figure.caption.10}%
+\contentsline {subsubsection}{Reward shaping metrics}{28}{figure.caption.11}%
+\contentsline {subsection}{\numberline {4.7.2}Soft Actor–Critic con frame stacking (SAC--16frame)}{29}{subsection.4.7.2}%
+\contentsline {subsubsection}{Goal metrics}{29}{subsection.4.7.2}%
+\contentsline {subsubsection}{Episode metrics}{29}{figure.caption.13}%
+\contentsline {subsubsection}{Reward shaping metrics}{30}{figure.caption.14}%
+\contentsline {subsection}{\numberline {4.7.3}Recurrent PPO (R-PPO)}{31}{subsection.4.7.3}%
+\contentsline {subsubsection}{Goal metrics}{31}{subsection.4.7.3}%
+\contentsline {subsubsection}{Episode metrics}{31}{figure.caption.16}%
+\contentsline {subsubsection}{Reward shaping metrics}{32}{figure.caption.17}%
+\contentsline {subsection}{\numberline {4.7.4}Proximal Policy Optimization (PPO)}{33}{subsection.4.7.4}%
+\contentsline {subsubsection}{PPO senza memoria (PPO–nomem)}{33}{subsection.4.7.4}%
+\contentsline {paragraph}{Goal metrics.}{33}{subsection.4.7.4}%
+\contentsline {paragraph}{Episode metrics.}{33}{figure.caption.19}%
+\contentsline {paragraph}{Reward shaping metrics.}{34}{figure.caption.20}%
+\contentsline {subsubsection}{PPO con frame stacking (PPO–16frame)}{35}{figure.caption.21}%
+\contentsline {paragraph}{Goal metrics.}{35}{figure.caption.21}%
+\contentsline {paragraph}{Episode metrics.}{35}{figure.caption.22}%
+\contentsline {paragraph}{Reward shaping metrics.}{36}{figure.caption.23}%
+\contentsline {section}{\numberline {4.8}Risultati sperimentali}{37}{section.4.8}%
+\contentsline {subsection}{\numberline {4.8.1}Performance generali: analisi degli eventi}{37}{subsection.4.8.1}%
+\contentsline {subsection}{\numberline {4.8.2}Success rate dei modelli}{38}{subsection.4.8.2}%
+\contentsline {subsection}{\numberline {4.8.3}Progress reale verso il goal}{39}{subsection.4.8.3}%
+\contentsline {subsection}{\numberline {4.8.4}Analisi statistica: l’impatto della memoria}{40}{subsection.4.8.4}%
+\contentsline {subsubsection}{Distribuzione del success rate}{40}{subsection.4.8.4}%
+\contentsline {subsubsection}{Distribuzione della reward}{41}{figure.caption.28}%
+\contentsline {subsubsection}{Boxplot del success rate}{42}{figure.caption.29}%
+\contentsline {subsection}{\numberline {4.8.5}Sintesi dei risultati}{43}{subsection.4.8.5}%
+\contentsline {chapter}{\numberline {5}Isaac Lab: simulazione massiva e addestramento di agenti RL}{45}{chapter.5}%
+\contentsline {subsection}{\numberline {5.0.1}Relazione tra Isaac Sim e Isaac Lab}{45}{subsection.5.0.1}%
+\contentsline {subsection}{\numberline {5.0.2}Vantaggi principali di Isaac Lab per l'addestramento di agenti RL}{46}{subsection.5.0.2}%
+\contentsline {subsubsection}{Simulazione massiva su GPU}{46}{subsection.5.0.2}%
+\contentsline {subsubsection}{Sensori virtuali fedeli, derivati da Isaac Sim}{47}{figure.caption.32}%
+\contentsline {subsubsection}{Domain randomization integrata}{47}{figure.caption.32}%
+\contentsline {subsection}{\numberline {5.0.3}Integrazione con algoritmi di Reinforcement Learning: Stable-Baselines3}{48}{subsection.5.0.3}%
+\contentsline {chapter}{\numberline {6}Reinforcement Learning Environment and Training Pipeline}{49}{chapter.6}%
+\contentsline {section}{\numberline {6.1}Background: Previous Implementation}{49}{section.6.1}%
+\contentsline {section}{\numberline {6.2}Reinforcement Learning Policy Architecture}{50}{section.6.2}%
+\contentsline {subsection}{\numberline {6.2.1}Design degli input: rappresentazione compatta dello stato}{50}{subsection.6.2.1}%
+\contentsline {subsection}{\numberline {6.2.2}Output della policy}{50}{subsection.6.2.2}%
+\contentsline {subsection}{\numberline {6.2.3}Architettura della rete neurale}{51}{subsection.6.2.3}%
+\contentsline {subsection}{\numberline {6.2.4}Perché un’architettura così piccola può funzionare?}{51}{subsection.6.2.4}%
+\contentsline {paragraph}{1. Feature ingegnerizzate ad alta informatività}{52}{subsection.6.2.4}%
+\contentsline {paragraph}{2. Struttura del problema}{52}{subsection.6.2.4}%
+\contentsline {paragraph}{3. Efficienza nell’apprendimento}{52}{subsection.6.2.4}%
+\contentsline {subsection}{\numberline {6.2.5}Architettura Modulare: Vantaggi}{52}{subsection.6.2.5}%
+\contentsline {paragraph}{Perception Pipeline}{52}{subsection.6.2.5}%
+\contentsline {subparagraph}{1. Pipeline basata su YOLO finetunato (riconoscimento rocce da RGB)}{52}{subsection.6.2.5}%
+\contentsline {subparagraph}{2. Pipeline geometrica basata su Depth + DBSCAN + RANSAC (riconoscimento ostacoli generali e stima pendenze)}{52}{subsection.6.2.5}%
+\contentsline {subparagraph}{Combinazione delle due pipeline}{53}{Item.14}%
+\contentsline {paragraph}{Vantaggi dell’architettura modulare}{53}{Item.14}%
+\contentsline {section}{\numberline {6.3}Isaac Lab Environment Architecture}{54}{section.6.3}%
+\contentsline {section}{\numberline {6.4}Scene Configuration}{55}{section.6.4}%
+\contentsline {section}{\numberline {6.5}Observations and State Representation}{57}{section.6.5}%
+\contentsline {section}{\numberline {6.6}Action Space}{57}{section.6.6}%
+\contentsline {section}{\numberline {6.7}Reward Function}{58}{section.6.7}%
+\contentsline {section}{\numberline {6.8}Episode Termination}{58}{section.6.8}%
+\contentsline {section}{\numberline {6.9}Curriculum Learning}{59}{section.6.9}%
+\contentsline {paragraph}{Density curriculum}{59}{section.6.9}%
+\contentsline {paragraph}{Barrier-layer curriculum}{59}{section.6.9}%
+\contentsline {section}{\numberline {6.10}Training Pipeline}{59}{section.6.10}%
+\contentsline {section}{\numberline {6.11}Slope Estimation Pipeline}{60}{section.6.11}%
+\contentsline {subsection}{\numberline {6.11.1}Preprocessing del depth frame}{60}{subsection.6.11.1}%
+\contentsline {subsection}{\numberline {6.11.2}Ricostruzione dei punti 3D e rimozione del terreno}{60}{subsection.6.11.2}%
+\contentsline {subsection}{\numberline {6.11.3}Clustering degli ostacoli tramite DBSCAN}{60}{subsection.6.11.3}%
+\contentsline {subsection}{\numberline {6.11.4}Stima per-cluster della pendenza via RANSAC}{61}{subsection.6.11.4}%
+\contentsline {section}{\numberline {6.12}Fine-tuning del clustering su dati reali}{61}{section.6.12}%
+\contentsline {subsection}{\numberline {6.12.1}Risultati in simulazione: Isaac Lab}{61}{subsection.6.12.1}%
+\contentsline {subsection}{\numberline {6.12.2}Passaggio al dominio reale: problemi di rumore}{64}{subsection.6.12.2}%
+\contentsline {paragraph}{Effetto dei parametri:}{64}{subsection.6.12.2}%
+\contentsline {subsection}{\numberline {6.12.3}Fine-tuning dei parametri}{64}{subsection.6.12.3}%
+\contentsline {subsection}{\numberline {6.12.4}Risultati finali sul dominio reale}{65}{subsection.6.12.4}%
+\contentsline {subsection}{\numberline {6.12.5}Output della pipeline}{66}{subsection.6.12.5}%
+\contentsline {subsection}{\numberline {6.12.6}Interazione con la pipeline YOLO: complementarità}{67}{subsection.6.12.6}%
+\contentsline {subsection}{\numberline {6.12.7}Collegamento ai metodi deterministici}{67}{subsection.6.12.7}%
+\contentsline {section}{\numberline {6.13}Deterministic Traversability Analysis: Kinect-based Method}{68}{section.6.13}%
+\contentsline {subsection}{\numberline {6.13.1}Principi del metodo}{68}{subsection.6.13.1}%
+\contentsline {subsection}{\numberline {6.13.2}Caratteristiche computazionali}{68}{subsection.6.13.2}%
+\contentsline {subsection}{\numberline {6.13.3}Limitazioni principali}{69}{subsection.6.13.3}%
+\contentsline {subsection}{\numberline {6.13.4}Confronto concettuale con il metodo sviluppato in questa tesi}{69}{subsection.6.13.4}%
+\contentsline {subsection}{\numberline {6.13.5}Prestazioni su Raspberry Pi 5}{70}{subsection.6.13.5}%
+\contentsline {chapter}{\numberline {7}Pseudocodice dei nodi ROS2}{71}{chapter.7}%
+\contentsline {subsubsection}{Nodo camera}{71}{chapter.7}%
+\contentsline {subsubsection}{Nodo \texttt {odin\_autodrive}}{72}{algorithm.1}%
+\contentsline {subsubsection}{Nodo route controller}{73}{algorithm.2}%
+\contentsline {subsection}{\numberline {7.0.1}Grafo dei topic ROS2}{73}{subsection.7.0.1}%
+\contentsline {section}{\numberline {7.1}Future Works}{74}{section.7.1}%
+\contentsline {subsection}{\numberline {7.1.1}Estensione a piattaforme umanoidi o quadrupedi}{74}{subsection.7.1.1}%
+\contentsline {subsection}{\numberline {7.1.2}Policy collaborative per mappatura e navigazione cooperativa}{74}{subsection.7.1.2}%
+\contentsline {subsection}{\numberline {7.1.3}Riconoscimento di crateri come ostacoli strutturali}{75}{subsection.7.1.3}%
+\contentsline {subsection}{\numberline {7.1.4}Aggiunta di una seconda camera per migliorare percezione e robustezza}{76}{subsection.7.1.4}%

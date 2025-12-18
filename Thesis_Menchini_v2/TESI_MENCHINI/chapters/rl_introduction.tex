@@ -1,0 +1,142 @@
+\section{Algoritmi di Reinforcement Learning per la navigazione lunare}
+\label{sec:rl_algorithms}
+
+Dopo aver introdotto il formalismo di base del Reinforcement Learning (stati, azioni, reward), in questa sezione descrivo gli algoritmi utilizzati in questa tesi: \emph{Proximal Policy Optimization} (PPO), \emph{Soft Actor-Critic} (SAC) e la variante ricorrente \emph{Recurrent PPO}. Per ciascuno discuto le caratteristiche matematiche principali, le implicazioni rispetto a un ambiente lunare parzialmente osservabile e i risultati sperimentali ottenuti.
+
+\subsection{Proximal Policy Optimization (PPO)}
+
+PPO è un algoritmo di policy gradient on--policy che nasce come approssimazione più semplice ed efficiente di TRPO \cite{Schulman2017PPO}. L'idea chiave è limitare quanto la nuova policy $\pi_\theta$ può discostarsi dalla policy precedente $\pi_{\theta_{\text{old}}}$ durante un aggiornamento, evitando instabilità dovute a passi di gradiente troppo grandi.
+
+Definendo il rapporto tra le due policy
+\begin{equation}
+  r_t(\theta) = \frac{\pi_\theta(a_t \mid s_t)}{\pi_{\theta_{\text{old}}}(a_t \mid s_t)},
+\end{equation}
+PPO massimizza il seguente obiettivo ``clippato'':
+\begin{equation}
+  L^{\text{CLIP}}(\theta) = 
+  \mathbb{E}_t \left[
+    \min \Big(
+      r_t(\theta) \hat{A}_t,\;
+      \mathrm{clip}(r_t(\theta), 1-\epsilon, 1+\epsilon) \hat{A}_t
+    \Big)
+  \right],
+\end{equation}
+dove $\hat{A}_t$ è una stima dell'advantage e $\epsilon$ è un iperparametro (tipicamente $\epsilon = 0.1$--$0.2$). Il termine $\min(\cdot)$ penalizza aggiornamenti che modificherebbero troppo la policy, imponendo implicitamente un vincolo sulla divergenza KL rispetto alla policy precedente \cite{Schulman2017PPO,ProximalPolicyOptimizationWiki}.
+
+Dal punto di vista computazionale PPO è relativamente semplice: ad ogni iterazione si raccolgono traiettorie con l'ultima policy, poi si eseguono più epoche di aggiornamenti di gradiente su mini-batch degli stessi dati. In applicazioni di robotica simulata si osservano in genere convergenze nell'ordine di $10^5$--$10^6$ passi di simulazione \cite{Schulman2017PPO}, in linea con quanto osservato negli esperimenti di questa tesi.
+
+Nel contesto della navigazione lunare, PPO è spesso scelto per la sua robustezza e per la relativa facilità di tuning \cite{Yu2021LunarPPO}. In \cite{Yu2021LunarPPO} viene ad esempio utilizzato per l'end-to-end path planning su terreni lunari con vincoli di sicurezza, mostrando buona capacità di generalizzazione a diversi profili di pendenza e rugosità.
+
+\subsection{Soft Actor-Critic (SAC)}
+
+SAC è un algoritmo actor--critic off--policy basato sul framework del \emph{maximum entropy reinforcement learning} \cite{Haarnoja2018SAC}. A differenza dei policy gradient classici, SAC massimizza una funzione obiettivo che combina reward e entropia della policy:
+\begin{equation}
+  J(\pi) = \sum_t \mathbb{E}_{(s_t,a_t)\sim\pi}
+  \left[ r(s_t, a_t) + \alpha \mathcal{H}\big(\pi(\cdot \mid s_t)\big) \right],
+\end{equation}
+dove $\mathcal{H}(\pi(\cdot \mid s_t))$ è l'entropia della policy nello stato $s_t$ e $\alpha$ è un coefficiente che bilancia esplorazione (entropia alta) e sfruttamento (reward alto). L'algoritmo apprende:
+\begin{itemize}
+  \item una policy stocastica $\pi_\theta(a \mid s)$;
+  \item una o più funzioni $Q_\phi(s,a)$ (\emph{soft Q-function});
+  \item opzionalmente un valore di temperatura $\alpha$ adattivo.
+\end{itemize}
+
+L'aggiornamento dell'actor mira a minimizzare la distanza tra la policy e una distribuzione Boltzmann derivata dalla soft Q-function:
+\begin{equation}
+  J_{\pi}(\theta) = \mathbb{E}_{s_t \sim \mathcal{D}}
+  \left[ \mathbb{E}_{a_t \sim \pi_\theta}
+  \left[ \alpha \log \pi_\theta(a_t \mid s_t) - Q_\phi(s_t, a_t) \right] \right],
+\end{equation}
+mentre il critic è aggiornato minimizzando un obiettivo di tipo Bellman residuo \cite{Haarnoja2018SAC}.
+
+Essendo off--policy, SAC può riutilizzare campioni da un replay buffer, risultando tipicamente più sample--efficient di PPO su compiti di controllo continuo complessi \cite{Haarnoja2018SAC,RLVSSAC}. Di contro, la pipeline di aggiornamento è più articolata (più reti neurali, più target networks) e richiede una fase di tuning più delicata.
+
+Nel contesto di robotica di campo, SAC è spesso preferito quando è richiesta una regolazione fine delle azioni e quando si dispone di simulatori che consentono un addestramento intensivo con riuso dei dati. Studi comparativi su robot quadrupedi mostrano come SAC possa raggiungere gaits più stabili e con minore variabilità rispetto a PPO a parità di passi simulati \cite{Mock2023QuadSAC}.
+
+\subsection{Recurrent PPO e politiche con memoria}
+
+Gli algoritmi descritti sopra assumono che l'osservazione $o_t$ contenga tutta l'informazione rilevante sullo stato del sistema (ipotesi di Markov). Nel caso del rover lunare, questa ipotesi è violata: la percezione è limitata al campo visivo della camera (Intel RealSense), e ostacoli o crateri possono uscire dal FOV pur restando dinamicamente rilevanti. Il problema diventa quindi un \emph{Partially Observable Markov Decision Process} (POMDP).
+
+Per affrontare POMDP di questo tipo si introducono policy \emph{stateful}, dotate di memoria interna. Storicamente, i \emph{Recurrent Policy Gradients} \cite{RecurrentPolicyGradients} e, più in generale, le RNN applicate al policy gradient, sono state proposte proprio per addestrare politiche stocastiche con memoria limitata su orizzonti lunghi. In tempi più recenti, varianti di PPO con LSTM o GRU sono diventate standard per ambienti parzialmente osservabili, mostrando miglioramenti di robustezza e capacità di generalizzare a disturbi non modellati \cite{Zhang2021ATLA,AlHafez2024StatefulRL}.
+
+In questa tesi utilizzo la variante \emph{Recurrent PPO}, in cui:
+\begin{itemize}
+  \item la policy $\pi_\theta(a_t \mid o_t, h_t)$ e il value function condividono un backbone LSTM che mantiene uno stato nascosto $h_t$;
+  \item lo stato nascosto viene aggiornato secondo
+  \begin{equation}
+    h_{t+1} = f_\theta(h_t, o_t, a_t),
+  \end{equation}
+  con $f_\theta$ implementata da una cella LSTM;
+  \item l'obiettivo di ottimizzazione è formalmente identico a PPO, ma applicato a sequenze temporali e addestrato tramite \emph{truncated backpropagation through time} (TBPTT).
+\end{itemize}
+
+L'introduzione dell'LSTM rende il training più costoso rispetto a PPO classico: a parità di passi ambientali, si osserva un aumento del tempo di addestramento (dovuto al calcolo sequenziale dell'LSTM e a TBPTT) e una maggiore sensibilità alla lunghezza delle sequenze e alla gestione degli stati nascosti \cite{AlHafez2024StatefulRL}.
+
+\subsection{RL per rover lunari in letteratura}
+
+Diversi lavori recenti hanno esplorato l'uso del deep RL per la navigazione di rover in ambienti lunari o planetari. Yu et al.\ propongono ad esempio un sistema di path planning end-to-end per rover lunari, addestrato in simulazione con terreni derivati da dati reali e con vincoli sulla sicurezza del percorso \cite{Yu2021LunarPPO}. Altri lavori combinano campi di potenziale artificiali con agenti RL per ottenere politiche più sicure e interpretabili su terreni accidentati \cite{LunarRover2024DRL}. 
+
+Questi studi evidenziano due aspetti rilevanti per questa tesi:
+\begin{enumerate}
+  \item l'efficacia di algoritmi come PPO e SAC in scenari di navigazione con ostacoli complessi;
+  \item il ruolo cruciale della percezione e della memoria nel gestire ostacoli che possono uscire dal campo visivo o essere parzialmente occlusi.
+\end{enumerate}
+
+\subsection{Risultati sperimentali di PPO e SAC}
+
+Negli esperimenti condotti in Isaac Lab su terreni lunari simulati, PPO e SAC mostrano andamenti molto simili in termini di metriche di training:
+\begin{itemize}
+  \item la distanza media dal goal diminuisce sensibilmente nelle prime fasi di addestramento, stabilizzandosi successivamente attorno a un valore intermedio; il rover impara cioè a dirigersi verso il goal, ma non raggiunge sistematicamente la posizione finale;
+  \item le componenti di reward di shaping (\emph{progress}, penalità per pendenze e rocce, ecc.) mostrano trend complessivamente crescenti, indice di una migliore gestione locale del terreno;
+  \item SAC tende a mostrare picchi di \emph{goal reward} leggermente più pronunciati e una progressione del reward totale più rapida, coerentemente con la sua maggiore efficienza nel controllo continuo; PPO, dal canto suo, produce politiche più stabili, con episodi mediamente più brevi e meno variabilità nelle traiettorie.
+\end{itemize}
+
+Nel complesso, entrambi gli algoritmi convergono a politiche qualitativamente simili: il rover evita gran parte degli ostacoli isolati e progredisce verso il goal, ma manifesta ancora comportamenti subottimali in presenza di ostacoli che interferiscono direttamente con la linea di vista verso il goal, soprattutto quando questi escono dal campo visivo della camera.
+
+\subsection{Motivazione per l'aggiunta di memoria e Recurrent PPO}
+
+Una limitazione fondamentale del setup adottato in questa tesi è che l'osservazione del rover è limitata ai dati disponibili nel campo visivo della camera Intel RealSense. Il modulo percettivo fornisce, per gli ostacoli visibili, distanza e posizione relativa nel frame del rover. Tuttavia, quando un ostacolo esce dal FOV, l'informazione sparisce completamente dallo stato osservato:
+\begin{itemize}
+  \item il rover ``dimentica'' l'ostacolo una volta che non è più visibile;
+  \item eventuali manovre elusive vengono interrotte non appena l'ostacolo non rientra più nelle osservazioni correnti;
+  \item in particolare, se un ostacolo si trova tra rover e goal, il comportamento appreso da PPO/SAC tende a riallinearsi verso il goal non appena l'ostacolo esce dal FOV, portando il rover a collidere con lo stesso ostacolo dopo pochi passi.
+\end{itemize}
+
+Questo fenomeno è tipico di ambienti parzialmente osservabili: l'agente non può ricostruire lo stato reale del mondo a partire dalle sole osservazioni correnti, e la Markov property è violata. 
+
+\paragraph{Frame stacking.}  
+Una soluzione spesso adottata in RL visivo è il \emph{frame stacking}, cioè concatenare le ultime $k$ osservazioni $[o_{t-k+1}, \dots, o_t]$ in un unico vettore. In questa tesi è stato sperimentato un frame stacking fino a 16 osservazioni consecutive. Tuttavia, i risultati mostrano che:
+\begin{itemize}
+  \item l'aggiunta di frame stacking non produce miglioramenti significativi nelle metriche di training;
+  \item i comportamenti qualitativi restano molto simili: il rover continua a ``dimenticare'' gli ostacoli una volta usciti dal FOV.
+\end{itemize}
+
+La ragione è che il frame stacking allunga l'orizzonte temporale solo in maniera limitata e ``rigida'': una volta che l'ostacolo è uscito dal campo visivo per più di $k$ passi, anche l'ultimo stack non lo contiene più. Inoltre, il frame stacking si limita a fornire osservazioni grezze, senza modellare esplicitamente la dinamica degli oggetti o una rappresentazione astratta della scena.
+
+\paragraph{Perché una LSTM può aiutare.}  
+L'introduzione di una LSTM nella policy (Recurrent PPO) punta a superare proprio questa limitazione. Invece di fornire un finestra fissa di osservazioni, la LSTM:
+\begin{itemize}
+  \item aggiorna uno stato interno $h_t$ che può, in principio, memorizzare informazioni sugli ostacoli visti in passato;
+  \item può apprendere a rappresentare a livello latente la presenza di ostacoli ``fuori vista'', influenzando le azioni anche quando l'ostacolo non è più direttamente osservabile;
+  \item permette di modellare dipendenze a più lungo raggio rispetto a un semplice stacking di pochi frame.
+\end{itemize}
+
+Sulla base dei risultati della letteratura su PPO ricorrente e politiche stateful \cite{Zhang2021ATLA,AlHafez2024StatefulRL}, ci si aspetta che, una volta completato l'addestramento:
+\begin{itemize}
+  \item Recurrent PPO migliori la robustezza del rover in presenza di ostacoli che entrano ed escono dal FOV;
+  \item il rover tenda a mantenere traiettorie elusive più coerenti, continuando a ``ricordarsi'' dell'ostacolo anche dopo che è uscito dal campo visivo diretto;
+  \item le metriche legate alla distanza dal goal e alle penalità per collisioni mostrino un ulteriore miglioramento rispetto a PPO e SAC senza memoria esplicita.
+\end{itemize}
+
+\subsection{Possibili estensioni per migliorare la memoria}
+
+L'uso di una LSTM nella policy rappresenta un primo passo verso la gestione della parziale osservabilità, ma non esaurisce le possibilità. Alcune estensioni future possibili includono:
+\begin{itemize}
+  \item \textbf{Critic ricorrente}: estendere la ricorrenza anche al value function, in modo da sfruttare la memoria anche nella stima del valore e dell'advantage.
+  \item \textbf{Mappe locali accumulate}: costruire una mappa di occupazione 2D/2.5D a partire dalle osservazioni della RealSense (depth e pendenza) e fornire all'agente una rappresentazione compatta della mappa locale aggiornata nel tempo, riducendo la dipendenza da memoria puramente neurale.
+  \item \textbf{World models}: adottare modelli del mondo ricorrenti che apprendono una dinamica latente dell'ambiente e consentono pianificazione o immaginazione di traiettorie future, come nei lavori di tipo Dreamer o PlaNet applicati alla robotica mobile.
+  \item \textbf{Memorie esterne differenziabili}: esplorare architetture con memorie esplicite (Neural Map, Neural SLAM, trasformers con attenzione su histories) per rappresentare ostacoli e landmark visti in passato.
+  \item \textbf{Feature storiche esplicite}: oltre alle immagini, fornire alla policy storici sintetici di posizioni relative del goal, odometria del rover e statistiche sul terreno attraversato, in modo da facilitare alla LSTM l'apprendimento di pattern temporali rilevanti.
+\end{itemize}
+
+Queste direzioni mirano a ridurre la distanza tra ciò che il rover vede istantaneamente e una rappresentazione più ricca del contesto globale, necessaria per una navigazione sicura e robusta su terreni lunari complessi.

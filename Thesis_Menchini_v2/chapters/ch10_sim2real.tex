@@ -1,0 +1,120 @@
+\chapter{Sim-to-Real Deployment}
+\label{ch10_sim2real}
+
+Il banco di prova definitivo per qualsiasi sistema di guida autonoma sviluppato in simulazione è il dispiegamento sulla piattaforma fisica. Questo capitolo descrive in dettaglio la metodologia adottata per colmare il divario tra l'ambiente virtuale di Isaac Lab e il rover reale Odin. Viene analizzata l'architettura software basata su ROS2, l'ottimizzazione delle pipeline percettive per l'hardware embedded (Raspberry Pi 5) e, infine, vengono discussi i risultati degli esperimenti condotti presso la LUNA Analog Facility, dove gli scenari di addestramento sono stati replicati fisicamente per validare le politiche apprese.
+
+\section{ROS2 Architecture}
+\label{sec:ros2_arch}
+
+L'architettura software di bordo è costruita sul middleware ROS2 (Robot Operating System 2), scelto per la sua robustezza, la capacità di gestione in tempo reale e l'architettura a nodi distribuiti. Come illustrato nel diagramma di alto livello in Figura~\ref{fig:system-architecture} (Capitolo 4), il sistema è modulare e decomposto in tre nodi principali che comunicano tramite un pattern \emph{publish-subscribe}.
+
+\begin{enumerate}
+    \item \textbf{Camera Node}: Responsabile dell'interfacciamento con il driver della Intel RealSense D455. Questo nodo pubblica i flussi video RGB e le mappe di profondità (Depth) allineate, gestendo i parametri di esposizione e filtraggio hardware direttamente alla fonte.
+    
+    \item \textbf{Autodrive Node (Perception \& Decision)}: È il cuore computazionale del sistema. Sottoscrive i topic della camera e l'odometria. Al suo interno, esegue sequenzialmente:
+    \begin{itemize}
+        \item La pipeline percettiva (YOLO + DBSCAN);
+        \item La costruzione del vettore di osservazione normalizzato;
+        \item L'inferenza del modello RL (o TD-MPC2);
+        \item La pubblicazione dei comandi di velocità ($v, \omega$) sul topic \texttt{/cmd\_vel}.
+    \end{itemize}
+    
+    \item \textbf{Wheel Node (Actuation)}: Agisce come interfaccia di basso livello verso l'hardware. Traduce i comandi di velocità lineari e angolari in segnali PWM per i driver dei motori, applicando limiti di sicurezza cinematici (saturazione dell'accelerazione).
+\end{enumerate}
+
+Questa separazione garantisce che un eventuale ritardo nel nodo di percezione non blocchi il loop di controllo dei motori, che può gestire l'arresto di emergenza in modo indipendente.
+
+\section{Perception Nodes}
+\label{sec:perception_nodes_real}
+
+L'esecuzione delle pipeline percettive su hardware embedded ha richiesto un lavoro di ottimizzazione significativo rispetto alla controparte simulata, dove le risorse GPU sono virtualmente illimitate.
+
+Per la pipeline geometrica (\textbf{DBSCAN+RANSAC}), l'elaborazione dell'intera nuvola di punti ($1280 \times 720$) a piena risoluzione risulterebbe proibitiva per la CPU del Raspberry Pi 5. Sono state quindi applicate le seguenti ottimizzazioni:
+\begin{itemize}
+    \item \textbf{Decimazione Spaziale}: La depth map viene campionata con uno stride aggressivo (e.g., 1 pixel ogni 4 o 8), riducendo il numero di punti 3D da processare di un fattore quadratico, mantenendo comunque la struttura macroscopica degli ostacoli (rocce e pendenze).
+    \item \textbf{ROI Dinamica}: L'elaborazione viene limitata a una \emph{Region of Interest} pertinente alla navigazione (i primi 4-5 metri), ignorando lo sfondo rumoroso.
+\end{itemize}
+
+Per la parte semantica (\textbf{YOLO}), l'inferenza è delegata, ove possibile, all'acceleratore neurale o eseguita su CPU in modalità quantizzata, per non sottrarre risorse al thread di controllo principale. L'obiettivo raggiunto è un framerate stabile di circa $4-5$ FPS, che rappresenta il limite inferiore accettabile per una navigazione sicura a bassa velocità ($< 0.2 \, m/s$).
+
+\section{RL and TD-MPC2 Inference Nodes}
+\label{sec:inference_nodes}
+
+Il caricamento e l'esecuzione dei modelli addestrati (PPO, SAC, Recurrent PPO, TD-MPC2) avviene all'interno dell'\texttt{Autodrive Node}.
+
+La sfida principale in questa fase è garantire la perfetta corrispondenza tra lo spazio delle osservazioni simulato e quello reale. I modelli addestrati con Stable-Baselines3 vengono salvati come archivi \texttt{.zip} contenenti i pesi della rete neurale e i parametri di normalizzazione (media e varianza delle osservazioni mobili).
+Durante l'inizializzazione del nodo reale:
+\begin{enumerate}
+    \item Il modello viene caricato in memoria (CPU execution) tramite PyTorch.
+    \item Viene istanziato un wrapper di normalizzazione identico a quello di Isaac Lab (`VecNormalize`), pre-caricato con le statistiche congelate al termine del training.
+    \item Le osservazioni grezze provenienti dai sensori reali (distanza rocce, tilt IMU, velocità encoder) vengono normalizzate \emph{prima} di essere passate alla rete neurale.
+\end{enumerate}
+
+L'output della policy è un'azione normalizzata in $[-1, 1]$, che viene successivamente denormalizzata nei range fisici di velocità del rover (es. $v \in [0, 0.2]\,m/s$).
+
+\section{Motor Control and Safety}
+\label{sec:motor_safety}
+
+Il \textbf{Wheel Node} riceve i comandi di velocità target e implementa un controller PID locale per mantenere le velocità delle ruote desiderate, compensando l'attrito variabile del terreno sabbioso.
+
+Oltre al controllo, questo nodo implementa meccanismi di sicurezza critici per la sperimentazione reale:
+\begin{itemize}
+    \item \textbf{Watchdog Timer}: Se il nodo non riceve nuovi comandi di velocità dall'intelligenza artificiale per più di $0.5$ secondi (es. a causa di un crash della pipeline percettiva o latenza eccessiva), i motori vengono immediatamente arrestati.
+    \item \textbf{Manual Override}: Un segnale proveniente dal joystick di teleoperazione ha sempre priorità sui comandi autonomi, permettendo all'operatore umano di intervenire istantaneamente (Dead Man's Switch).
+\end{itemize}
+
+\section{Performance on Raspberry Pi}
+\label{sec:rpi_performance}
+
+Le prestazioni computazionali sono state monitorate durante le sessioni di test per verificare la compatibilità con i requisiti real-time. La Tabella~\ref{tab:rpi_metrics} riassume i valori medi osservati.
+
+\begin{table}[ht]
+    \centering
+    \caption{Metriche prestazionali medie su Raspberry Pi 5.}
+    \label{tab:rpi_metrics}
+    \begin{tabular}{lc}
+        \toprule
+        \textbf{Metric} & \textbf{Value (Avg)} \\
+        \midrule
+        Perception Latency (Depth+Geom) & $180 - 220$ ms \\
+        Policy Inference Time (R-PPO) & $< 5$ ms \\
+        Total End-to-End Latency & $\approx 230$ ms \\
+        Control Frequency & $\approx 4$ Hz \\
+        CPU Load (Quad-Core) & $65 - 75\%$ \\
+        RAM Usage & $\approx 1.2$ GB \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+Come evidenziato anche nella Figura~\ref{fig:benchmark_pipeline} del Capitolo 5, il collo di bottiglia principale risiede nella pipeline percettiva geometrica. Tuttavia, il tempo totale di elaborazione rientra nel budget di 250ms, garantendo una frequenza di controllo di 4Hz, sufficiente per la dinamica lenta del rover su terreno lunare. L'inferenza della policy neurale, essendo un semplice passaggio forward di un MLP/LSTM, è trascurabile in termini di tempo.
+
+\section{Real-world Experiments}
+\label{sec:real_experiments}
+
+La validazione finale è stata condotta presso la \textbf{LUNA Analog Facility} (EAC, Colonia). Per garantire la validità scientifica del test, l'ambiente fisico è stato allestito in modo da replicare le condizioni statistiche dell'ambiente di addestramento Isaac Lab.
+
+\subsection{Configurazione dello Scenario}
+Sono stati creati percorsi di test caratterizzati da:
+\begin{itemize}
+    \item \textbf{Pendenze}: Rampe di regolite con inclinazioni variabili tra $15^\circ$ e $30^\circ$, per testare la capacità di discriminazione della pipeline geometrica e la correzione IMU.
+    \item \textbf{Campi di Rocce}: Aree disseminate di rocce reali di dimensioni analoghe a quelle simulate ($20-50$ cm), posizionate per creare corridoi stretti e vicoli ciechi (cul-de-sac) che richiedessero manovre di aggiramento.
+\end{itemize}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.85\textwidth]{imgs/10_sim2real/odin_luna.jpeg}
+    \caption{Il rover Odin durante un esperimento di navigazione autonoma presso la LUNA Analog Facility.}
+    \label{fig:box_reward}
+\end{figure}
+
+\subsection{Risultati Qualitativi}
+Il dispiegamento è stato un \textbf{successo}. Il rover, controllato dalla policy \textbf{Recurrent PPO}, ha dimostrato capacità di navigazione autonome robuste, riuscendo a raggiungere i goal assegnati senza collisioni significative.
+
+Le osservazioni chiave includono:
+\begin{itemize}
+    \item \textbf{Robustezza al Sim-to-Real Gap}: Nonostante la diversa fisica del terreno (slittamento sulla sabbia reale), la policy ha mostrato un comportamento reattivo, correggendo le deviazioni di traiettoria causate dallo slittamento grazie al feedback visivo continuo.
+    \item \textbf{Evitamento Ostacoli}: Il sistema ha correttamente identificato e aggirato rocce reali, anche in condizioni di illuminazione complessa (ombre nette generate dal simulatore solare), validando l'efficacia del fine-tuning dei parametri di clustering.
+    \item \textbf{Gestione delle Pendenze}: L'integrazione dell'IMU si è rivelata decisiva. Il rover ha evitato correttamente pendenze superiori ai $25^\circ$ che visivamente potevano apparire accessibili a causa del beccheggio del veicolo, confermando la bontà della soluzione ibrida Visione+Inerziale.
+\end{itemize}
+
+In conclusione, gli esperimenti confermano che la metodologia di addestramento massivo in simulazione, combinata con una pipeline percettiva geometrica robusta e una gestione attenta del trasferimento dei domini, permette di ottenere agenti di navigazione affidabili su hardware reale a risorse limitate.

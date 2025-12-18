@@ -1,0 +1,122 @@
+\section{Future Works}
+\label{sec:future-works}
+
+Sebbene i risultati ottenuti rappresentino un avanzamento significativo nella
+navigazione autonoma per rover lunari basati su Reinforcement Learning, esistono
+numerose possibilità di estendere il lavoro svolto sia dal punto di vista del sistema di
+percezione, sia dal punto di vista del controllo e della cooperazione multi–robot.
+Di seguito vengono discusse le direzioni principali per sviluppi futuri.
+
+\subsection{Estensione a piattaforme umanoidi o quadrupedi}
+
+L’architettura sviluppata in questa tesi, pur essendo applicata a un rover a quattro
+ruote, è concettualmente compatibile con robot umanoidi o quadrupedi, i quali devono 
+affrontare sfide ancora più complesse in termini di bilanciamento, percezione attiva 
+e locomozione su terreni irregolari.
+
+Negli ultimi anni, vari lavori hanno mostrato come policy basate su RL profondo siano in
+grado di controllare gaits altamente dinamici su robot quadrupedi come ANYmal
+\cite{lee2020learning, hwangbo2019learning} o su umanoidi di nuova generazione
+\cite{xia2022learning}.  
+L'adattamento della pipeline sviluppata in questa tesi a tali piattaforme
+permetterebbe:
+
+\begin{itemize}
+    \item di combinare percezione locale e controllo dinamico, integrando stima della
+          pendenza e clustering del terreno con locomozione reattiva;
+    \item di testare la robustezza della pipeline percettiva a condizioni cinematicamente
+          complesse (rotazioni rapide del torso, oscillazioni dei sensori, ecc.);
+    \item di studiare politiche attive di percezione, in cui il robot muove il corpo per
+          acquisire osservazioni migliori.
+\end{itemize}
+
+L’integrazione con robot come ANYmal sarebbe inoltre particolarmente indicata per
+missioni lunari o marziane dove è necessario superare ostacoli impossibili per un rover
+tradizionale.
+
+\subsection{Policy collaborative per mappatura e navigazione cooperativa}
+
+Un’estensione naturale del lavoro riguarda l’impiego di più robot che condividono
+informazioni tra loro al fine di migliorare sia la mappatura che la navigazione.
+Nel contesto del RL multi–agente, diverse architetture collaborative hanno dimostrato
+di migliorare l’esplorazione e ridurre l’incertezza del terreno, tra cui:
+
+\begin{itemize}
+    \item \textbf{QMIX} \cite{rashid2018qmix}, un metodo di value decomposition per
+          coordinamento decentralizzato;
+    \item \textbf{MADDPG} \cite{lowe2017multi}, particolarmente adatto ad ambienti
+          continui e cooperativi;
+    \item \textbf{MAPPO} \cite{yu2022surprising}, oggi lo standard per scenari
+          multi–robot complessi con politiche centralizzate durante l’addestramento e
+          decentralizzate in esecuzione.
+\end{itemize}
+
+L’utilizzo di più rover dotati della pipeline di percezione proposta in questa tesi
+permetterebbe di:
+
+\begin{itemize}
+    \item ampliare la conoscenza del terreno tramite \textit{shared local mapping};
+    \item ridurre l’incertezza di classificazione delle pendenze grazie ad osservazioni
+          multiple provenienti da angoli differenti;
+    \item costruire mappe di rischio con validazione incrociata tra agenti;
+    \item coordinare traiettorie sicure, evitando situazioni in cui più robot entrano
+          contemporaneamente in zone ad alta pendenza.
+\end{itemize}
+
+Tali approcci collaborativi rappresentano un passo chiave per missioni lunari in cui
+più robot operano simultaneamente su vaste aree inesplorate.
+
+\subsection{Riconoscimento di crateri come ostacoli strutturali}
+
+Uno dei limiti della pipeline attuale è l’incapacità di identificare crateri profondi,
+che costituiscono una classe di ostacoli significativamente diversa rispetto alle
+pendenze positive.  
+Il rilevamento dei crateri è noto essere un problema complesso: lavori recenti mostrano
+che i metodi tradizionali basati su edge-enhancement e template matching non sono
+sempre affidabili \cite{silburt2019lunar}, mentre modelli di deep learning per negative
+obstacle detection si sono dimostrati efficaci su robot terrestri
+\cite{macenski2020neural}.
+
+Essendo i crateri caratterizzati da \textit{slopes negative}, un’estensione naturale
+della pipeline potrebbe comprendere:
+
+\begin{itemize}
+    \item una fase di clustering dedicata alle regioni depresse della point cloud;
+    \item un modello RANSAC invertito per stimare superfici concave;
+    \item l’integrazione di feature geometriche su scala più ampia;
+    \item una reward function che penalizzi l’avvicinamento a depressioni ad alto
+          gradiente negativo.
+\end{itemize}
+
+L’identificazione robusta dei crateri risulterebbe essenziale per garantire la
+sicurezza del rover in scenari reali.
+
+\subsection{Aggiunta di una seconda camera per migliorare percezione e robustezza}
+
+Attualmente il rover è equipaggiato con una singola camera RGB-D posta a circa
+20\,cm dal suolo, il che limita notevolmente:
+
+\begin{itemize}
+    \item la distanza massima di percezione;
+    \item la capacità di identificare crateri e variazioni profonde del terreno;
+    \item la robustezza alla perdita temporanea di informazione dovuta al rumore.
+\end{itemize}
+
+Una possibile estensione consiste nell’aggiunta di una seconda camera montata più in
+alto, come suggerito da diverse ricerche sulla percezione multi-view
+\cite{zhou2018stereo}.  
+I benefici principali includerebbero:
+
+\begin{itemize}
+    \item \textbf{sensor fusion} per filtrare il rumore e ottenere misure di profondità
+          più stabili;
+    \item \textbf{maggiore look-ahead distance}, fondamentale per anticipare ostacoli
+          e pianificare traiettorie più sicure;
+    \item \textbf{capacità di individuare crateri}, poiché l’angolo di vista
+          dall'alto migliorerebbe la percezione di depressioni nel terreno.
+\end{itemize}
+
+L'integrazione di due camere richiederebbe una pipeline di calibrazione e fusione
+(in stile extrinsic + depth fusion) ma permetterebbe un miglioramento sostanziale
+rispetto alla configurazione attuale.
+

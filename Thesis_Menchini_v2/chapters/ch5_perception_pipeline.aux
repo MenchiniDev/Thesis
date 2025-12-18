@@ -1,0 +1,67 @@
+\relax 
+\providecommand\hyper@newdestlabel[2]{}
+\@writefile{toc}{\contentsline {chapter}{\numberline {5}Perception Pipeline}{31}{chapter.5}\protected@file@percent }
+\@writefile{lof}{\addvspace {10\p@ }}
+\@writefile{lot}{\addvspace {10\p@ }}
+\newlabel{ch5_perception_pipeline}{{5}{31}{Perception Pipeline}{chapter.5}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {5.1}YOLO-based Rock Detection from RGB}{31}{section.5.1}\protected@file@percent }
+\newlabel{sec:yolo_detection}{{5.1}{31}{YOLO-based Rock Detection from RGB}{section.5.1}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5.1}{\ignorespaces Applicazione della pipeline YOLO per il riconoscimento delle rocce nella LUNA Analog Facility presso l'European Astronaut Centre.}}{32}{figure.caption.14}\protected@file@percent }
+\newlabel{fig:yolo_detection}{{5.1}{32}{Applicazione della pipeline YOLO per il riconoscimento delle rocce nella LUNA Analog Facility presso l'European Astronaut Centre}{figure.caption.14}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {5.2}Geometric Pipeline: DBSCAN + RANSAC}{32}{section.5.2}\protected@file@percent }
+\newlabel{sec:slope_estimation}{{5.2}{32}{Geometric Pipeline: DBSCAN + RANSAC}{section.5.2}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5.2}{\ignorespaces Step della pipeline geometrica. (a) Immagine RGB di riferimento. (b) Depth frame, dove l'intensità indica la distanza. (c) Risultato del clustering DBSCAN: gli ostacoli distinti sono evidenziati con colori diversi in base alla pendenza stimata.}}{33}{figure.caption.15}\protected@file@percent }
+\newlabel{fig:geometric_pipeline_steps}{{5.2}{33}{Step della pipeline geometrica. (a) Immagine RGB di riferimento. (b) Depth frame, dove l'intensità indica la distanza. (c) Risultato del clustering DBSCAN: gli ostacoli distinti sono evidenziati con colori diversi in base alla pendenza stimata}{figure.caption.15}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2.1}Preprocessing e ricostruzione 3D}{33}{subsection.5.2.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2.2}Rimozione del terreno via RANSAC}{34}{subsection.5.2.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2.3}Clustering degli ostacoli tramite DBSCAN}{34}{subsection.5.2.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2.4}Stima della pendenza e criterio di pericolosità}{34}{subsection.5.2.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {5.3}Deterministic Kinect-based Baseline}{34}{section.5.3}\protected@file@percent }
+\newlabel{sec:deterministic_baseline}{{5.3}{34}{Deterministic Kinect-based Baseline}{section.5.3}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {5.4}Advantages and Limitations}{35}{section.5.4}\protected@file@percent }
+\newlabel{sec:advantages_limitations}{{5.4}{35}{Advantages and Limitations}{section.5.4}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5.3}{\ignorespaces Benchmarking della pipeline geometrica (DBSCAN+RANSAC) su Raspberry Pi 4. I tempi medi per task mostrano che l'esecuzione rientra nel limite di 250ms (linea rossa) per garantire 4 FPS, requisito rispettato con margine sul Raspberry Pi 5.}}{36}{figure.caption.16}\protected@file@percent }
+\newlabel{fig:benchmark_pipeline}{{5.3}{36}{Benchmarking della pipeline geometrica (DBSCAN+RANSAC) su Raspberry Pi 4. I tempi medi per task mostrano che l'esecuzione rientra nel limite di 250ms (linea rossa) per garantire 4 FPS, requisito rispettato con margine sul Raspberry Pi 5}{figure.caption.16}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {5.5}Fine-tuning of DBSCAN Parameters on Real Data}{36}{section.5.5}\protected@file@percent }
+\newlabel{sec:finetuning_clustering}{{5.5}{36}{Fine-tuning of DBSCAN Parameters on Real Data}{section.5.5}{}}
+\newlabel{fig:sim_pic1}{{\caption@xref {fig:sim_pic1}{ on input line 113}}{37}{Fine-tuning of DBSCAN Parameters on Real Data}{figure.caption.17}{}}
+\newlabel{sub@fig:sim_pic1}{{}{37}{Fine-tuning of DBSCAN Parameters on Real Data}{figure.caption.17}{}}
+\newlabel{fig:sim_slope1}{{\caption@xref {fig:sim_slope1}{ on input line 119}}{37}{Fine-tuning of DBSCAN Parameters on Real Data}{figure.caption.17}{}}
+\newlabel{sub@fig:sim_slope1}{{}{37}{Fine-tuning of DBSCAN Parameters on Real Data}{figure.caption.17}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5.4}{\ignorespaces Risultati in simulazione (Isaac Lab). A sinistra le viste prospettiche, a destra l'output della pipeline. L'assenza di rumore permette una segmentazione nitida con parametri standard.}}{37}{figure.caption.17}\protected@file@percent }
+\newlabel{fig:sim_vs_real_clustering}{{5.4}{37}{Risultati in simulazione (Isaac Lab). A sinistra le viste prospettiche, a destra l'output della pipeline. L'assenza di rumore permette una segmentazione nitida con parametri standard}{figure.caption.17}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5.5}{\ignorespaces Effetto del fine-tuning su dati reali. (a) Parametri non ottimizzati generano cluster frammentati e rumorosi. (b) I parametri ottimali ($\varepsilon =0.22, \text  {samples}=18$) producono una stima coerente della pendenza.}}{38}{figure.caption.18}\protected@file@percent }
+\newlabel{fig:real_tuning}{{5.5}{38}{Effetto del fine-tuning su dati reali. (a) Parametri non ottimizzati generano cluster frammentati e rumorosi. (b) I parametri ottimali ($\varepsilon =0.22, \text {samples}=18$) producono una stima coerente della pendenza}{figure.caption.18}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5.6}{\ignorespaces altri esempi di risultati della pipeline geometrica su dati reali dopo il fine-tuning dei parametri DBSCAN. come si vede la segmentazioe degli ostacoli è più nitida e coerente.}}{38}{figure.caption.19}\protected@file@percent }
+\newlabel{fig:real_tuning}{{5.6}{38}{altri esempi di risultati della pipeline geometrica su dati reali dopo il fine-tuning dei parametri DBSCAN. come si vede la segmentazioe degli ostacoli è più nitida e coerente}{figure.caption.19}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {5.6}Perception Outputs for the RL Policy}{39}{section.5.6}\protected@file@percent }
+\newlabel{sec:perception_outputs}{{5.6}{39}{Perception Outputs for the RL Policy}{section.5.6}{}}
+\@setckpt{chapters/ch5_perception_pipeline}{
+\setcounter{page}{40}
+\setcounter{equation}{0}
+\setcounter{enumi}{3}
+\setcounter{enumii}{0}
+\setcounter{enumiii}{0}
+\setcounter{enumiv}{0}
+\setcounter{footnote}{0}
+\setcounter{mpfootnote}{0}
+\setcounter{part}{0}
+\setcounter{chapter}{5}
+\setcounter{section}{6}
+\setcounter{subsection}{0}
+\setcounter{subsubsection}{0}
+\setcounter{paragraph}{0}
+\setcounter{subparagraph}{0}
+\setcounter{figure}{6}
+\setcounter{table}{0}
+\setcounter{caption@flags}{6}
+\setcounter{continuedfloat}{0}
+\setcounter{subfigure}{2}
+\setcounter{subtable}{0}
+\setcounter{parentequation}{0}
+\setcounter{section@level}{1}
+\setcounter{Item}{6}
+\setcounter{Hfootnote}{0}
+\setcounter{bookmark@seq@number}{49}
+\setcounter{float@type}{4}
+}

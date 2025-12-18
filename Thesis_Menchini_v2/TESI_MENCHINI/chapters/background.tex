@@ -1,0 +1,120 @@
+\chapter{Background}
+
+La navigazione autonoma in ambienti extraterrestri rappresenta una delle sfide più complesse e multidisciplinari all'interno della robotica moderna. Missioni lunari e planetarie richiedono sistemi capaci di operare in modo robusto, energeticamente efficiente e affidabile in scenari caratterizzati da terreni irregolari, assenza di GPS, limitazioni computazionali e forte variabilità delle condizioni ambientali. In questo contesto, due paradigmi principali dominano la progettazione dei sistemi di controllo: approcci deterministici basati su modelli geometrici e approcci basati sul \textit{Reinforcement Learning} (RL), più adattivi ma spesso computazionalmente onerosi.
+
+Il presente capitolo introduce i concetti fondamentali che rendono possibile il lavoro sviluppato in questa tesi: dalla struttura delle pipeline di navigazione classiche, alle basi teoriche del Reinforcement Learning, fino ai concetti chiave legati alla simulazione in \textit{Isaac Sim} e ai vincoli dell'\textit{edge computing}. L’obiettivo è fornire un quadro di riferimento chiaro dei due approcci principali alla navigazione autonoma e preparare il terreno per confronti sperimentali condotti in simulazione e su piattaforma reale.
+
+\section{Classical Autonomous Navigation Pipelines}
+
+Le pipeline deterministiche di navigazione sono tradizionalmente composte da tre moduli principali: percezione, pianificazione e controllo. La percezione estrae proprietà rilevanti del terreno (come pendenze, discontinuità o ostacoli), il pianificatore genera un percorso sicuro e il controllore converte tale percorso in comandi motori.
+
+Tra gli strumenti più diffusi rientrano:
+\begin{itemize}
+    \item \textbf{stima della pendenza} tramite operatori locali (Sobel, Prewitt) o PCA su finestre;
+    \item \textbf{clustering geometrico} per suddividere il terreno in regioni navigabili e non navigabili;
+    \item \textbf{planner deterministici} come A*, D* Lite, RRT e metodi sampling--based.
+\end{itemize}
+
+Questi approcci sono caratterizzati da interpretabilità, prevedibilità e bassa latenza, ma faticano a gestire la complessità dei terreni extraterrestri, soprattutto in presenza di rumore sensoriale, condizioni dinamiche o \textbf{informazioni parziali sull'ambiente}.
+
+\subsection{Limitations in Partially Observable Environments}
+
+I planner deterministici assumono generalmente la disponibilità di una rappresentazione dello stato completa o almeno coerente. Tuttavia, i rover planetari percepiscono solo una porzione limitata dell’ambiente, costruendo mappe locali inevitabilmente parziali, rumorose e soggette a variazioni nel tempo. Per operare in tali condizioni, vengono adottate due strategie principali:
+
+\begin{itemize}
+    \item \textbf{local costmaps}: il robot mantiene una finestra mobile centrata sulla propria posizione, aggiornata tramite sensori e utilizzata come se fosse una mappa completa;
+    \item \textbf{continuous replanning}: il percorso viene continuamente ricalcolato ogni volta che nuove osservazioni modificano la rappresentazione locale dell’ambiente.
+\end{itemize}
+
+Come discusso nel lavoro di Ferguson e Stentz su \textit{Field D*}~\cite{ferguson2006field}, il replanning nasce proprio dalla necessità di correggere percorsi generati su mappe parziali, ma non consente di modellare esplicitamente l’incertezza né la parziale osservabilità. Risultati analoghi sono riportati in ambito NASA: Maimone et al.~\cite{maimone2007mer} mostrano come i rover della missione MER basino la navigazione esclusivamente su mappe locali a breve raggio, aggiornate in tempo reale e spesso incomplete. Dal punto di vista teorico, O'Kane e LaValle~\cite{okane2008incomplete} analizzano i limiti formali dei planner deterministici in ambienti con informazione incompleta o parzialmente osservabile, evidenziando come tali metodi operino di fatto nel ``best estimate'' dello stato, senza ottimizzare rispetto a una distribuzione di stati possibili.
+
+In sintesi, questi metodi mantengono un comportamento reattivo e non probabilistico, strutturalmente diverso da quello necessario per risolvere problemi modellati come \textit{Partially Observable Markov Decision Process} (POMDP), caratteristici della navigazione lunare. Questo limita la robustezza del path planning in scenari con occlusioni, variazioni topologiche improvvise o fenomeni di slittamento.
+
+\section{Reinforcement Learning for Robotics}
+
+Il Reinforcement Learning costituisce un paradigma alternativo nel quale un agente apprende una politica di controllo attraverso interazione ripetuta con un ambiente simulato o reale. Un tipico problema di RL è modellato come un \textit{Markov Decision Process} (MDP) definito dalla tupla $(\mathcal{S}, \mathcal{A}, \mathcal{P}, r, \gamma)$.
+
+L’agente seleziona un’azione in risposta allo stato osservato, l’ambiente evolve secondo la dinamica $\mathcal{P}$ e viene fornita una ricompensa che guida il processo di apprendimento. Questo ciclo, illustrato in Fig.~\ref{fig:rl-loop}, permette di ottimizzare comportamenti complessi come stabilità, sicurezza e avanzamento verso la meta.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.70\textwidth]{imgs/others/rl_intro.png}
+    \caption{Schema dell'interazione nel Reinforcement Learning: l'agente seleziona un'azione $A_t$ in risposta allo stato $S_t$, l'ambiente evolve e restituisce il nuovo stato $S_{t+1}$ con relativa ricompensa $R_{t+1}$.}
+    \label{fig:rl-loop}
+\end{figure}
+
+Nel campo della locomozione robotica assumono un ruolo centrale metodi \textit{actor--critic} come Proximal Policy Optimization (PPO), Soft Actor--Critic (SAC) e Recurrent PPO, capaci di modellare dipendenze temporali non osservabili direttamente, risultando particolarmente adatti a problemi POMDP. Il vantaggio principale del RL è l’adattività: l’agente apprende comportamenti robusti a rumore, slittamenti, perturbazioni fisiche e variazioni topologiche del terreno.
+
+Un limite significativo del RL è la necessità di grandi quantità di dati e di ambienti simulativi accurati, oltre al rischio di instabilità numerica e sovra--adattamento. Per questo la qualità della simulazione diventa cruciale.
+
+\section{Curriculum Learning and Training Stability}
+
+L’addestramento di politiche RL per locomozione su terreni irregolari è spesso instabile. Il \textit{curriculum learning} affronta questo problema incrementando gradualmente la difficoltà del task, ad esempio aumentando pendenze, rumore sensoriale o densità di ostacoli man mano che la politica migliora. Tale approccio produce:
+
+\begin{itemize}
+    \item convergenza più rapida,
+    \item politiche più generalizzabili,
+    \item minori oscillazioni nella ricompensa,
+    \item robustezza a condizioni avverse.
+\end{itemize}
+
+\section{Perception Pipelines and Slope Estimation}
+
+La percezione basata su mappe di profondità costituisce la principale fonte informativa per i rover lunari. La stima della pendenza è fondamentale per evitare roll--over o zone instabili. Due famiglie di metodi vengono comunemente utilizzate:
+
+\begin{itemize}
+    \item \textbf{approcci deterministici}, come gradienti locali, derivata numerica e PCA;
+    \item \textbf{approcci data--driven}, che utilizzando invece approcci diversi, come ad esempio CNN o clustering sui dati provenienti dalle periferiche.
+\end{itemize}
+
+Per rispettare i vincoli computazionali dell’edge computing, in questa tesi si adotta una pipeline percettiva basata esclusivamente su metodi geometrici e clustering a basso costo computazionale, integrabile sia con planner deterministici sia con agenti RL.
+
+\section{Simulation Frameworks for Robotics}
+
+Simulatori fotorealistici e fisicamente accurati rappresentano oggi strumenti essenziali per lo sviluppo di algoritmi di controllo e percezione. NVIDIA Isaac Sim fornisce un'infrastruttura modulare che integra asset, modelli robotici, fisica, sensori e strumenti per la generazione di dati sintetici.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{imgs/others/isaacsim_structure.png}
+    \caption{Architettura di NVIDIA Isaac Sim. Il simulatore integra modelli robotici, sensori, motore fisico e strumenti per dati sintetici, rendendo possibile la generazione di scenari complessi per RL e controllo.}
+    \label{fig:isaac-architecture}
+\end{figure}
+
+Isaac Sim e Isaac Lab consentono:
+\begin{itemize}
+    \item importazione di modelli URDF/MJCF e asset personalizzati;
+    \item creazione di scene realistiche con sensori simulati;
+    \item integrazione con ROS2;
+    \item addestramento massivo di politiche RL su GPU.
+\end{itemize}
+
+\section{Edge Computing Constraints}
+
+I rover lunari operano con forti vincoli energetici e computazionali. La pipeline proposta è progettata secondo i principi dell'\textit{edge computing}, considerando:
+
+\begin{itemize}
+    \item limiti termici ed energetici,
+    \item assenza di GPU dedicate,
+    \item latenza real--time richiesta dalla locomozione,
+    \item semplicità e affidabilità dei moduli.
+\end{itemize}
+
+Questi vincoli influenzano sia la percezione sia l’architettura RL, garantendo eseguibilità su microcomputer embedded come Raspberry Pi 5.
+
+\section{Sim-to-Real Transfer}
+
+Il trasferimento delle politiche dalla simulazione al reale è ostacolato da differenze nella dinamica, attrito, rumore e modellazione del terreno. Tecniche comuni comprendono:
+
+\begin{itemize}
+    \item \textbf{domain randomization},
+    \item \textbf{noise injection},
+    \item \textbf{randomizzazione della fisica},
+    \item \textbf{calibrazione fine} sul robot reale.
+\end{itemize}
+
+Nel presente lavoro, l'integrazione con ROS2 permette di validare robustezza e prestazioni su hardware fisico.
+
+\section{Approach Adopted in This Thesis}
+
+In sintesi, questa tesi confronta pipeline deterministiche e agenti RL addestrati in Isaac Sim, utilizzando una perception pipeline leggera e ottimizzata per l’edge computing. Tale architettura consente di valutare l’impatto della parziale osservabilità e dei vincoli computazionali sulle prestazioni di differenti strategie di navigazione.
+

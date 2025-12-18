@@ -1,0 +1,6 @@
+checkpoint,run_id,episodes,success_rate,avg_ep_rew,median_ep_rew,avg_ep_len,success,oob,collide_rock,danger_slope,rollover,timeout,error
+/home/loren/Desktop/luna-lrs/checkpoints/isaaclab/SAC_nomem_final_v1/SAC_nomem_final_v1_1020000_steps.zip,1,100,0.55,31.694117780029774,33.59089660644531,140.13,55,1,2,8,0,34,
+/home/loren/Desktop/luna-lrs/checkpoints/isaaclab/SAC_nomem_final_v1/SAC_nomem_final_v1_1020000_steps.zip,2,100,0.6,37.048360661268234,37.87284469604492,134.47,60,0,0,7,0,33,
+/home/loren/Desktop/luna-lrs/checkpoints/isaaclab/SAC_nomem_final_v1/SAC_nomem_final_v1_1020000_steps.zip,3,100,0.59,36.25548286557198,38.968711853027344,133.4,59,2,0,10,0,29,
+/home/loren/Desktop/luna-lrs/checkpoints/isaaclab/SAC_nomem_final_v1/SAC_nomem_final_v1_1020000_steps.zip,4,100,0.55,35.453125110268594,36.36735725402832,132.96,55,3,1,12,0,29,
+/home/loren/Desktop/luna-lrs/checkpoints/isaaclab/SAC_nomem_final_v1/SAC_nomem_final_v1_1020000_steps.zip,5,100,0.46,34.37362323775888,33.40818977355957,134.76,46,3,1,13,0,37,

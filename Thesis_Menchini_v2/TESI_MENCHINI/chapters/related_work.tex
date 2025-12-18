@@ -1,0 +1,131 @@
+\chapter{Related Work}
+\label{sec:related-work}
+
+La navigazione autonoma per rover planetari su terreni irregolari è stata studiata lungo tre direzioni principali: 
+(i) architetture di esplorazione e navigazione per missioni planetarie; 
+(ii) metodi deterministici di motion planning e controllo su terreni 3D; 
+(iii) tecniche di stima della traversabilità, sia geometriche sia basate su apprendimento, fino ai metodi recenti di Reinforcement Learning (RL) per navigazione mapless e traversability-aware.
+In questa sezione si colloca il lavoro di tesi rispetto a tali linee di ricerca.
+
+\subsection{Planetary Rover Navigation and Traversability}
+
+I primi lavori sistematici sulla navigazione di rover planetari in ambienti sconosciuti hanno posto l’attenzione sulla costruzione di mappe 3D locali e sull’analisi della traversabilità del terreno. 
+Gennery~\cite{gennery1999traversability} propone un metodo di analisi di dati tridimensionali (provenienti da stereo o laser) che tiene conto esplicitamente dell’incertezza di misura attraverso matrici di covarianza, producendo mappe di costo che guidano il path planning per rover marziani.
+Questa linea è stata adottata e raffinata in diversi sistemi operativi su rover reali, come i sistemi di navigazione delle missioni Mars Exploration Rover (MER) e Mars Science Laboratory, in cui la navigazione si basa su mappe locali e analisi geometrica della superficie.
+
+
+Più recentemente, diversi lavori hanno proposto architetture ibride per la traversabilità in contesti planetari.
+Chiuchiarelli~\cite{chiuchiarelli2024traversability} sviluppa una pipeline per \emph{Terrain Traversability Analysis for Planetary Exploration Rovers} che combina analisi geometrica di mappe di elevazione con moduli di apprendimento, con l’obiettivo di valutare il rischio di attraversamento per ciascuna cella della mappa.
+Egan et al.~\cite{egan2021teapac} introducono il framework TEAPAC (\textit{Traversability Estimation Algorithm for Path Planning And Control}), in cui la traversabilità per un rover marziano viene stimata fondendo classificazione Deep Learning di immagini RGB-D con analisi di profondità e vincoli cinematici del rover: l’output viene utilizzato sia per il path planning sia per il controllo, con l’obiettivo di minimizzare il costo energetico complessivo della traiettoria.
+Questi lavori mostrano come la traversabilità diventi un oggetto centrale, integrato esplicitamente nei moduli di pianificazione e controllo, come schematizzato in Fig.~\ref{fig:teapac-architecture}.
+
+\begin{figure}[H]
+    \centering
+    % Metti qui una figura stile block-diagram del pipeline TEAPAC
+    \includegraphics[width=0.8\textwidth]{imgs/related_works/teapac_architecture.png}
+    \caption{Schema concettuale di una pipeline ibrida per traversabilità e path planning (adattato da TEAPAC~\cite{egan2021teapac}).}
+    \label{fig:teapac-architecture}
+\end{figure}
+
+In parallelo, Andersson~\cite{andersson2025lunar} propone una architettura RL per \emph{Autonomous Intelligent Lunar Exploration}, in cui un agente di Reinforcement Learning, addestrato in Gazebo e testato in un simulatore lunare fotorealistico in Unity, apprende a navigare verso goal casuali evitando ostacoli.
+L’agente riceve come input una combinazione di informazioni percettive (segmentazione di istanze) e di stato (distanza e orientamento rispetto all’obiettivo), e viene addestrato con tecniche di reward shaping e tuning degli iperparametri.
+Il lavoro di Andersson è strettamente correlato alla presente tesi per contesto (ambiente lunare), architettura RL e attenzione alla sicurezza rispetto alla traversabilità locale, ma differisce per la natura della pipeline percettiva (segmentazione vs. stima di pendenze e clustering) e per il simulatore utilizzato (Gazebo/Unity vs. Isaac Sim/Isaac Lab).
+
+\subsection{Deterministic Motion Planning on Rough Terrain}
+
+Nei rover planetari, il motion planning deterministico su terreni 3D si è storicamente basato su algoritmi di ricerca su grafi e su approcci sampling-based adattati a mappe di elevazione.
+Il lavoro di Gennery~\cite{gennery1999traversability} già accennato fornisce un esempio emblematico di integrazione tra analisi della traversabilità e pianificazione deterministica: le mappe 3D vengono discretizzate in celle con costi associati a pendenza, rugosità e incertezza, e un planner tipo A* viene impiegato per generare traiettorie sicure.
+
+Una rassegna recente di algoritmi di path planning per rover planetari è proposta da Miao et al.~\cite{miao2025pathplanning}, che classificano i metodi in:
+(i) algoritmi \emph{rule-based} (ricerca su grafi, \emph{potential fields}, metodi sampling-based, \emph{dynamic window}); 
+(ii) algoritmi bio-ispirati (genetic algorithm, swarm optimization, fuzzy); 
+(iii) metodi di path planning basati su machine learning, inclusi deep learning e reinforcement learning.
+Gli autori mettono in evidenza come gli algoritmi classici siano ben compresi e relativamente semplici da implementare, ma presentino limiti in termini di adattabilità a condizioni altamente dinamiche e a mappe parziali, mentre i metodi di apprendimento risultano più flessibili ma più onerosi e difficili da validare in termini di sicurezza.
+
+Lavori più recenti propongono estensioni dei planner sampling-based tenendo conto esplicito della traversabilità del terreno.
+Swinton et al.~\cite{swinton2025rrt} introducono una variante 3D di RRT* per il path planning di rover in terreni complessi, confrontando planner RRT, RRT* e varianti basate sulla traversabilità su mappe di elevazione realistiche.
+Zhang et al.~\cite{zhang2025pathplanning} propongono un metodo migliorato di path planning e tracking control per rover di esplorazione, costruendo un modello cinematico dettagliato e definendo primitive di moto e archi opzionali che tengono conto dei vincoli di non-invertibilità, limiti di pendenza e capacità di superare ostacoli.
+
+\begin{figure}[H]
+    \centering
+    % Qui puoi mettere una figura che confronta diverse traiettorie RRT*/traversability-based
+    \includegraphics[width=0.8\textwidth]{imgs/related_works/rrt_traversability_comparison.png}
+    \caption{Esempio di path planning deterministico su terreno irregolare con varianti RRT*/traversability-based (ispirato a~\cite{swinton2025rrt, zhang2025pathplanning}).}
+    \label{fig:rrt-traversability}
+\end{figure}
+
+Più in generale, Xiao et al.~\cite{xiao2022mlnavigation} presentano una survey sul \emph{Motion Planning and Control for Mobile Robot Navigation Using Machine Learning}, in cui i metodi di apprendimento vengono analizzati nel contesto della pipeline classica di navigazione.
+La survey evidenzia come la maggior parte dei sistemi reali mantenga ancora una struttura gerarchica (global planner + local controller), mentre i metodi di apprendimento vengono spesso utilizzati per sostituire o arricchire singoli moduli (ad esempio il local planner o il controller), piuttosto che rimpiazzare completamente l’intera pipeline deterministica.
+
+In questo quadro, il lavoro presentato in questa tesi si colloca come un confronto tra:
+\begin{itemize}
+    \item una pipeline deterministica con percezione geometrica e planner classico;
+    \item politiche RL che sfruttano la stessa informazione geometrica (stima della pendenza e clustering) per prendere decisioni locali di locomozione.
+\end{itemize}
+
+\subsection{Traversability Estimation for Mobile Robots}
+
+La stima della traversabilità è stata estensivamente studiata sia nel contesto di robot mobili terrestri sia in scenari planetari.
+Sevastopoulos e Konstantopoulos~\cite{sevastopoulos2022survey} propongono una survey completa su \emph{A Survey of Traversability Estimation for Mobile Robots}, analizzando l’evoluzione dei metodi da approcci non addestrabili (basati su soglie geometriche, gradienti, analisi di rugosità) fino ai metodi di machine learning e deep learning.
+La survey evidenzia il trade-off tra accuratezza, costo computazionale e disponibilità di dati annotati, e mette in luce il ruolo crescente dell’apprendimento auto-supervisionato per generare etichette di traversabilità a partire dall’esperienza del robot.
+Una tassonomia tipica dei metodi di traversabilità è illustrata in Fig.~\ref{fig:traversability-taxonomy}.
+
+\begin{figure}[H]
+    \centering
+    % Figura tipo schema/tassonomia dei metodi di traversabilità
+    \includegraphics[width=0.8\textwidth]{imgs/related_works/traversability_taxonomy.png}
+    \caption{Schema di classificazione dei metodi di stima della traversabilità (adattato da~\cite{sevastopoulos2022survey}).}
+    \label{fig:traversability-taxonomy}
+\end{figure}
+
+Il lavoro di Bogoslavskyi et al.~\cite{bogoslavskyi2013kinect} rappresenta un esempio particolarmente rilevante di traversabilità \emph{online} con vincoli computazionali, in quanto propone un metodo di \emph{Efficient Traversability Analysis for Mobile Robots Using the Kinect Sensor}. 
+L’approccio opera direttamente su immagini di profondità di un sensore Kinect/Xtion, stimando normali di superficie e classificando ogni punto come traversabile o non traversabile, per poi proiettare le informazioni in una mappa di traversabilità robot-centrica.
+L’intero pipeline è progettata per funzionare a 10--25 fps su un notebook senza GPU, rispettando vincoli energetici e di latenza simili a quelli tipici dei sistemi embedded.
+Gli esperimenti includono ambienti indoor, scenari outdoor e l’esplorazione di catacombe romane, mostrando come una stima di traversabilità basata solo su profondità possa supportare in modo robusto la navigazione autonoma in ambienti non strutturati.
+Un esempio di mappa di traversabilità ottenuta da Kinect è riportato in Fig.~\ref{fig:kinect-traversability}.
+
+\begin{figure}[H]
+    \centering
+    % Qui metti un esempio di output del metodo su dati Kinect (verde/rosso traversabile/non)
+    \includegraphics[width=0.75\textwidth]{imgs/related_works/bogoslavskyi_kinect_traversability.png}
+    \caption{Esempio di mappa di traversabilità robot-centrica ottenuta da dati Kinect (adattato da~\cite{bogoslavskyi2013kinect}).}
+    \label{fig:kinect-traversability}
+\end{figure}
+
+Altri lavori hanno esplorato approcci di traversabilità basati su sensori 3D LiDAR o su fusioni multi-modali.
+Suger et al.\ propongono un metodo di traversabilità semi-supervisionata a partire da dati 3D-LiDAR per robot mobili outdoor, mentre numerosi lavori combinano informazioni di colore, texture e geometria per distinguere terreno, ostacoli e vegetazione.
+Nel contesto di ambienti planetari, Visca et al.~\cite{visca2021deeplearningtraversability} presentano un \emph{Deep Learning Traversability Estimator for Mobile Robots in Unstructured Environments}, addestrato end-to-end su mappe di elevazione e traiettorie per predire eventi di fallimento (slittamento, insuccesso nell’attraversamento).
+Il modello viene inizialmente addestrato in simulazione su mappe sintetiche e successivamente trasferito e raffinato su dati reali raccolti in contesti analoghi marziani, come i test del consorzio SEEKER nel deserto di Atacama.
+
+Nel caso specifico di rover marziani, il già citato TEAPAC~\cite{egan2021teapac} integra una CNN per la classificazione del terreno da immagini RGB con l’analisi di profondità, generando mappe di rischio di attraversamento che vengono poi impiegate sia per il path planning sia per il controllo a basso livello.
+Questi lavori dimostrano come la traversabilità non sia più un modulo “accessorio”, ma un componente centrale nella pipeline di navigazione, tightly-coupled con pianificazione e controllo.
+
+Dal punto di vista della presente tesi, la pipeline di percezione sviluppata con stima della pendenza e clustering geometrico si colloca nel filone dei metodi leggeri e interpretabili, simili per filosofia a Bogoslavskyi et al.~\cite{bogoslavskyi2013kinect}, ma specializzati per terreni lunari simulati e vincoli di edge computing su piattaforme embedded.
+
+\subsection{Learning-based and RL Methods for Mapless and Planetary Navigation}
+
+Negli ultimi anni, i metodi basati su Deep Learning e Reinforcement Learning sono stati applicati in modo crescente alla navigazione mobile in ambienti non strutturati.
+Guastella et al.~\cite{guastella2020learningnavigation} forniscono una rassegna di metodi di percezione e navigazione basati su apprendimento per veicoli terrestri autonomi in ambienti non strutturati, evidenziando il ruolo di architetture end-to-end e di moduli di percezione basati su deep learning.
+
+Per la navigazione \emph{mapless}, Zhelo et al.~\cite{zhelo2018curiosity} propongono un approccio di \emph{Curiosity-driven Exploration for Mapless Navigation with Deep Reinforcement Learning}, in cui un agente di RL apprende politiche di navigazione verso goal specificati solo da posizione relativa, senza disporre di una mappa esplicita dell’ambiente.
+Gli autori introducono un termine di ricompensa intrinseca basato sulla \emph{curiosity}, che incoraggia l’esplorazione di stati poco visitati e migliora la capacità di generalizzazione a ambienti non visti.
+
+In aggiunta ai lavori su scenari terrestri, diversi studi si sono concentrati sull’applicazione del RL a contesti spaziali e planetari.
+Oltre alla già citata tesi di Andersson~\cite{andersson2025lunar} per l’esplorazione lunare, vi sono lavori che utilizzano Deep RL per la navigazione e pianificazione di veicoli spaziali e rover planetari, spesso con forte attenzione a incertezza, parziale osservabilità e vincoli computazionali.
+Hamza~\cite{hamza2022mapless} esplora l’uso di Deep RL per la navigazione mobile mapless utilizzando sensori di visione e distanza, mentre Lin~\cite{lin2023rlnavigation} sviluppa metodi RL per navigazione e tracking autonomo di robot mobili.
+
+Nel contesto più ampio della navigazione mobile, Xiao et al.~\cite{xiao2022mlnavigation} evidenziano come i metodi di machine learning per motion planning e controllo siano spesso integrati all’interno di pipeline classiche, sostituendo o arricchendo specifici moduli piuttosto che l’intero sistema.
+In modo simile, il lavoro presentato in questa tesi non elimina completamente la struttura della pipeline deterministica, ma sostituisce il planner locale con politiche RL che operano sulla stessa informazione geometrica (stima di pendenze e clustering), mantenendo la compatibilità con vincoli di edge computing e con pipeline percettive leggere.
+
+\subsection{Positioning of This Work}
+
+Rispetto alla letteratura esistente, la presente tesi si colloca all’incrocio tra:
+\begin{itemize}
+    \item i lavori classici di traversabilità per rover planetari e terrestri, basati su mappe di elevazione e analisi geometrica~\cite{gennery1999traversability, bogoslavskyi2013kinect, sevastopoulos2022survey, chiuchiarelli2024traversability};
+    \item le architetture ibride che integrano stima della traversabilità e motion planning per rover marziani~\cite{egan2021teapac, visca2021deeplearningtraversability, miao2025pathplanning};
+    \item i metodi di Reinforcement Learning per navigazione mapless e per esplorazione lunare~\cite{zhelo2018curiosity, guastella2020learningnavigation, hamza2022mapless, lin2023rlnavigation, andersson2025lunar}.
+\end{itemize}
+
+La novità principale del lavoro consiste nell’utilizzo di una pipeline percettiva leggera, basata su stima della pendenza e clustering, condivisa sia con una pipeline deterministica sia con agenti RL (PPO, SAC e Recurrent PPO) addestrati in Isaac Sim/Isaac Lab su terreni lunari simulati.
+
+Inoltre, questa tesi si concentra esplicitamente sull’impiego di sole misure provenienti dai sensori di bordo del rover, senza fare uso di mappe DEM esterne o pre-acquisite dell’ambiente. Questa scelta introduce una sfida non banale: il rover deve stimare la traversabilità e prendere decisioni di navigazione esclusivamente a partire da osservazioni locali e in tempo reale, in un contesto intrinsecamente parzialmente osservabile. Come sarà discusso nei capitoli successivi, l’assenza di informazioni altimetriche globali rende particolarmente complessa l’evitazione di ostacoli caratterizzati da pendenze negative, come i crateri, che risultano difficili da rilevare e modellare anticipatamente sulla sola base della percezione locale.
