@@ -160,15 +160,13 @@ Come mostrato in Figura~\ref{fig:real_tuning}, questa configurazione evita la fr
     \begin{subfigure}[b]{0.45\textwidth}
         \centering
         \includegraphics[width=\textwidth]{imgs/05_perception_pipeline/raw_dbscan0.png}
-        \caption{Output rumoroso pre-tuning}
     \end{subfigure}
     \hfill
     \begin{subfigure}[b]{0.45\textwidth}
         \centering
         \includegraphics[width=\textwidth]{imgs/05_perception_pipeline/raw_dbscan1.png}
-        \caption{Output stabile post-tuning}
     \end{subfigure}
-    \caption{Effetto del fine-tuning su dati reali. (a) Parametri non ottimizzati generano cluster frammentati e rumorosi. (b) I parametri ottimali ($\varepsilon=0.22, \text{samples}=18$) producono una stima coerente della pendenza.}
+    \caption{Clustering senza Parametri non ottimizzati generano cluster frammentati e rumorosi.}
     \label{fig:real_tuning}
 \end{figure}
 
@@ -177,7 +175,6 @@ Come mostrato in Figura~\ref{fig:real_tuning}, questa configurazione evita la fr
     \begin{subfigure}[b]{0.45\textwidth}
         \centering
         \includegraphics[width=\textwidth]{imgs/05_perception_pipeline/depth_1437_slope.png}
-        \caption{Output rumoroso pre-tuning}
     \end{subfigure}
     \hfill
     \begin{subfigure}[b]{0.45\textwidth}
@@ -185,8 +182,7 @@ Come mostrato in Figura~\ref{fig:real_tuning}, questa configurazione evita la fr
         \includegraphics[width=\textwidth]{imgs/05_perception_pipeline/depth_1479_slope.png}
         \caption{Output stabile post-tuning}
     \end{subfigure}
-    \caption{altri esempi di risultati della pipeline geometrica su dati reali dopo il fine-tuning dei parametri DBSCAN. come si vede la segmentazioe degli ostacoli è più nitida e coerente.}
-    \label{fig:real_tuning}
+    \caption{I parametri ottimali ($\varepsilon=0.22, \text{samples}=18$) producono una stima coerente della pendenza, con la capacità di dinstiguere i con notevole precisione cluster distinti in base alla pendenza, identificando come si vede negli esempi diversi tipi di ostacoli, come rocce o pendenze generiche.}
 \end{figure}
 
 \section{Perception Outputs for the RL Policy}
