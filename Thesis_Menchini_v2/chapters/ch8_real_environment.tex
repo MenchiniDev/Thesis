@@ -1,0 +1,68 @@
+\chapter{Real Environment}
+\label{ch7_real_environment}
+
+Dopo aver analizzato in dettaglio l'ambiente di simulazione basato su Isaac Lab e le procedure di addestramento massivo degli agenti, questo capitolo sposta l'attenzione sul dominio fisico. La validazione sperimentale in un ambiente reale rappresenta una fase critica nello sviluppo di sistemi robotici autonomi, necessaria per valutare la robustezza delle pipeline percettive e l'efficacia delle politiche di controllo di fronte alle incertezze intrinseche del mondo fisico, spesso difficili da modellare con perfetta fedeltà in simulazione. Nelle sezioni seguenti verrà descritta la struttura utilizzata per i test, la configurazione sensoriale del rover e le specifiche sfide ambientali affrontate.
+
+\section{Luna Analog Facility at EAC Cologne}
+\label{sec:luna_facility}
+
+Le attività sperimentali di questa tesi sono state condotte presso la LUNA Analog Facility, una struttura di ricerca di eccellenza situata presso l'European Astronaut Centre (EAC) dell'Agenzia Spaziale Europea (ESA) a Colonia, in Germania. LUNA è stata concepita per replicare con elevata accuratezza le condizioni operative della superficie lunare, fornendo un banco di prova realistico e controllato per astronauti, scienziati e, come nel caso di questo lavoro, per la validazione di sistemi robotici autonomi.
+
+La struttura, illustrata schematicamente in Figura~\ref{fig:luna_schematic}, si estende su una superficie di circa $700\,m^2$. La caratteristica distintiva dell'impianto è la pavimentazione costituita da una "regolite simulata" (nello specifico il simulante EAC-1), un materiale granulare di origine vulcanica selezionato per riprodurre le proprietà meccaniche, abrasive e ottiche della polvere lunare reale.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.95\textwidth]{imgs/07_real_environment/schematic.png}
+    \caption{Rappresentazione schematica della LUNA Analog Facility. La struttura comprende un'ampia area di superficie lunare ("Lunar surface"), sistemi dedicati alla simulazione della gravità ridotta e un simulatore solare avanzato per replicare le condizioni di illuminazione critiche tipiche dell'ambiente lunare.}
+    \label{fig:luna_schematic}
+\end{figure}
+
+Dal punto di vista morfologico, l'ambiente è stato progettato per offrire una significativa eterogeneità topografica. Il terreno non è uniforme, ma presenta crateri artificiali, dossi e avvallamenti che mettono alla prova le capacità cinematiche del rover e la stabilità del sistema di controllo. Inoltre, la superficie è disseminata di massi e rocce di dimensioni variabili, distribuiti in modo irregolare per simulare un campo di ostacoli naturale. Un'area di particolare interesse è la cosiddetta "Deep Floor Area", una zona in cui la profondità del letto di regolite raggiunge i 3 metri; questa sezione è fondamentale per studiare l'interazione ruota-suolo in condizioni critiche, valutando la trazione e il rischio di affondamento del veicolo.
+
+\subsection{Confronto qualitativo con il terreno simulato}
+
+Nonostante l'elevata fedeltà fisica offerta da Isaac Lab, il confronto con la LUNA Facility evidenzia inevitabili differenze nella natura del terreno. In simulazione, il suolo è tipicamente modellato come una mesh rigida o deformabile caratterizzata da parametri di attrito globali. Nell'ambiente reale, invece, l'interazione tra le ruote e il suolo è governata dalle leggi della terrameccanica dei mezzi granulari. La sabbia tende a spostarsi e fluire sotto il peso del rover, generando fenomeni complessi di slittamento (\emph{slip}) e affondamento (\emph{sinkage}) che variano localmente. Queste dinamiche non lineari introducono un livello di incertezza nel controllo del movimento che è significativamente superiore rispetto a quello riscontrabile nell'ambiente virtuale, richiedendo alla politica di controllo una maggiore capacità di adattamento.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.85\textwidth]{imgs/07_real_environment/real_analog.jpg}
+    \caption{Il rover impegnato in una sessione di test all'interno della LUNA Analog Facility. L'immagine evidenzia la tessitura granulare del terreno e l'effetto dell'illuminazione direzionale, che proietta ombre nette e definite sugli ostacoli.}
+    \label{fig:real_analog_photo}
+\end{figure}
+
+\section{Sensor Configuration and Mounting}
+\label{sec:sensor_config}
+
+Il sottosistema di percezione del rover è incentrato sulla camera di profondità Intel RealSense D455, installata frontalmente sul telaio del veicolo. La scelta della posizione e dell'orientamento del sensore non è stata casuale, ma frutto di un processo di ottimizzazione mirato a bilanciare l'ampiezza del campo visivo (Field of View) con la risoluzione necessaria per la rilevazione degli ostacoli a terra.
+
+Il sensore è stato posizionato a un'altezza compresa tra i 30 e i 40 centimetri dal suolo. Questa elevazione rappresenta un compromesso ideale: è sufficiente per garantire una prospettiva adeguata sugli ostacoli verticali, ma abbastanza contenuta da permettere la rilevazione dettagliata della morfologia del terreno nelle immediate vicinanze del rover. Inoltre, la camera è stata inclinata verso il basso (\emph{tilted down}) con un angolo di circa $15^\circ$--$20^\circ$. Tale inclinazione è un parametro critico per la navigazione: un angolo eccessivo permetterebbe di osservare distanze maggiori ma creerebbe una vasta zona cieca di fronte alle ruote, mentre un angolo troppo ridotto limiterebbe la capacità di pianificazione della traiettoria a lungo raggio.
+
+Questa configurazione geometrica comporta delle implicazioni dirette sulle prestazioni della pipeline di clustering DBSCAN. A distanze superiori ai 4 metri, la densità della nuvola di punti 3D generata dal sensore diminuisce drasticamente, mentre il rumore di misura aumenta in modo quasi quadratico. Di conseguenza, diventa estremamente difficile distinguere piccole rocce dal rumore di fondo a grande distanza. L'orizzonte effettivo per una rilevazione sicura e affidabile degli ostacoli geometrici risulta quindi limitato a un raggio di circa 3-4 metri, il che ha imposto l'adozione di una politica di navigazione prettamente reattiva piuttosto che basata su una pianificazione globale a lungo termine.
+
+\section{Noise and Lighting Conditions}
+\label{sec:noise_lighting}
+
+Una delle sfide più severe poste dalla LUNA Facility riguarda le condizioni di illuminazione. La struttura è dotata di un "Sun Simulator", un sistema di illuminazione progettato per generare una luce intensa e altamente direzionale, simulando le condizioni tipiche delle latitudini polari o equatoriali lunari.
+
+Sulla superficie lunare reale, l'assenza di atmosfera elimina la diffusione della luce, rendendo le ombre estremamente scure e nette. Sebbene all'interno di LUNA sia presente l'atmosfera terrestre, l'impianto riesce a ricreare un contrasto visivo estremo tra le zone illuminate e quelle in ombra. Questo fenomeno ha impatti significativi su entrambe le pipeline percettive:
+
+\begin{itemize}
+    \item \textbf{Effetto sulla visione RGB (YOLO):} Le ombre lunghe proiettate dagli ostacoli possono alterare significativamente la forma apparente delle rocce o, in alcuni casi, nasconderle completamente alla vista. Questo mette a dura prova la capacità di generalizzazione della rete neurale, che deve essere in grado di riconoscere l'oggetto nonostante la parziale occlusione o la variazione di contrasto.
+    
+    \item \textbf{Effetto sulla mappa di profondità (Stereo Vision):} La camera RealSense D455 utilizza una tecnologia stereoscopica attiva. Nelle zone di ombra profonda, o su superfici di regolite particolarmente uniformi e prive di texture visiva, l'algoritmo di matching stereo fatica a trovare corrispondenze tra le immagini destra e sinistra. Ciò può causare la comparsa di "buchi" nella mappa di profondità (assenza di dati) o la generazione di artefatti spuri noti come \emph{flying pixels}.
+\end{itemize}
+
+Tale rumore strutturale, che differisce da quello gaussiano uniforme tipicamente modellato nei simulatori, ha reso indispensabile l'attività di fine-tuning dei parametri di DBSCAN discussa nel Capitolo 5, al fine di evitare che le ombre venissero classificate erroneamente come ostacoli fisici impenetrabili.
+
+\section{Gap Between Simulation and Reality}
+\label{sec:sim_real_gap}
+
+L'esperienza maturata durante la transizione dall'addestramento virtuale in Isaac Lab ai test sul campo in LUNA ha permesso di caratterizzare in modo preciso il divario tra simulazione e realtà, noto in letteratura come \emph{Sim-to-Real Gap}. Le discrepanze più rilevanti identificate nel corso di questo lavoro possono essere riassunte in tre punti principali.
+
+In primo luogo, vi è una differenza sostanziale nella \textbf{fisica del suolo}. Come discusso precedentemente, la simulazione fatica a replicare fedelmente lo scivolamento laterale e longitudinale del rover sulla regolite soffice. Nella realtà, l'applicazione di una determinata velocità alle ruote non si traduce in un moto esattamente corrispondente, introducendo errori nell'odometria che la politica di Reinforcement Learning deve imparare a compensare basandosi sul feedback visivo.
+
+In secondo luogo, la \textbf{natura del rumore sensoriale} è differente. Mentre in simulazione il rumore è stocastico e omogeneo, nella realtà esso dipende fortemente dalle condizioni ambientali contingenti (intensità della luce, angolo di incidenza, riflettività della sabbia) e geometriche (distanza dall'ostacolo). Ciò richiede filtri di post-processing più aggressivi e adattivi rispetto a quelli sufficienti in ambiente virtuale.
+
+Infine, la \textbf{complessità geometrica} degli oggetti reali è superiore. Le rocce simulate sono spesso approssimazioni convesse o mesh semplificate. Al contrario, le rocce presenti in LUNA mostrano forme irregolari, spigoli vivi e tessiture complesse. Queste caratteristiche possono portare alla frammentazione dei cluster geometrici se la soglia di tolleranza spaziale dell'algoritmo DBSCAN è impostata in modo troppo stringente.
+
+La consapevolezza di queste differenze ha motivato l'adozione sistematica di tecniche di \emph{Domain Randomization} durante la fase di training (variando parametri come texture, condizioni di luce e fisica del veicolo) e l'implementazione di un nodo di sicurezza deterministico a basso livello ("Wheel Node"). Quest'ultimo agisce come un livello di protezione finale hardware, gestendo le situazioni in cui l'incertezza percettiva reale supera le capacità di generalizzazione dell'agente intelligente.

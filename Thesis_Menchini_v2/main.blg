@@ -4,11 +4,11 @@ The top-level auxiliary file: main.aux
 A level-1 auxiliary file: chapters/ch1_introduction.aux
 A level-1 auxiliary file: chapters/ch2_background.aux
 A level-1 auxiliary file: chapters/ch3_related_work.aux
-A level-1 auxiliary file: chapters/ch4_system_overview.aux
+A level-1 auxiliary file: chapters/ch4_training_and_models.aux
 A level-1 auxiliary file: chapters/ch5_perception_pipeline.aux
-A level-1 auxiliary file: chapters/ch6_simulation_environment.aux
-A level-1 auxiliary file: chapters/ch7_real_environment.aux
-A level-1 auxiliary file: chapters/ch8_training_and_models.aux
+A level-1 auxiliary file: chapters/ch6_system_overview.aux
+A level-1 auxiliary file: chapters/ch7_simulation_environment.aux
+A level-1 auxiliary file: chapters/ch8_real_environment.aux
 A level-1 auxiliary file: chapters/ch9_results.aux
 A level-1 auxiliary file: chapters/ch10_sim2real.aux
 A level-1 auxiliary file: chapters/ch11_future_works.aux

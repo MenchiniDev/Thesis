@@ -1,0 +1,122 @@
+\chapter{Simulation Environment}
+\label{ch6_simulation_environment}
+
+In questo capitolo viene descritto l'ambiente di simulazione utilizzato per l'addestramento e la validazione delle politiche di navigazione autonoma. La complessità dello scenario lunare e la necessità di raccogliere enormi quantità di dati per gli algoritmi di Reinforcement Learning (RL) hanno guidato la scelta verso Isaac Lab, una piattaforma moderna che unisce la fedeltà fisica di Isaac Sim alla scalabilità del calcolo parallelo su GPU. Vengono qui dettagliati la generazione procedurale del terreno, il setup sensoriale del rover, la definizione formale del problema RL (osservazioni, azioni, reward) e le strategie di Curriculum Learning adottate per stabilizzare l'addestramento.
+
+\section{Isaac Sim and Isaac Lab Integration}
+\label{sec:isaaclab_integration}
+
+Isaac Lab è il framework di riferimento sviluppato da NVIDIA per la ricerca in robotica e apprendimento per rinforzo. Esso si fonda su Isaac Sim, che fornisce il motore fisico (PhysX 5) e il rendering fotorealistico basato su tecnologia USD (Universal Scene Description), ma ne estende le funzionalità introducendo astrazioni specifiche per il training massivo di agenti intelligenti \cite{isaaclab_overview}.
+
+La relazione tra i due componenti è illustrata schematicamente in Figura~\ref{fig:isaaclab_architecture}: mentre Isaac Sim gestisce la simulazione a basso livello (dinamica dei corpi rigidi, collisioni, rendering dei sensori), Isaac Lab orchestra l'esecuzione parallela di migliaia di ambienti indipendenti sulla stessa GPU. Questo approccio permette di superare il collo di bottiglia della CPU, tipico dei simulatori tradizionali, e di raccogliere milioni di transizioni al secondo, riducendo i tempi di addestramento da giorni a ore.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.85\textwidth]{imgs/06_simulation_environment/structure.png}
+    \caption{Architettura di Isaac Lab. Il core fisico e grafico è fornito da Isaac Sim, mentre il livello superiore gestisce la vettorializzazione degli ambienti e l'interfaccia con gli algoritmi RL.}
+    \label{fig:isaaclab_architecture}
+\end{figure}
+
+L'integrazione nativa con librerie standard come OpenAI Gym e Stable-Baselines3 \cite{stablebaselines3} ha permesso di applicare algoritmi state-of-the-art (PPO, SAC, RecurrentPPO) senza dover gestire manualmente la complessità della sincronizzazione tra processi. Inoltre, Isaac Lab offre strumenti avanzati di \emph{domain randomization} (randomizzazione di attriti, masse, luci), fondamentali per colmare il divario tra simulazione e realtà (\emph{sim-to-real gap}).
+
+\section{Terrain and Obstacles}
+\label{sec:terrain_obstacles}
+
+L'ambiente di addestramento è progettato per replicare le sfide tipiche di una superficie lunare o marziana: terreno irregolare, presenza diffusa di rocce di varie dimensioni e pendenze non traversabili.
+
+\subsection{Generazione del Terreno}
+Il suolo è modellato come una \emph{heightmap} deformabile o una mesh statica, texturizzata per emulare la regolite lunare. Per garantire la generalizzazione della politica, le proprietà fisiche del terreno (attrito statico e dinamico, restituzione) vengono randomizzate all'inizio di ogni episodio.
+
+\subsection{Ostacoli: Rocce e Pendenze}
+L'ambiente include due categorie principali di ostacoli, gestite proceduralmente:
+\begin{itemize}
+    \item \textbf{Rocce}: Generate come mesh rigide convex o non-convex, distribuite casualmente nell'area di lavoro. La loro posizione, orientazione (yaw, pitch, roll) e scala ($0.1m - 0.5m$) variano ad ogni reset, impedendo all'agente di memorizzare una mappa statica.
+    \item \textbf{Pendenze Non Traversabili}: Zone del terreno con inclinazione superiore ai limiti cinematici del rover (e.g., $>25^\circ$). Queste aree sono critiche per l'addestramento della pipeline geometrica, poiché richiedono che l'agente impari a riconoscere il pericolo non dalla presenza di un oggetto sporgente, ma dalla geometria della superficie stessa.
+\end{itemize}
+
+\begin{figure}[ht]
+    \centering
+    \begin{minipage}{0.49\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{imgs/06_simulation_environment/ambiente.png}
+        \\{\scriptsize (a) Ambiente lunare simulato}
+    \end{minipage}\hfill
+    \begin{minipage}{0.49\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{imgs/06_simulation_environment/training.png}
+        \\{\scriptsize (b) Vista globale di 128 ambienti paralleli}
+    \end{minipage}
+    \caption{(a) Dettaglio di un singolo ambiente con rocce e pendenze. (b) Griglia di ambienti paralleli gestiti da Isaac Lab per l'addestramento RL massivo.}
+    \label{fig:isaac_environments}
+\end{figure}
+
+\section{Sensors in Simulation}
+\label{sec:sensors_sim}
+
+Per massimizzare la fedeltà del trasferimento sim-to-real, il modello del rover in Isaac Lab è equipaggiato con sensori virtuali che replicano le specifiche dell'hardware reale:
+
+\begin{itemize}
+    \item \textbf{Camera RGB-D}: Un sensore simulato con parametri intrinseci (FoV, risoluzione, focale) e posizionamento identici alla Intel RealSense D455 montata sul rover fisico. Questo sensore alimenta sia la pipeline geometrica (DBSCAN) che quella semantica (YOLO) direttamente in simulazione.
+    \item \textbf{Odometria}: Encoder virtuali forniscono stime di velocità lineare e angolare, soggette a rumore gaussiano per simulare errori di misura e slittamenti.
+    \item \textbf{IMU}: Un sensore inerziale fornisce l'orientamento (quaternion) e le accelerazioni lineari, fondamentali per stimare il pitch e il roll del rover durante la navigazione su terreni accidentati.
+\end{itemize}
+
+\section{Observation and Action Spaces}
+\label{sec:obs_action_spaces}
+
+La definizione dello spazio degli stati e delle azioni è cruciale per la convergenza dell'algoritmo RL. In questo lavoro, si è optato per uno spazio di osservazione compatto ma informativo, derivato dall'output della pipeline percettiva.
+
+\subsection{Spazio delle Osservazioni}
+Il vettore di osservazione $O_t$ include:
+\begin{enumerate}
+    \item \textbf{Goal Relativo}: Coordinate polari $(\rho, \theta)$ del target rispetto al rover.
+    \item \textbf{Stato Cinematico}: Velocità lineare $v$ e angolare $\omega$ attuali.
+    \item \textbf{Ostacoli (Rocce)}: Un array di dimensione fissa contenente distanza e angolo delle $N$ rocce più vicine rilevate. Se il numero di rocce è inferiore a $N$, il vettore viene riempito con valori di default (distanza massima).
+    \item \textbf{Pendenze (Slopes)}: Similmente alle rocce, un array di $M$ pendenze pericolose rilevate dalla pipeline geometrica.
+    \item \textbf{Safety Flag}: Un segnale binario che indica se il sistema di sicurezza di basso livello è attivo.
+\end{enumerate}
+
+\subsection{Spazio delle Azioni}
+Il rover è controllato in velocità (cinematica differenziale). L'azione $A_t$ è un vettore continuo a due dimensioni:
+\[
+A_t = [v_{cmd}, \omega_{cmd}]
+\]
+dove $v_{cmd} \in [0, v_{max}]$ è la velocità lineare desiderata e $\omega_{cmd} \in [-\omega_{max}, \omega_{max}]$ è la velocità angolare. I valori sono normalizzati in $[-1, 1]$ per l'input della rete neurale e riscalati all'interno dell'ambiente.
+
+\subsection{Evoluzione e Analisi Comparativa del Reward Design}
+
+Nella fase di modellazione del comportamento dell'agente, la definizione della funzione di ricompensa (\textit{Reward Function}) ha rappresentato la sfida ingegneristica più complessa, richiedendo un approccio empirico e iterativo per bilanciare obiettivi contrastanti quali l'efficienza temporale e la sicurezza del rover. Durante lo sviluppo, sono state investigate tre diverse architetture, ognuna volta a risolvere specifiche criticità emerse durante le sessioni di addestramento.
+
+In una prima istanza, è stata implementata una \textbf{funzione di penalità discreta basata su zone di prossimità}. Questo approccio prevedeva la definizione di tre aree concentriche attorno a ogni ostacolo (rocce o pendenze), denominate rispettivamente \textit{Warning}, \textit{Danger} e \textit{Collision}. Ad ogni zona era associata una penalità fissa, con un reset dell'episodio al raggiungimento dell'area di collisione. Tuttavia, tale formulazione ha evidenziato limiti strutturali: l'agente non riusciva a percepire un gradiente informativo all'interno della stessa zona, portando a una navigazione discontinua e a una scarsa capacità di pianificare traiettorie di evitamento fluide, poiché il rover non percepiva la necessità di correggere la rotta finché non intersecava il confine di una zona più restrittiva.
+
+Successivamente, si è tentato di integrare una guida euristica tramite l'allineamento a un \textbf{percorso ottimale calcolato via A*} su una griglia di costo locale proiettata nello spazio antistante il rover. L'intento era fornire all'agente un bonus basato sulla correlazione tra il suo vettore velocità e il \textit{path} geometrico ideale. Questa configurazione è stata tuttavia scartata a causa dell'instabilità del segnale: operando in un ambiente parzialmente osservabile, la pipeline percettiva aggiornava continuamente la mappa degli ostacoli, causando repentine variazioni nel percorso A*. Tale rumorosità impediva alla rete neurale di stabilizzare una politica coerente, portando l'agente a frequenti e bruschi cambi di direzione.
+
+
+\subsection{La Funzione di Reward Finale: Potenziali Repulsivi Continui}
+
+La soluzione definitiva, che ha garantito la convergenza ottimale del modello, si basa su una \textbf{funzione di potenziale repulsivo continuo}. A differenza delle versioni precedenti, questa formulazione fornisce un segnale denso e differenziabile, permettendo all'algoritmo di ottimizzazione (PPO) di mappare con precisione il rischio in funzione della distanza metrica.
+
+Analiticamente, la ricompensa totale $R_t$ è strutturata per essere puramente basata su unità metriche, garantendo coerenza fisica nel segnale di apprendimento:
+\begin{equation}
+    R_t = r_{progress} + r_{step} + r_{penalty\_total} + r_{goal}
+\end{equation}
+
+Il cuore della sicurezza è affidato a $r_{penalty\_total}$, che agisce come un campo di forza virtuale. Per ogni ostacolo $i$ rilevato nel \textit{Field of View} (FoV), viene calcolata una penalità proporzionale all'inverso della distanza:
+\begin{equation}
+    r_{pen\_i} = -\left( 1.0 - \frac{dist_i}{radius_{max}} \right) \cdot \frac{G}{K}
+\end{equation}
+dove $G$ rappresenta un guadagno di intensità e $K$ il numero di oggetti rilevati. L'efficacia di questa funzione risiede nella sua capacità di fornire un gradiente continuo: il rover non riceve una penalità fissa, ma un segnale che lo avverte del pericolo con intensità crescente man mano che si avvicina all'ostacolo. La normalizzazione per il numero di oggetti ($K$) evita inoltre che ambienti estremamente densi saturino il valore di \textit{reward}, permettendo all'agente di distinguere correttamente tra ostacoli critici immediati e pericoli periferici. Questa architettura ha permesso di ottenere traiettorie fluide, dove l'evitamento inizia preventivamente, ottimizzando al contempo il tempo di missione tramite la penalità temporale costante $r_{step}$.
+
+\subsection{Strategie di Curriculum Learning e Generazione Procedurale}
+
+Per gestire l'elevata complessità dello scenario lunare e la natura non convessa dello spazio di ricerca, l'addestramento è stato regolato da un sistema di \textbf{Curriculum Learning dinamico}. Tale approccio si basa su un parametro di difficoltà scalare $\delta \in [0, 1]$, che evolve linearmente con il progredire dei passi totali di addestramento (\textit{num\_tot\_steps}), orchestrando la transizione da compiti elementari a scenari altamente ostacolati.
+
+
+
+Il curriculum è declinato in due strategie complementari:
+\begin{itemize}
+    \item \textbf{Curriculum di Densità}: Nelle fasi iniziali ($\delta \approx 0$), l'ambiente viene configurato con un numero ridotto di ostacoli e ampi margini di sicurezza attorno allo \textit{spawn} del rover e al \textit{goal}. Al crescere di $\delta$, la densità di rocce e pendenze aumenta progressivamente, riducendo la distanza minima di separazione e forzando l'agente a imparare manovre di precisione in spazi ristretti.
+    \item \textbf{Barrier Layers (Generazione Procedurale)}: Per prevenire la convergenza verso minimi locali, è stato introdotto un generatore di terreni strutturati a strati (\textit{layer}) perpendicolari alla direzione dell'obiettivo. Ogni barriera presenta dei varchi (\textit{gap}) la cui ampiezza decresce al crescere della difficoltà. Inoltre, i varchi sono disposti in modo disallineato tra strati successivi, costringendo il rover a eseguire traiettorie a ``S''.
+\end{itemize}
+
+Questa struttura forza l'esplorazione attiva e impedisce l'insorgere di strategie banali, come il puntare direttamente all'obiettivo ignorando barriere estese. La combinazione di queste tecniche ha permesso al rover di sviluppare una capacità di pianificazione locale robusta, essenziale per la navigazione in ambienti lunari realistici dove la visibilità è limitata e il terreno presenta ostacoli non aggirabili con traiettorie lineari.

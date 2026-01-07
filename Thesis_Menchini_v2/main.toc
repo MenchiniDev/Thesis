@@ -20,76 +20,76 @@
 \contentsline {section}{\numberline {3.3}Traversability Estimation for Mobile Robots}{14}{section.3.3}%
 \contentsline {section}{\numberline {3.4}Learning-based and RL Methods for Mapless and Planetary Navigation}{15}{section.3.4}%
 \contentsline {section}{\numberline {3.5}Positioning of This Work}{16}{section.3.5}%
-\contentsline {chapter}{\numberline {4}System Overview}{18}{chapter.4}%
-\contentsline {section}{\numberline {4.1}Struttura meccanica e locomozione}{18}{section.4.1}%
-\contentsline {section}{\numberline {4.2}Sottosistema di percezione}{19}{section.4.2}%
-\contentsline {section}{\numberline {4.3}Sottosistema di calcolo a bordo}{19}{section.4.3}%
-\contentsline {subsection}{\numberline {4.3.1}Raspberry Pi 5}{20}{subsection.4.3.1}%
-\contentsline {subsection}{\numberline {4.3.2}Acceleratore AI Hailo-8}{20}{subsection.4.3.2}%
-\contentsline {section}{\numberline {4.4}Alimentazione, interfacce e segnalazione}{20}{section.4.4}%
-\contentsline {section}{\numberline {4.5}Software stack and on-board interfaces}{21}{section.4.5}%
-\contentsline {subsection}{\numberline {4.5.1}Correction of Slope Estimation via IMU Integration}{23}{subsection.4.5.1}%
-\contentsline {section}{\numberline {4.6}Confronto con i rover lunari e marziani reali}{25}{section.4.6}%
-\contentsline {subsection}{\numberline {4.6.1}Rover marziani: Curiosity, Perseverance e Ingenuity}{25}{subsection.4.6.1}%
-\contentsline {subsection}{\numberline {4.6.2}Rover lunari: Apollo LRV, Yutu e missioni moderne}{27}{subsection.4.6.2}%
-\contentsline {subsection}{\numberline {4.6.3}Confronto quantitativo e qualitativo}{27}{subsection.4.6.3}%
-\contentsline {subsection}{\numberline {4.6.4}Compatibilità dei requisiti computazionali}{28}{subsection.4.6.4}%
-\contentsline {section}{\numberline {4.7}\emph {Ingenuity}: un nuovo paradigma per l'hardware di bordo}{29}{section.4.7}%
-\contentsline {subsection}{\numberline {4.7.1}Un processore commerciale su Marte}{29}{subsection.4.7.1}%
-\contentsline {subsection}{\numberline {4.7.2}Implicazioni per l'hardware robotico spaziale}{30}{subsection.4.7.2}%
-\contentsline {subsection}{\numberline {4.7.3}Rilevanza per il presente lavoro}{30}{subsection.4.7.3}%
-\contentsline {chapter}{\numberline {5}Perception Pipeline}{32}{chapter.5}%
-\contentsline {section}{\numberline {5.1}YOLO-based Rock Detection from RGB}{32}{section.5.1}%
-\contentsline {section}{\numberline {5.2}Geometric Pipeline: DBSCAN + RANSAC}{33}{section.5.2}%
-\contentsline {subsection}{\numberline {5.2.1}Preprocessing e ricostruzione 3D}{34}{subsection.5.2.1}%
-\contentsline {subsection}{\numberline {5.2.2}Rimozione del terreno via RANSAC}{35}{subsection.5.2.2}%
-\contentsline {subsection}{\numberline {5.2.3}Clustering degli ostacoli tramite DBSCAN}{35}{subsection.5.2.3}%
-\contentsline {subsection}{\numberline {5.2.4}Stima della pendenza e criterio di pericolosità}{35}{subsection.5.2.4}%
-\contentsline {section}{\numberline {5.3}Deterministic Kinect-based Baseline}{35}{section.5.3}%
-\contentsline {section}{\numberline {5.4}Advantages and Limitations}{36}{section.5.4}%
-\contentsline {section}{\numberline {5.5}Fine-tuning of DBSCAN Parameters on Real Data}{37}{section.5.5}%
-\contentsline {section}{\numberline {5.6}Perception Outputs for the RL Policy}{40}{section.5.6}%
-\contentsline {chapter}{\numberline {6}Simulation Environment}{41}{chapter.6}%
-\contentsline {section}{\numberline {6.1}Isaac Sim and Isaac Lab Integration}{41}{section.6.1}%
-\contentsline {section}{\numberline {6.2}Terrain and Obstacles}{42}{section.6.2}%
-\contentsline {subsection}{\numberline {6.2.1}Generazione del Terreno}{42}{subsection.6.2.1}%
-\contentsline {subsection}{\numberline {6.2.2}Ostacoli: Rocce e Pendenze}{42}{subsection.6.2.2}%
-\contentsline {section}{\numberline {6.3}Sensors in Simulation}{43}{section.6.3}%
-\contentsline {section}{\numberline {6.4}Observation and Action Spaces}{44}{section.6.4}%
-\contentsline {subsection}{\numberline {6.4.1}Spazio delle Osservazioni}{44}{subsection.6.4.1}%
-\contentsline {subsection}{\numberline {6.4.2}Spazio delle Azioni}{44}{subsection.6.4.2}%
-\contentsline {subsection}{\numberline {6.4.3}Evoluzione e Analisi Comparativa del Reward Design}{44}{subsection.6.4.3}%
-\contentsline {subsection}{\numberline {6.4.4}La Funzione di Reward Finale: Potenziali Repulsivi Continui}{45}{subsection.6.4.4}%
-\contentsline {subsection}{\numberline {6.4.5}Strategie di Curriculum Learning e Generazione Procedurale}{46}{subsection.6.4.5}%
-\contentsline {chapter}{\numberline {7}Real Environment}{47}{chapter.7}%
-\contentsline {section}{\numberline {7.1}Luna Analog Facility at EAC Cologne}{47}{section.7.1}%
-\contentsline {subsection}{\numberline {7.1.1}Confronto qualitativo con il terreno simulato}{48}{subsection.7.1.1}%
-\contentsline {section}{\numberline {7.2}Sensor Configuration and Mounting}{49}{section.7.2}%
-\contentsline {section}{\numberline {7.3}Noise and Lighting Conditions}{50}{section.7.3}%
-\contentsline {section}{\numberline {7.4}Gap Between Simulation and Reality}{51}{section.7.4}%
-\contentsline {chapter}{\numberline {8}Training Methodology and Models}{53}{chapter.8}%
-\contentsline {section}{\numberline {8.1}Training Pipeline Architecture}{54}{section.8.1}%
-\contentsline {subsection}{\numberline {8.1.1}Isaac Lab: Parallelizzazione Massiva e Vectorized Environments}{54}{subsection.8.1.1}%
-\contentsline {subsubsection}{Curriculum Learning Dinamico}{54}{section*.24}%
-\contentsline {subsection}{\numberline {8.1.2}Logging, Checkpointing e Callbacks}{55}{subsection.8.1.2}%
-\contentsline {section}{\numberline {8.2}Proximal Policy Optimization (PPO)}{55}{section.8.2}%
-\contentsline {subsection}{\numberline {8.2.1}Formulazione Matematica}{55}{subsection.8.2.1}%
-\contentsline {subsection}{\numberline {8.2.2}Implementazione e Architettura}{56}{subsection.8.2.2}%
-\contentsline {subsection}{\numberline {8.2.3}Analisi delle Configurazioni: NoMem vs FrameStack}{56}{subsection.8.2.3}%
-\contentsline {section}{\numberline {8.3}Soft Actor-Critic (SAC)}{57}{section.8.3}%
-\contentsline {subsection}{\numberline {8.3.1}Formulazione Matematica: Maximum Entropy RL}{57}{subsection.8.3.1}%
-\contentsline {subsection}{\numberline {8.3.2}Architettura Actor-Critic e Soft Updates}{58}{subsection.8.3.2}%
-\contentsline {section}{\numberline {8.4}Recurrent PPO (LSTM)}{58}{section.8.4}%
-\contentsline {subsection}{\numberline {8.4.1}Dinamica dello Stato Nascosto}{58}{subsection.8.4.1}%
-\contentsline {subsection}{\numberline {8.4.2}Configurazione e Training: BPTT}{59}{subsection.8.4.2}%
-\contentsline {section}{\numberline {8.5}World-model TD-MPC2}{59}{section.8.5}%
-\contentsline {subsection}{\numberline {8.5.1}Task-Oriented Latent Dynamics (TOLD)}{60}{subsection.8.5.1}%
-\contentsline {subsection}{\numberline {8.5.2}Latent Space Regularization: SimNorm}{61}{subsection.8.5.2}%
-\contentsline {subsection}{\numberline {8.5.3}Training Objective e Discrete Regression}{61}{subsection.8.5.3}%
-\contentsline {subsection}{\numberline {8.5.4}Inference: Model Predictive Path Integral (MPPI)}{62}{subsection.8.5.4}%
-\contentsline {section}{\numberline {8.6}Hyperparameter Selection and Tuning}{62}{section.8.6}%
-\contentsline {subsection}{\numberline {8.6.1}Configurazione Comparativa}{63}{subsection.8.6.1}%
-\contentsline {section}{\numberline {8.7}Summary of Methodology}{64}{section.8.7}%
+\contentsline {chapter}{\numberline {4}Training Methodology and Models}{18}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Training Pipeline Architecture}{19}{section.4.1}%
+\contentsline {subsection}{\numberline {4.1.1}Isaac Lab: Parallelizzazione Massiva e Vectorized Environments}{19}{subsection.4.1.1}%
+\contentsline {subsubsection}{Curriculum Learning Dinamico}{19}{section*.8}%
+\contentsline {subsection}{\numberline {4.1.2}Logging, Checkpointing e Callbacks}{20}{subsection.4.1.2}%
+\contentsline {section}{\numberline {4.2}Proximal Policy Optimization (PPO)}{20}{section.4.2}%
+\contentsline {subsection}{\numberline {4.2.1}Formulazione Matematica}{20}{subsection.4.2.1}%
+\contentsline {subsection}{\numberline {4.2.2}Implementazione e Architettura}{21}{subsection.4.2.2}%
+\contentsline {subsection}{\numberline {4.2.3}Analisi delle Configurazioni: NoMem vs FrameStack}{21}{subsection.4.2.3}%
+\contentsline {section}{\numberline {4.3}Soft Actor-Critic (SAC)}{22}{section.4.3}%
+\contentsline {subsection}{\numberline {4.3.1}Formulazione Matematica: Maximum Entropy RL}{22}{subsection.4.3.1}%
+\contentsline {subsection}{\numberline {4.3.2}Architettura Actor-Critic e Soft Updates}{23}{subsection.4.3.2}%
+\contentsline {section}{\numberline {4.4}Recurrent PPO (LSTM)}{23}{section.4.4}%
+\contentsline {subsection}{\numberline {4.4.1}Dinamica dello Stato Nascosto}{23}{subsection.4.4.1}%
+\contentsline {subsection}{\numberline {4.4.2}Configurazione e Training: BPTT}{24}{subsection.4.4.2}%
+\contentsline {section}{\numberline {4.5}World-model TD-MPC2}{24}{section.4.5}%
+\contentsline {subsection}{\numberline {4.5.1}Task-Oriented Latent Dynamics (TOLD)}{25}{subsection.4.5.1}%
+\contentsline {subsection}{\numberline {4.5.2}Latent Space Regularization: SimNorm}{26}{subsection.4.5.2}%
+\contentsline {subsection}{\numberline {4.5.3}Training Objective e Discrete Regression}{26}{subsection.4.5.3}%
+\contentsline {subsection}{\numberline {4.5.4}Inference: Model Predictive Path Integral (MPPI)}{27}{subsection.4.5.4}%
+\contentsline {section}{\numberline {4.6}Hyperparameter Selection and Tuning}{27}{section.4.6}%
+\contentsline {subsection}{\numberline {4.6.1}Configurazione Comparativa}{28}{subsection.4.6.1}%
+\contentsline {section}{\numberline {4.7}Summary of Methodology}{29}{section.4.7}%
+\contentsline {chapter}{\numberline {5}Perception Pipeline}{30}{chapter.5}%
+\contentsline {section}{\numberline {5.1}YOLO-based Rock Detection from RGB}{30}{section.5.1}%
+\contentsline {section}{\numberline {5.2}Geometric Pipeline: DBSCAN + RANSAC}{31}{section.5.2}%
+\contentsline {subsection}{\numberline {5.2.1}Preprocessing e ricostruzione 3D}{32}{subsection.5.2.1}%
+\contentsline {subsection}{\numberline {5.2.2}Rimozione del terreno via RANSAC}{33}{subsection.5.2.2}%
+\contentsline {subsection}{\numberline {5.2.3}Clustering degli ostacoli tramite DBSCAN}{33}{subsection.5.2.3}%
+\contentsline {subsection}{\numberline {5.2.4}Stima della pendenza e criterio di pericolosità}{33}{subsection.5.2.4}%
+\contentsline {section}{\numberline {5.3}Deterministic Kinect-based Baseline}{33}{section.5.3}%
+\contentsline {section}{\numberline {5.4}Advantages and Limitations}{34}{section.5.4}%
+\contentsline {section}{\numberline {5.5}Fine-tuning of DBSCAN Parameters on Real Data}{35}{section.5.5}%
+\contentsline {section}{\numberline {5.6}Perception Outputs for the RL Policy}{38}{section.5.6}%
+\contentsline {chapter}{\numberline {6}System Overview}{39}{chapter.6}%
+\contentsline {section}{\numberline {6.1}Struttura meccanica e locomozione}{39}{section.6.1}%
+\contentsline {section}{\numberline {6.2}Sottosistema di percezione}{40}{section.6.2}%
+\contentsline {section}{\numberline {6.3}Sottosistema di calcolo a bordo}{40}{section.6.3}%
+\contentsline {subsection}{\numberline {6.3.1}Raspberry Pi 5}{41}{subsection.6.3.1}%
+\contentsline {subsection}{\numberline {6.3.2}Acceleratore AI Hailo-8}{41}{subsection.6.3.2}%
+\contentsline {section}{\numberline {6.4}Alimentazione, interfacce e segnalazione}{41}{section.6.4}%
+\contentsline {section}{\numberline {6.5}Software stack and on-board interfaces}{42}{section.6.5}%
+\contentsline {subsection}{\numberline {6.5.1}Correction of Slope Estimation via IMU Integration}{44}{subsection.6.5.1}%
+\contentsline {section}{\numberline {6.6}Confronto con i rover lunari e marziani reali}{46}{section.6.6}%
+\contentsline {subsection}{\numberline {6.6.1}Rover marziani: Curiosity, Perseverance e Ingenuity}{46}{subsection.6.6.1}%
+\contentsline {subsection}{\numberline {6.6.2}Rover lunari: Apollo LRV, Yutu e missioni moderne}{48}{subsection.6.6.2}%
+\contentsline {subsection}{\numberline {6.6.3}Confronto quantitativo e qualitativo}{48}{subsection.6.6.3}%
+\contentsline {subsection}{\numberline {6.6.4}Compatibilità dei requisiti computazionali}{49}{subsection.6.6.4}%
+\contentsline {section}{\numberline {6.7}\emph {Ingenuity}: un nuovo paradigma per l'hardware di bordo}{50}{section.6.7}%
+\contentsline {subsection}{\numberline {6.7.1}Un processore commerciale su Marte}{50}{subsection.6.7.1}%
+\contentsline {subsection}{\numberline {6.7.2}Implicazioni per l'hardware robotico spaziale}{51}{subsection.6.7.2}%
+\contentsline {subsection}{\numberline {6.7.3}Rilevanza per il presente lavoro}{51}{subsection.6.7.3}%
+\contentsline {chapter}{\numberline {7}Simulation Environment}{53}{chapter.7}%
+\contentsline {section}{\numberline {7.1}Isaac Sim and Isaac Lab Integration}{53}{section.7.1}%
+\contentsline {section}{\numberline {7.2}Terrain and Obstacles}{54}{section.7.2}%
+\contentsline {subsection}{\numberline {7.2.1}Generazione del Terreno}{54}{subsection.7.2.1}%
+\contentsline {subsection}{\numberline {7.2.2}Ostacoli: Rocce e Pendenze}{54}{subsection.7.2.2}%
+\contentsline {section}{\numberline {7.3}Sensors in Simulation}{55}{section.7.3}%
+\contentsline {section}{\numberline {7.4}Observation and Action Spaces}{56}{section.7.4}%
+\contentsline {subsection}{\numberline {7.4.1}Spazio delle Osservazioni}{56}{subsection.7.4.1}%
+\contentsline {subsection}{\numberline {7.4.2}Spazio delle Azioni}{56}{subsection.7.4.2}%
+\contentsline {subsection}{\numberline {7.4.3}Evoluzione e Analisi Comparativa del Reward Design}{56}{subsection.7.4.3}%
+\contentsline {subsection}{\numberline {7.4.4}La Funzione di Reward Finale: Potenziali Repulsivi Continui}{57}{subsection.7.4.4}%
+\contentsline {subsection}{\numberline {7.4.5}Strategie di Curriculum Learning e Generazione Procedurale}{58}{subsection.7.4.5}%
+\contentsline {chapter}{\numberline {8}Real Environment}{59}{chapter.8}%
+\contentsline {section}{\numberline {8.1}Luna Analog Facility at EAC Cologne}{59}{section.8.1}%
+\contentsline {subsection}{\numberline {8.1.1}Confronto qualitativo con il terreno simulato}{60}{subsection.8.1.1}%
+\contentsline {section}{\numberline {8.2}Sensor Configuration and Mounting}{61}{section.8.2}%
+\contentsline {section}{\numberline {8.3}Noise and Lighting Conditions}{62}{section.8.3}%
+\contentsline {section}{\numberline {8.4}Gap Between Simulation and Reality}{63}{section.8.4}%
 \contentsline {chapter}{\numberline {9}Experimental Results}{65}{chapter.9}%
 \contentsline {section}{\numberline {9.1}Perception Pipeline Benchmarks}{65}{section.9.1}%
 \contentsline {section}{\numberline {9.2}RL Performance: Memory vs No Memory}{65}{section.9.2}%
