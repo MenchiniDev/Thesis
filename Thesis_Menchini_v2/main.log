@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2025.11.28)  7 JAN 2026 09:01
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2025.11.28)  7 JAN 2026 10:21
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -609,7 +609,11 @@ File: l3backend-pdftex.def 2024-01-04 L3 backend support: PDF output (pdfTeX)
 \l__color_backend_stack_int=\count330
 \l__pdf_internal_box=\box88
 ) (./main.aux (./chapters/ch1_introduction.aux) (./chapters/ch2_background.aux)
-(./chapters/ch3_related_work.aux) (./chapters/ch4_training_and_models.aux) (./chapters/ch5_perception_pipeline.aux) (./chapters/ch6_system_overview.aux
+(./chapters/ch3_related_work.aux) (./chapters/ch4_training_and_models.aux
+
+LaTeX Warning: Label `fig:teapac-architecture' multiply defined.
+
+) (./chapters/ch5_perception_pipeline.aux) (./chapters/ch6_system_overview.aux
 
 LaTeX Warning: Label `fig:kinect-traversability' multiply defined.
 
@@ -743,13 +747,13 @@ l.32 ...}Soft Actor-Critic (SAC)}{22}{section.4.3}
 pdfTeX warning (ext4): destination with the same identifier (name{page.1}) has been already used, duplicate ignored
 <to be read again> 
                    \relax 
-l.42 \end{abstract}
-                    [1
+l.7 \end{abstract}
+                   [1
 
 ]
 Chapter 1.
 
-Overfull \hbox (5.94545pt too wide) in paragraph at lines 63--68
+Overfull \hbox (5.94545pt too wide) in paragraph at lines 28--33
 \T1/cmr/m/n/12 prestazioni. È dunque nec-es-sario svilup-pare al-go-ritmi ca-paci di adat-tarsi all'ambiente,
  []
 
@@ -757,11 +761,11 @@ Overfull \hbox (5.94545pt too wide) in paragraph at lines 63--68
 pdfTeX warning (ext4): destination with the same identifier (name{page.1}) has been already used, duplicate ignored
 <to be read again> 
                    \relax 
-l.77 
+l.42 
       [1
 
 ]
-Overfull \hbox (26.5043pt too wide) in paragraph at lines 81--90
+Overfull \hbox (26.5043pt too wide) in paragraph at lines 46--55
 \T1/cmr/m/n/12 pen-denze ir-re-go-lari e con-dizioni di sen-soriz-zazione lim-i-tate. La natura stessa dell'ambiente
  []
 
@@ -769,12 +773,12 @@ Overfull \hbox (26.5043pt too wide) in paragraph at lines 81--90
 pdfTeX warning (ext4): destination with the same identifier (name{page.2}) has been already used, duplicate ignored
 <to be read again> 
                    \relax 
-l.126 
-       [2]
+l.91 
+      [2]
 pdfTeX warning (ext4): destination with the same identifier (name{page.3}) has been already used, duplicate ignored
 <to be read again> 
                    \relax 
-l.170 
+l.135 
        [3])
 pdfTeX warning (ext4): destination with the same identifier (name{page.4}) has been already used, duplicate ignored
 <to be read again> 
@@ -895,43 +899,49 @@ Overfull \hbox (23.0954pt too wide) in paragraph at lines 133--134
  []
 
 [23]
-Overfull \hbox (44.33508pt too wide) in paragraph at lines 146--147
+<imgs/08_training_and_models/lstm.png, id=1003, 554.07pt x 286.06876pt>
+File: imgs/08_training_and_models/lstm.png Graphic file (type png)
+<use imgs/08_training_and_models/lstm.png>
+Package pdftex.def Info: imgs/08_training_and_models/lstm.png  used on input line 144.
+(pdftex.def)             Requested size: 341.43437pt x 176.28262pt.
+
+Overfull \hbox (44.33508pt too wide) in paragraph at lines 154--155
 []\T1/cmr/bx/n/12 LSTM Core\T1/cmr/m/n/12 : Un sin-golo layer LSTM con 256 unità nascoste (\T1/cmtt/m/n/12 lstm_hidden_size=256\T1/cmr/m/n/12 ,
  []
 
-[24]
+[24 <./imgs/08_training_and_models/lstm.png>]
 
-LaTeX Warning: Citation `tdmpc2' on page 25 undefined on input line 163.
+LaTeX Warning: Citation `tdmpc2' on page 25 undefined on input line 171.
 
 
-LaTeX Warning: Citation `tdmpc2' on page 25 undefined on input line 168.
+LaTeX Warning: Citation `tdmpc2' on page 25 undefined on input line 176.
 
 [25]
 
-LaTeX Warning: Citation `tdmpc2' on page 26 undefined on input line 187.
+LaTeX Warning: Citation `tdmpc2' on page 26 undefined on input line 195.
 
 
-LaTeX Warning: Citation `tdmpc2' on page 26 undefined on input line 197.
-
-
-LaTeX Warning: Citation `tdmpc2' on page 26 undefined on input line 202.
+LaTeX Warning: Citation `tdmpc2' on page 26 undefined on input line 205.
 
 [26]
 
-LaTeX Warning: Citation `tdmpc2' on page 27 undefined on input line 213.
+LaTeX Warning: Citation `tdmpc2' on page 27 undefined on input line 210.
 
-[27] [28]) [29]
+
+LaTeX Warning: Citation `tdmpc2' on page 27 undefined on input line 221.
+
+[27] [28]) [29] [30]
 \openout2 = `chapters/ch5_perception_pipeline.aux'.
 
  (./chapters/ch5_perception_pipeline.tex
 Chapter 5.
-[30
+[31
 
 
 
 
 ]
-<imgs/05_perception_pipeline/yolo.png, id=1048, 764.10469pt x 459.96844pt>
+<imgs/05_perception_pipeline/yolo.png, id=1055, 764.10469pt x 459.96844pt>
 File: imgs/05_perception_pipeline/yolo.png Graphic file (type png)
 <use imgs/05_perception_pipeline/yolo.png>
 Package pdftex.def Info: imgs/05_perception_pipeline/yolo.png  used on input line 23.
@@ -941,156 +951,161 @@ Overfull \hbox (4.58943pt too wide) in paragraph at lines 33--34
 []\T1/cmr/m/n/12 La pro-ce-dura è im-ple-men-tata nella fun-zione \T1/cmtt/m/n/12 estimate_slope_from_depth_image
  []
 
-<imgs/05_perception_pipeline/rgb.png, id=1050, 226.446pt x 163.3302pt>
+<imgs/05_perception_pipeline/rgb.png, id=1057, 226.446pt x 163.3302pt>
 File: imgs/05_perception_pipeline/rgb.png Graphic file (type png)
 <use imgs/05_perception_pipeline/rgb.png>
 Package pdftex.def Info: imgs/05_perception_pipeline/rgb.png  used on input line 39.
 (pdftex.def)             Requested size: 192.0548pt x 138.52725pt.
-<imgs/05_perception_pipeline/segmented_depth.png, id=1051, 225.9642pt x 168.63pt>
+<imgs/05_perception_pipeline/segmented_depth.png, id=1058, 225.9642pt x 168.63pt>
 File: imgs/05_perception_pipeline/segmented_depth.png Graphic file (type png)
 <use imgs/05_perception_pipeline/segmented_depth.png>
 Package pdftex.def Info: imgs/05_perception_pipeline/segmented_depth.png  used on input line 44.
 (pdftex.def)             Requested size: 192.0548pt x 143.33101pt.
-<imgs/05_perception_pipeline/cluster_depth.png, id=1052, 289.08pt x 241.8636pt>
+<imgs/05_perception_pipeline/cluster_depth.png, id=1059, 289.08pt x 241.8636pt>
 File: imgs/05_perception_pipeline/cluster_depth.png Graphic file (type png)
 <use imgs/05_perception_pipeline/cluster_depth.png>
 Package pdftex.def Info: imgs/05_perception_pipeline/cluster_depth.png  used on input line 50.
 (pdftex.def)             Requested size: 192.0548pt x 160.68596pt.
-[31 <./imgs/05_perception_pipeline/yolo.png>] [32 <./imgs/05_perception_pipeline/rgb.png> <./imgs/05_perception_pipeline/segmented_depth.png> <./imgs/05_perception_pipeline/cluster_depth.png>]
+[32 <./imgs/05_perception_pipeline/yolo.png>] [33 <./imgs/05_perception_pipeline/rgb.png> <./imgs/05_perception_pipeline/segmented_depth.png> <./imgs/05_perception_pipeline/cluster_depth.png>]
 Overfull \hbox (0.55702pt too wide) in paragraph at lines 64--66
 \T1/cmr/m/n/12 Sui punti ri-ma-nenti (poten-ziali os-ta-coli) viene ap-pli-cato l'algoritmo \T1/cmtt/m/n/12 DBSCAN \T1/cmr/m/n/12 (\T1/cmr/m/it/12 Density-
  []
 
-[33]
-<imgs/05_perception_pipeline/newBENCHpipeline.png, id=1074, 893.9799pt x 503.7219pt>
+[34]
+<imgs/05_perception_pipeline/newBENCHpipeline.png, id=1081, 893.9799pt x 503.7219pt>
 File: imgs/05_perception_pipeline/newBENCHpipeline.png Graphic file (type png)
 <use imgs/05_perception_pipeline/newBENCHpipeline.png>
 Package pdftex.def Info: imgs/05_perception_pipeline/newBENCHpipeline.png  used on input line 96.
 (pdftex.def)             Requested size: 362.77525pt x 204.40593pt.
- [34]
-<imgs/05_perception_pipeline/pic1.png, id=1082, 1014.79124pt x 568.1225pt>
+ [35]
+<imgs/05_perception_pipeline/pic1.png, id=1089, 1014.79124pt x 568.1225pt>
 File: imgs/05_perception_pipeline/pic1.png Graphic file (type png)
 <use imgs/05_perception_pipeline/pic1.png>
 Package pdftex.def Info: imgs/05_perception_pipeline/pic1.png  used on input line 112.
 (pdftex.def)             Requested size: 192.0548pt x 107.5196pt.
-<imgs/05_perception_pipeline/slope1.png, id=1083, 671.3883pt x 570.933pt>
+<imgs/05_perception_pipeline/slope1.png, id=1090, 671.3883pt x 570.933pt>
 File: imgs/05_perception_pipeline/slope1.png Graphic file (type png)
 <use imgs/05_perception_pipeline/slope1.png>
 Package pdftex.def Info: imgs/05_perception_pipeline/slope1.png  used on input line 118.
 (pdftex.def)             Requested size: 192.0548pt x 163.3187pt.
-<imgs/05_perception_pipeline/pic2.png, id=1084, 1197.47375pt x 616.3025pt>
+<imgs/05_perception_pipeline/pic2.png, id=1091, 1197.47375pt x 616.3025pt>
 File: imgs/05_perception_pipeline/pic2.png Graphic file (type png)
 <use imgs/05_perception_pipeline/pic2.png>
 Package pdftex.def Info: imgs/05_perception_pipeline/pic2.png  used on input line 125.
 (pdftex.def)             Requested size: 192.0548pt x 98.8361pt.
-<imgs/05_perception_pipeline/slope2.png, id=1085, 671.3883pt x 570.933pt>
+<imgs/05_perception_pipeline/slope2.png, id=1092, 671.3883pt x 570.933pt>
 File: imgs/05_perception_pipeline/slope2.png Graphic file (type png)
 <use imgs/05_perception_pipeline/slope2.png>
 Package pdftex.def Info: imgs/05_perception_pipeline/slope2.png  used on input line 130.
 (pdftex.def)             Requested size: 192.0548pt x 163.3187pt.
-<imgs/05_perception_pipeline/pic3.png, id=1086, 1197.47375pt x 616.3025pt>
+<imgs/05_perception_pipeline/pic3.png, id=1093, 1197.47375pt x 616.3025pt>
 File: imgs/05_perception_pipeline/pic3.png Graphic file (type png)
 <use imgs/05_perception_pipeline/pic3.png>
 Package pdftex.def Info: imgs/05_perception_pipeline/pic3.png  used on input line 136.
 (pdftex.def)             Requested size: 192.0548pt x 98.8361pt.
-<imgs/05_perception_pipeline/slope3.png, id=1087, 671.3883pt x 570.933pt>
+<imgs/05_perception_pipeline/slope3.png, id=1094, 671.3883pt x 570.933pt>
 File: imgs/05_perception_pipeline/slope3.png Graphic file (type png)
 <use imgs/05_perception_pipeline/slope3.png>
 Package pdftex.def Info: imgs/05_perception_pipeline/slope3.png  used on input line 141.
 (pdftex.def)             Requested size: 192.0548pt x 163.3187pt.
- [35 <./imgs/05_perception_pipeline/newBENCHpipeline.png>] [36 <./imgs/05_perception_pipeline/pic1.png> <./imgs/05_perception_pipeline/slope1.png> <./imgs/05_perception_pipeline/pic2.png> <./imgs/05_perception_pipeline/slope2.png> <./imgs/05_perception_pipeline/pic3.png> <./imgs/05_perception_pipeline/slope3.png>]
-<imgs/05_perception_pipeline/raw_dbscan0.png, id=1106, 671.3883pt x 570.933pt>
+ [36 <./imgs/05_perception_pipeline/newBENCHpipeline.png>] [37 <./imgs/05_perception_pipeline/pic1.png> <./imgs/05_perception_pipeline/slope1.png> <./imgs/05_perception_pipeline/pic2.png> <./imgs/05_perception_pipeline/slope2.png> <./imgs/05_perception_pipeline/pic3.png> <./imgs/05_perception_pipeline/slope3.png>]
+<imgs/05_perception_pipeline/raw_dbscan0.png, id=1113, 671.3883pt x 570.933pt>
 File: imgs/05_perception_pipeline/raw_dbscan0.png Graphic file (type png)
 <use imgs/05_perception_pipeline/raw_dbscan0.png>
 Package pdftex.def Info: imgs/05_perception_pipeline/raw_dbscan0.png  used on input line 162.
 (pdftex.def)             Requested size: 192.0548pt x 163.3187pt.
-<imgs/05_perception_pipeline/raw_dbscan1.png, id=1107, 671.3883pt x 570.933pt>
+<imgs/05_perception_pipeline/raw_dbscan1.png, id=1114, 671.3883pt x 570.933pt>
 File: imgs/05_perception_pipeline/raw_dbscan1.png Graphic file (type png)
 <use imgs/05_perception_pipeline/raw_dbscan1.png>
 Package pdftex.def Info: imgs/05_perception_pipeline/raw_dbscan1.png  used on input line 167.
 (pdftex.def)             Requested size: 192.0548pt x 163.3187pt.
-<imgs/05_perception_pipeline/depth_1437_slope.png, id=1108, 671.3883pt x 570.933pt>
+<imgs/05_perception_pipeline/depth_1437_slope.png, id=1115, 671.3883pt x 570.933pt>
 File: imgs/05_perception_pipeline/depth_1437_slope.png Graphic file (type png)
 <use imgs/05_perception_pipeline/depth_1437_slope.png>
 Package pdftex.def Info: imgs/05_perception_pipeline/depth_1437_slope.png  used on input line 177.
 (pdftex.def)             Requested size: 192.0548pt x 163.3187pt.
-<imgs/05_perception_pipeline/depth_1479_slope.png, id=1109, 671.3883pt x 570.933pt>
+<imgs/05_perception_pipeline/depth_1479_slope.png, id=1116, 671.3883pt x 570.933pt>
 File: imgs/05_perception_pipeline/depth_1479_slope.png Graphic file (type png)
 <use imgs/05_perception_pipeline/depth_1479_slope.png>
 Package pdftex.def Info: imgs/05_perception_pipeline/depth_1479_slope.png  used on input line 182.
 (pdftex.def)             Requested size: 192.0548pt x 163.3187pt.
- [37 <./imgs/05_perception_pipeline/raw_dbscan0.png> <./imgs/05_perception_pipeline/raw_dbscan1.png> <./imgs/05_perception_pipeline/depth_1437_slope.png> <./imgs/05_perception_pipeline/depth_1479_slope.png>]) [38]
+ [38 <./imgs/05_perception_pipeline/raw_dbscan0.png> <./imgs/05_perception_pipeline/raw_dbscan1.png> <./imgs/05_perception_pipeline/depth_1437_slope.png> <./imgs/05_perception_pipeline/depth_1479_slope.png>]) [39]
 \openout2 = `chapters/ch6_system_overview.aux'.
 
  (./chapters/ch6_system_overview.tex
 Chapter 6.
-<imgs/04_system_overview/esterno.png, id=1127, 825.83531pt x 398.23781pt>
+<imgs/04_system_overview/esterno.png, id=1134, 825.83531pt x 398.23781pt>
 File: imgs/04_system_overview/esterno.png Graphic file (type png)
 <use imgs/04_system_overview/esterno.png>
 Package pdftex.def Info: imgs/04_system_overview/esterno.png  used on input line 21.
-(pdftex.def)             Requested size: 209.1301pt x 100.84744pt.
-<imgs/04_system_overview/interno.png, id=1128, 869.49844pt x 420.82219pt>
+(pdftex.def)             Requested size: 251.80533pt x 121.42285pt.
+<imgs/04_system_overview/interno.png, id=1135, 869.49844pt x 420.82219pt>
 File: imgs/04_system_overview/interno.png Graphic file (type png)
 <use imgs/04_system_overview/interno.png>
 Package pdftex.def Info: imgs/04_system_overview/interno.png  used on input line 26.
-(pdftex.def)             Requested size: 209.1301pt x 101.21127pt.
-[39
+(pdftex.def)             Requested size: 251.80533pt x 121.86835pt.
+<imgs/04_system_overview/odin_isaac.png, id=1136, 1861.95625pt x 1016.79875pt>
+File: imgs/04_system_overview/odin_isaac.png Graphic file (type png)
+<use imgs/04_system_overview/odin_isaac.png>
+Package pdftex.def Info: imgs/04_system_overview/odin_isaac.png  used on input line 32.
+(pdftex.def)             Requested size: 426.79135pt x 233.06752pt.
+[40
 
 
 
 
-] [40 <./imgs/04_system_overview/esterno.png> <./imgs/04_system_overview/interno.png>] [41] [42] [43]
-LaTeX Font Info:    Trying to load font information for T1+cmss on input line 102.
+] [41 <./imgs/04_system_overview/esterno.png> <./imgs/04_system_overview/interno.png> <./imgs/04_system_overview/odin_isaac.png>] [42] [43] [44] [45]
+LaTeX Font Info:    Trying to load font information for T1+cmss on input line 108.
  (/usr/share/texlive/texmf-dist/tex/latex/base/t1cmss.fd
 File: t1cmss.fd 2023/04/13 v2.5m Standard LaTeX font definitions
 )
-Overfull \hbox (70.54495pt too wide) in paragraph at lines 136--137
+Overfull \hbox (70.54495pt too wide) in paragraph at lines 142--143
  [][] 
  []
 
 
-Overfull \hbox (26.08807pt too wide) in paragraph at lines 206--207
+Overfull \hbox (26.08807pt too wide) in paragraph at lines 212--213
  [][] 
  []
 
-[44] [45]
-<imgs/04_system_overview/imu_problem.png, id=1189, 969.6225pt x 755.82375pt>
+[46]
+<imgs/04_system_overview/imu_problem.png, id=1196, 969.6225pt x 755.82375pt>
 File: imgs/04_system_overview/imu_problem.png Graphic file (type png)
 <use imgs/04_system_overview/imu_problem.png>
-Package pdftex.def Info: imgs/04_system_overview/imu_problem.png  used on input line 237.
+Package pdftex.def Info: imgs/04_system_overview/imu_problem.png  used on input line 243.
 (pdftex.def)             Requested size: 298.75264pt x 232.88438pt.
 
-Overfull \hbox (42.8795pt too wide) in paragraph at lines 311--312
+Overfull \hbox (42.8795pt too wide) in paragraph at lines 317--318
  [][] 
  []
 
-[46 <./imgs/04_system_overview/imu_problem.png>]
-Overfull \hbox (19.6649pt too wide) in paragraph at lines 327--328
+[47] [48 <./imgs/04_system_overview/imu_problem.png>]
+Overfull \hbox (19.6649pt too wide) in paragraph at lines 333--334
 []\T1/cmr/m/n/12 Un es-em-pio in-ter-es-sante, più vi-cino alle ar-chitet-ture em-bed-ded mod-erne, è l'elicottero
  []
 
-[47] [48]
-Overfull \hbox (12.54726pt too wide) in paragraph at lines 355--356
+[49] [50]
+Overfull \hbox (12.54726pt too wide) in paragraph at lines 361--362
 \T1/cmr/m/n/12 Nonostante queste dif-ferenze, una con-sid-er-azione im-por-tante è che le pipeline percettive
  []
 
-[49]
-Overfull \hbox (7.58725pt too wide) in paragraph at lines 367--368
+
+Overfull \hbox (7.58725pt too wide) in paragraph at lines 373--374
 \T1/cmr/m/n/12 Un caso par-ti-co-lar-mente ril-e-vante per com-pren-dere l'evoluzione dell'hardware robotico
  []
 
-[50]
-<imgs/04_system_overview/ingenuity.png, id=1255, 1027.84pt x 831.105pt>
+[51] [52]
+<imgs/04_system_overview/ingenuity.png, id=1268, 1027.84pt x 831.105pt>
 File: imgs/04_system_overview/ingenuity.png Graphic file (type png)
 <use imgs/04_system_overview/ingenuity.png>
-Package pdftex.def Info: imgs/04_system_overview/ingenuity.png  used on input line 398.
+Package pdftex.def Info: imgs/04_system_overview/ingenuity.png  used on input line 404.
 (pdftex.def)             Requested size: 362.77525pt x 293.33865pt.
-
-Overfull \hbox (16.86421pt too wide) in paragraph at lines 408--409
+ [53 <./imgs/04_system_overview/ingenuity.png>]
+Overfull \hbox (16.86421pt too wide) in paragraph at lines 414--415
 []\T1/cmr/m/n/12 un pro-ces-sore COTS rel-a-ti-va-mente po-tente per la ges-tione della pipeline percettiva
  []
 
-) [51] [52 <./imgs/04_system_overview/ingenuity.png>]
+) [54]
 \openout2 = `chapters/ch7_simulation_environment.aux'.
 
  (./chapters/ch7_simulation_environment.tex
@@ -1100,7 +1115,7 @@ Overfull \hbox (22.46686pt too wide) in paragraph at lines 4--5
 \T1/cmr/m/n/12 In questo capi-tolo viene de-scritto l'ambiente di sim-u-lazione uti-liz-zato per l'addestramento
  []
 
-<imgs/06_simulation_environment/structure.png, id=1270, 1698.345pt x 1004.75375pt>
+<imgs/06_simulation_environment/structure.png, id=1284, 1698.345pt x 1004.75375pt>
 File: imgs/06_simulation_environment/structure.png Graphic file (type png)
 <use imgs/06_simulation_environment/structure.png>
 Package pdftex.def Info: imgs/06_simulation_environment/structure.png  used on input line 15.
@@ -1110,18 +1125,18 @@ Overfull \hbox (2.89816pt too wide) in paragraph at lines 20--21
 []\T1/cmr/m/n/12 L'integrazione na-tiva con li-brerie stan-dard come Ope-nAI Gym e Stable-Baselines3
  []
 
-[53
+[55
 
 
 
 
-] [54 <./imgs/06_simulation_environment/structure.png>]
-<imgs/06_simulation_environment/ambiente.png, id=1285, 702.37407pt x 468.24937pt>
+] [56 <./imgs/06_simulation_environment/structure.png>]
+<imgs/06_simulation_environment/ambiente.png, id=1298, 702.37407pt x 468.24937pt>
 File: imgs/06_simulation_environment/ambiente.png Graphic file (type png)
 <use imgs/06_simulation_environment/ambiente.png>
 Package pdftex.def Info: imgs/06_simulation_environment/ambiente.png  used on input line 41.
 (pdftex.def)             Requested size: 209.1301pt x 139.41844pt.
-<imgs/06_simulation_environment/training.png, id=1286, 570.63188pt x 377.91188pt>
+<imgs/06_simulation_environment/training.png, id=1299, 570.63188pt x 377.91188pt>
 File: imgs/06_simulation_environment/training.png Graphic file (type png)
 <use imgs/06_simulation_environment/training.png>
 Package pdftex.def Info: imgs/06_simulation_environment/training.png  used on input line 46.
@@ -1131,38 +1146,38 @@ Overfull \hbox (17.02362pt too wide) in paragraph at lines 59--60
 []\T1/cmr/bx/n/12 Camera RGB-D\T1/cmr/m/n/12 : Un sen-sore sim-u-lato con parametri in-trin-seci (FoV, risoluzione,
  []
 
-[55 <./imgs/06_simulation_environment/ambiente.png> <./imgs/06_simulation_environment/training.png>] [56]
+[57 <./imgs/06_simulation_environment/ambiente.png> <./imgs/06_simulation_environment/training.png>] [58]
 Overfull \hbox (8.705pt too wide) in paragraph at lines 92--93
 []\T1/cmr/m/n/12 Successivamente, si è ten-tato di in-te-grare una guida eu-ris-tica tramite l'allineamento
  []
 
-[57]) [58]
+[59]) [60]
 \openout2 = `chapters/ch8_real_environment.aux'.
 
  (./chapters/ch8_real_environment.tex
 Chapter 8.
-<imgs/07_real_environment/schematic.png, id=1314, 2007.5pt x 1543.7675pt>
+<imgs/07_real_environment/schematic.png, id=1328, 2007.5pt x 1543.7675pt>
 File: imgs/07_real_environment/schematic.png Graphic file (type png)
 <use imgs/07_real_environment/schematic.png>
 Package pdftex.def Info: imgs/07_real_environment/schematic.png  used on input line 15.
 (pdftex.def)             Requested size: 405.45047pt x 311.78674pt.
-[59
+[61
 
 
 
 
-] [60 <./imgs/07_real_environment/schematic.png>]
-<imgs/07_real_environment/real_analog.jpg, id=1326, 1284.8pt x 963.6pt>
+] [62 <./imgs/07_real_environment/schematic.png>]
+<imgs/07_real_environment/real_analog.jpg, id=1339, 1284.8pt x 963.6pt>
 File: imgs/07_real_environment/real_analog.jpg Graphic file (type jpg)
 <use imgs/07_real_environment/real_analog.jpg>
 Package pdftex.def Info: imgs/07_real_environment/real_analog.jpg  used on input line 28.
 (pdftex.def)             Requested size: 362.77525pt x 272.07048pt.
- [61 <./imgs/07_real_environment/real_analog.jpg>]
+ [63 <./imgs/07_real_environment/real_analog.jpg>]
 Overfull \hbox (22.08359pt too wide) in paragraph at lines 40--41
 []\T1/cmr/m/n/12 Questa con-fig-u-razione ge-o-met-rica com-porta delle im-pli-cazioni di-rette sulle prestazioni
  []
 
-[62]) [63] [64]
+[64]) [65] [66]
 \openout2 = `chapters/ch9_results.aux'.
 
  (./chapters/ch9_results.tex
@@ -1172,23 +1187,23 @@ Overfull \hbox (2.09828pt too wide) in paragraph at lines 9--10
 \T1/cmr/m/it/12 [Questa sezione è ris-er-vata all'analisi com-par-a-tiva tra il metodo DB-SCAN+RANSAC
  []
 
-[65
+[67
 
 
 
 
 ]
-<imgs/09_results/success_rate.png, id=1350, 721.9773pt x 360.6273pt>
+<imgs/09_results/success_rate.png, id=1364, 721.9773pt x 360.6273pt>
 File: imgs/09_results/success_rate.png Graphic file (type png)
 <use imgs/09_results/success_rate.png>
 Package pdftex.def Info: imgs/09_results/success_rate.png  used on input line 23.
 (pdftex.def)             Requested size: 405.45047pt x 202.52219pt.
-<imgs/09_results/event_types.png, id=1352, 866.5173pt x 432.8973pt>
+<imgs/09_results/event_types.png, id=1366, 866.5173pt x 432.8973pt>
 File: imgs/09_results/event_types.png Graphic file (type png)
 <use imgs/09_results/event_types.png>
 Package pdftex.def Info: imgs/09_results/event_types.png  used on input line 39.
 (pdftex.def)             Requested size: 405.45047pt x 202.55681pt.
- [66 <./imgs/09_results/success_rate.png>]
+ [68 <./imgs/09_results/success_rate.png>]
 Overfull \hbox (7.16524pt too wide) in paragraph at lines 52--53
 \T1/cmr/m/n/12 L'integrazione di una fines-tra tem-po-rale di 16 frame (barre aran-cioni e vi-ola) trasforma
  []
@@ -1198,40 +1213,40 @@ Overfull \hbox (6.59572pt too wide) in paragraph at lines 55--56
 []\T1/cmr/bx/n/12 Progresso Reale\T1/cmr/m/n/12 : Questa ef-fi-cienza è con-fer-mata dalla met-rica di \T1/cmr/m/it/12 Raw Progress
  []
 
-[67 <./imgs/09_results/event_types.png>]
-<imgs/09_results/raw_proress.png, id=1369, 721.9773pt x 360.6273pt>
+[69 <./imgs/09_results/event_types.png>]
+<imgs/09_results/raw_proress.png, id=1382, 721.9773pt x 360.6273pt>
 File: imgs/09_results/raw_proress.png Graphic file (type png)
 <use imgs/09_results/raw_proress.png>
 Package pdftex.def Info: imgs/09_results/raw_proress.png  used on input line 60.
 (pdftex.def)             Requested size: 405.45047pt x 202.52219pt.
- [68 <./imgs/09_results/raw_proress.png>]
-<imgs/09_results/scientific_results/violin_distribution.png, id=1378, 505.1673pt x 360.6273pt>
+ [70 <./imgs/09_results/raw_proress.png>]
+<imgs/09_results/scientific_results/violin_distribution.png, id=1391, 505.1673pt x 360.6273pt>
 File: imgs/09_results/scientific_results/violin_distribution.png Graphic file (type png)
 <use imgs/09_results/scientific_results/violin_distribution.png>
 Package pdftex.def Info: imgs/09_results/scientific_results/violin_distribution.png  used on input line 101.
 (pdftex.def)             Requested size: 362.77525pt x 258.98012pt.
-<imgs/09_results/scientific_results/success_rate_distribution.png, id=1381, 432.8973pt x 360.6273pt>
+<imgs/09_results/scientific_results/success_rate_distribution.png, id=1394, 432.8973pt x 360.6273pt>
 File: imgs/09_results/scientific_results/success_rate_distribution.png Graphic file (type png)
 <use imgs/09_results/scientific_results/success_rate_distribution.png>
 Package pdftex.def Info: imgs/09_results/scientific_results/success_rate_distribution.png  used on input line 110.
 (pdftex.def)             Requested size: 362.77525pt x 302.22601pt.
- [69]
-<imgs/09_results/scientific_results/reward_distribution.png, id=1390, 432.8973pt x 360.6273pt>
+ [71]
+<imgs/09_results/scientific_results/reward_distribution.png, id=1403, 432.8973pt x 360.6273pt>
 File: imgs/09_results/scientific_results/reward_distribution.png Graphic file (type png)
 <use imgs/09_results/scientific_results/reward_distribution.png>
 Package pdftex.def Info: imgs/09_results/scientific_results/reward_distribution.png  used on input line 117.
 (pdftex.def)             Requested size: 362.77525pt x 302.22601pt.
- [70 <./imgs/09_results/scientific_results/violin_distribution.png>] [71 <./imgs/09_results/scientific_results/success_rate_distribution.png>]
+ [72 <./imgs/09_results/scientific_results/violin_distribution.png>] [73 <./imgs/09_results/scientific_results/success_rate_distribution.png>]
 Overfull \hbox (0.2384pt too wide) in paragraph at lines 150--151
 []\T1/cmr/m/n/12 L'introduzione della memo-ria ri-solve questo deficit in-for-ma-tivo. Il \T1/cmr/bx/n/12 Frame Stack-
  []
 
-[72 <./imgs/09_results/scientific_results/reward_distribution.png>]) [73]
+[74 <./imgs/09_results/scientific_results/reward_distribution.png>]) [75]
 \openout2 = `chapters/ch10_sim2real.aux'.
 
  (./chapters/ch10_sim2real.tex
 Chapter 10.
-[74
+[76
 
 
 
@@ -1241,18 +1256,18 @@ Overfull \hbox (15.65744pt too wide) in paragraph at lines 38--39
 []\T1/cmr/m/n/12 Per la parte se-man-tica (\T1/cmr/bx/n/12 YOLO\T1/cmr/m/n/12 ), l'inferenza è del-e-gata, ove pos-si-bile, all'acceleratore
  []
 
-[75]
+[77]
 Overfull \hbox (23.42482pt too wide) in paragraph at lines 62--63
 []\T1/cmr/bx/n/12 Watchdog Timer\T1/cmr/m/n/12 : Se il nodo non riceve nuovi co-mandi di ve-loc-ità dall'intelligenza
  []
 
-[76]
-<imgs/10_sim2real/odin_luna.jpeg, id=1439, 1606.0pt x 1204.5pt>
+[78]
+<imgs/10_sim2real/odin_luna.jpeg, id=1453, 1606.0pt x 1204.5pt>
 File: imgs/10_sim2real/odin_luna.jpeg Graphic file (type jpg)
 <use imgs/10_sim2real/odin_luna.jpeg>
 Package pdftex.def Info: imgs/10_sim2real/odin_luna.jpeg  used on input line 105.
 (pdftex.def)             Requested size: 362.77525pt x 272.08517pt.
- [77]) [78 <./imgs/10_sim2real/odin_luna.jpeg>]
+ [79]) [80 <./imgs/10_sim2real/odin_luna.jpeg>]
 \openout2 = `chapters/ch11_future_works.aux'.
 
  (./chapters/ch11_future_works.tex
@@ -1262,12 +1277,12 @@ Overfull \hbox (6.91658pt too wide) in paragraph at lines 13--15
 \T1/cmr/m/n/12 Una delle lim-i-tazioni prin-ci-pali ev-i-den-zi-ate du-rante i test nella LUNA Fa-cil-ity riguarda
  []
 
-[79
+[81
 
 
 
 
-] [80] [81]
+] [82] [83]
 Overfull \hbox (4.15175pt too wide) in paragraph at lines 67--68
 \T1/cmr/m/n/12 ore cen-tral-iz-zata $\OML/cmm/m/it/12 V\OT1/cmr/m/n/12 (\OML/cmm/m/it/12 S[]\OT1/cmr/m/n/12 )$ \T1/cmr/m/n/12 che guida l'aggiornamento delle pol-icy lo-cali $\OML/cmm/m/it/12 ^^Y\OT1/cmr/m/n/12 (\OML/cmm/m/it/12 a[]\OMS/cmsy/m/n/12 j\OML/cmm/m/it/12 o[]\OT1/cmr/m/n/12 )$\T1/cmr/m/n/12 .
  []
@@ -1277,12 +1292,12 @@ Overfull \hbox (0.8056pt too wide) in paragraph at lines 67--68
 \T1/cmr/m/n/12 Questo ap-proc-cio sfrutta l'efficienza di PPO man-te-nendo la co-erenza tra agenti. 
  []
 
-[82] [83]
+[84] [85]
 Overfull \hbox (8.33652pt too wide) in paragraph at lines 104--105
 \T1/cmr/m/n/12 una \T1/cmr/m/it/12 Cost Zone \T1/cmr/m/n/12 prob-a-bilis-tica el-lit-tica che viene proi-et-tata sulla mappa lo-cale. L'agente
  []
 
-[84] [85] [86] [87]) [88] [89]
+[86] [87] [88] [89]) [90] [91]
 \openout2 = `chapters/ch12_conclusions.aux'.
 
  (./chapters/ch12_conclusions.tex
@@ -1292,7 +1307,7 @@ Overfull \hbox (7.46503pt too wide) in paragraph at lines 6--8
 []\T1/cmr/m/n/12 Questa tesi ha ac-cettato la sfida di svilup-pare, ad-de-strare e val-i-dare un'architettura
  []
 
-[90
+[92
 
 
 
@@ -1307,12 +1322,12 @@ Overfull \hbox (0.49577pt too wide) in paragraph at lines 28--29
 []\T1/cmr/m/n/12 È stata svilup-pata una pipeline ge-o-met-rica basata su \T1/cmr/bx/n/12 DB-SCAN e RANSAC\T1/cmr/m/n/12 ,
  []
 
-[91] [92]
+[93] [94]
 Overfull \hbox (21.47913pt too wide) in paragraph at lines 54--54
 \T1/cmr/bx/n/14.4 lim-i-tato (Sim-to-Real) col-mando il gap fisico e percettivo? 
  []
 
-[93]
+[95]
 Overfull \hbox (20.19391pt too wide) in paragraph at lines 80--81
 \T1/cmr/m/n/12 deficit spaziale man-te-nendo una rap-p-re-sen-tazione la-tente per-sis-tente dell'ambiente.
  []
@@ -1327,21 +1342,21 @@ Overfull \hbox (13.71053pt too wide) in paragraph at lines 86--87
 \T1/cmr/bx/n/12 Risposta: I World Mod-els rap-p-re-sen-tano il fu-turo della nav-igazione spaziale,
  []
 
-[94]
+[96]
 Overfull \hbox (12.13835pt too wide) in paragraph at lines 95--95
 []\T1/cmr/bx/n/17.28 Implications for Au-tonomous Lu-nar Ex-plo-ration 
  []
 
-[95] [96]) [97] (./main.bbl [98
+[97] [98]) [99] (./main.bbl [100
 
 
 
-] [99]
+] [101]
 Underfull \hbox (badness 1231) in paragraph at lines 115--117
 []\T1/cmr/m/n/12 China Na-tional Space Ad-min-is-tra-tion, ``Chang'e-3 yutu rover -- mis-sion
  []
 
-) [100] (./main.aux (./chapters/ch1_introduction.aux) (./chapters/ch2_background.aux) (./chapters/ch3_related_work.aux) (./chapters/ch4_training_and_models.aux) (./chapters/ch5_perception_pipeline.aux) (./chapters/ch6_system_overview.aux) (./chapters/ch7_simulation_environment.aux) (./chapters/ch8_real_environment.aux) (./chapters/ch9_results.aux) (./chapters/ch10_sim2real.aux) (./chapters/ch11_future_works.aux) (./chapters/ch12_conclusions.aux))
+) [102] (./main.aux (./chapters/ch1_introduction.aux) (./chapters/ch2_background.aux) (./chapters/ch3_related_work.aux) (./chapters/ch4_training_and_models.aux) (./chapters/ch5_perception_pipeline.aux) (./chapters/ch6_system_overview.aux) (./chapters/ch7_simulation_environment.aux) (./chapters/ch8_real_environment.aux) (./chapters/ch9_results.aux) (./chapters/ch10_sim2real.aux) (./chapters/ch11_future_works.aux) (./chapters/ch12_conclusions.aux))
  ***********
 LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2024-01-22>
@@ -1357,18 +1372,18 @@ Package rerunfilecheck Info: File `main.out' has not changed.
 (rerunfilecheck)             Checksum: 150FCD0A7C00C9A8491195E3B6CB5CA4;35834.
  ) 
 Here is how much of TeX's memory you used:
- 28091 strings out of 474222
- 554705 string characters out of 5748732
+ 28108 strings out of 474222
+ 555352 string characters out of 5748732
  1946975 words of memory out of 5000000
- 49404 multiletter control sequences out of 15000+600000
+ 49418 multiletter control sequences out of 15000+600000
  579586 words of font info for 83 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  84i,10n,93p,1362b,1008s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfbi1728.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfbx1200.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfbx1440.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfbx1728.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfbx2074.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfbx2488.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfrm0800.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfrm1095.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfrm1200.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfrm1440.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfrm2074.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfss0800.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfss1095.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfsx1095.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfti1200.pfb></usr/share/texmf/fonts/type1/public/cm-super/sftt0800.pfb></usr/share/texmf/fonts/type1/public/cm-super/sftt1200.pfb>
-Output written on main.pdf (107 pages, 11091301 bytes).
+Output written on main.pdf (109 pages, 11327731 bytes).
 PDF statistics:
- 1762 PDF objects out of 2073 (max. 8388607)
- 1484 compressed objects within 15 object streams
- 370 named destinations out of 1000 (max. 500000)
- 1451 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 1778 PDF objects out of 2073 (max. 8388607)
+ 1494 compressed objects within 15 object streams
+ 373 named destinations out of 1000 (max. 500000)
+ 1461 words of extra memory for PDF output out of 10000 (max. 10000000)
 

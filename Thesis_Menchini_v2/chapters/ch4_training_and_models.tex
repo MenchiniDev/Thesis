@@ -139,6 +139,14 @@ h_t, c_t = \text{LSTM}(f(o_t), h_{t-1}, c_{t-1}; \theta_{lstm})
 Dove $f(o_t)$ è l'embedding estratto dai layer lineari iniziali e $(h_t, c_t)$ sono rispettivamente l'hidden state e il cell state.
 Matematicamente, questo permette all'agente di approssimare la funzione di credenza (\emph{belief state}) $b_t(s) = P(s_t | o_{1:t}, a_{1:t-1})$ utilizzando un vettore di dimensione fissa, senza dover mantenere l'intera storia delle osservazioni.
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.80\textwidth]{imgs/08_training_and_models/lstm.png}
+    \caption{Schema concettuale della architettura Long Short-Therm Memory, che elimina la costrizione della memoria delle precedenti architetture da un numero definito di Frame N ad un orizzonte teoricamente illimitato}
+    \label{fig:teapac-architecture}
+\end{figure}
+
+
 \subsection{Configurazione e Training: BPTT}
 L'architettura di rete specifica prevede:
 \begin{itemize}

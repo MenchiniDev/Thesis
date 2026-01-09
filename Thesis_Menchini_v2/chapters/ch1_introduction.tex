@@ -1,44 +1,9 @@
 \begin{abstract}
+La navigazione autonoma di un rover in ambiente lunare è una sfida complessa dominata dalla parziale osservabilità del terreno. A differenza degli scenari pienamente osservabili, dove la conoscenza globale della mappa permette traiettorie rigide, la superficie lunare impone al rover di operare basandosi esclusivamente su sensori locali per identificare crateri e pendenze pericolose. La stima della pendenza (slope estimation) è un elemento critico: inclinazioni eccessive possono causare la perdita di trazione o il ribaltamento del veicolo, rendendo la missione vulnerabile a variazioni morfologiche impreviste. In questo contesto, il Reinforcement Learning (RL) si dimostra superiore per la sua capacità di generare politiche di controllo adattive e robuste, capaci di generalizzare e reagire in tempo reale a ostacoli non mappati attraverso l'apprendimento di comportamenti complessi.
 
-Questa tesi affronta il problema della navigazione autonoma di un rover in ambienti lunari 
-mediante lo sviluppo di una pipeline integrata che combina modelli 
-di Reinforcement Learning con metodi geometrici deterministici a basso costo computazionale. 
-L’obiettivo principale è valutare se agenti RL, addestrati in \textit{Isaac Sim} 
-tramite PPO, SAC e Recurrent PPO e ottimizzati mediante 
-\textit{curriculum learning} possano fornire soluzioni più robuste, 
-adattive e generalizzabili rispetto ai planner deterministici 
-tradizionali, considerando sia la qualità dei percorsi generati 
-sia la capacità di reagire a variazioni improvvise del terreno.
+Il lavoro valuta l'efficacia dell'integrazione tra percezione geometrica e politiche apprese, concentrandosi sulla ricerca e sull'addestramento di diversi approcci di RL, tra cui PPO, SAC e Recurrent PPO. Quest'ultimo, in particolare, viene impiegato per gestire la memoria temporale delle osservazioni, fondamentale per navigare in condizioni di visibilità parziale. La pipeline di percezione, basata su un algoritmo di clustering geometrico leggero e interpretabile, fornisce al modello un segnale sulla pendenza del terreno derivato da mappe di profondità. Una parte centrale della ricerca riguarda l'analisi delle prestazioni degli agenti, valutandone il comportamento e la capacità di navigazione prima e dopo l'introduzione di miglioramenti mirati, come la aggiunta o meno di diversi tipi di memoria.
 
-La pipeline percettiva è basata sulla stima della pendenza ottenuta 
-da mappe di profondità e su un algoritmo di clustering geometrico 
-interpretabile, progettato per sostituire o affiancare approcci classici 
-di slope estimation. A tal fine viene proposto un confronto sistematico 
-tra metodi deterministici rule--based e tecniche derivate da features 
-apprese, valutando stabilità, continuità del segnale e impatto sul comportamento 
-dei modelli RL.
-
-Un aspetto centrale del lavoro riguarda i vincoli dell'\textit{edge computing}: 
-sia le politiche RL sia la pipeline di percezione sono state sviluppate 
-per funzionare su piattaforme a risorse limitate, 
-come Raspberry Pi 5 e sistemi embedded analoghi. Questo ha richiesto 
-scelte architetturali orientate alla minimizzazione del consumo energetico, 
-alla riduzione della latenza, e all’impiego di pipeline numeriche leggere, 
-prive di componenti neurali ad alto costo computazionale.
-
-I modelli addestrati in simulazione sono stati valutati tramite metriche di stabilità del training, 
-capacità di generalizzazione e robustezza dinamica, quindi trasferiti su piattaforma reale tramite ROS2, 
-dove sono state analizzate prestazioni, 
-latenza end--to--end e comportamento emergente in scenari fisici.
-
-I risultati mostrano che l’integrazione tra RL, percezione geometrica ottimizzata 
-per l’edge computing e simulazione realistica consente al rover di 
-prendere decisioni più reattive e flessibili rispetto ai metodi deterministici, 
-pur mantenendo un budget di calcolo ed energia compatibile con missioni robotiche in ambienti lunari. 
-Il lavoro fornisce infine indicazioni su possibili estensioni future, 
-incluse strategie di \textit{sim-to-real} più affidabili e nuove modalità di integrazione tra modelli RL e percezione tradizionale.
-
-
+L'intera architettura è progettata per rispettare i severi vincoli dell'edge computing spaziale. Sia la pipeline numerica di percezione che le reti neurali sono state ottimizzate per operare su piattaforme a risorse limitate, come il Raspberry Pi 5, garantendo bassa latenza e consumi energetici ridotti. I modelli sono stati addestrati in ambiente simulato tramite Isaac Sim e successivamente validati su piattaforma reale mediante ROS2. I risultati evidenziano come l’approccio proposto permetta al rover di prendere decisioni flessibili e sicure su terreni accidentati, confermando la validità del Reinforcement Learning nell'affrontare l'incertezza intrinseca delle missioni robotiche lunari.
 \end{abstract}
 
 \chapter{Introduction}
